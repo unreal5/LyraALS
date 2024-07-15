@@ -6,7 +6,7 @@ UENUM(BlueprintType)
 enum class ELocomotionDirection : uint8
 {
 	Forward,
-	Right,
 	Backward,
-	Left
+	Left,
+	Right,
 };

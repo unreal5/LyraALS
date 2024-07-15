@@ -6,6 +6,7 @@
 #include "Animation/AnimInstance.h"
 #include "Enum/Gait.h"
 #include "Enum/Gun.h"
+#include "Enum/LocomotionDirection.h"
 #include "LyraBaseAnimInst.generated.h"
 
 struct FAnimUpdateContext;
@@ -31,7 +32,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "LocationData")
 	FVector WorldLocation;
-	
+
 	UPROPERTY(BlueprintReadWrite, Category = "VelocityData")
 	FVector CharacterVelocity;
 
@@ -41,12 +42,21 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "RotationData")
 	FRotator WorldRotation;
 
-	UPROPERTY(BlueprintReadWrite, Category = "RotationData")
+	UPROPERTY(BlueprintReadWrite, Category = "LocomotionData")
 	float VelocityLocomotionAngle;
+
+	UPROPERTY(BlueprintReadWrite, Category = "LocomotionData")
+	ELocomotionDirection VelocityLocomotionDirection;
+
 private:
 	void GetVelocityData();
 	void GetLocationData();
 	void GetRotationData();
 
 	void UpdateOrientation(float DeltaTime);
+	ELocomotionDirection CalculateLocomotionDirection(float CurrentLocomotionAngle,
+	                                                  ELocomotionDirection CurrentLocomotionDirection,
+	                                                  float ForwardMin = -50.f, float ForwardMax = 50.f,
+	                                                  float BackwardMin = -130.f, float BackwardMax = 130.f,
+	                                                  float DeadZone = 20.f);
 };

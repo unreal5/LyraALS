@@ -53,4 +53,36 @@ void ULyraBaseAnimInst::GetRotationData()
 void ULyraBaseAnimInst::UpdateOrientation(float DeltaTime)
 {
 	VelocityLocomotionAngle = UKismetAnimationLibrary::CalculateDirection(CharacterVelocity2D, WorldRotation);
+
+	VelocityLocomotionDirection = CalculateLocomotionDirection(VelocityLocomotionAngle, VelocityLocomotionDirection);
+}
+
+ELocomotionDirection ULyraBaseAnimInst::CalculateLocomotionDirection(float CurrentLocomotionAngle,
+                                                                     ELocomotionDirection CurrentLocomotionDirection,
+                                                                     float ForwardMin, float ForwardMax,
+                                                                     float BackwardMin,
+                                                                     float BackwardMax, float DeadZone)
+{
+	if (CurrentLocomotionDirection == ELocomotionDirection::Forward)
+	{
+		ForwardMin -= DeadZone;
+		ForwardMin += DeadZone;
+	}
+	if (CurrentLocomotionDirection == ELocomotionDirection::Backward)
+	{
+		BackwardMin += DeadZone;
+		BackwardMax -= DeadZone;
+	}
+	
+	if (CurrentLocomotionAngle < BackwardMin || CurrentLocomotionAngle > BackwardMax)
+	{
+		return ELocomotionDirection::Backward;
+	}
+
+	if (CurrentLocomotionAngle > ForwardMin && CurrentLocomotionAngle < ForwardMax)
+	{
+		return ELocomotionDirection::Forward;
+	}
+
+	return CurrentLocomotionAngle > 0.f ? ELocomotionDirection::Right : ELocomotionDirection::Left;
 }

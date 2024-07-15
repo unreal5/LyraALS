@@ -36,6 +36,23 @@ void UAnimInst_LayerBase::Cycle_OnUpdate(const FAnimUpdateContext& Context, cons
 	ULyraBaseAnimInst* ABPBase = GetABPBase();
 	if (!ABPBase) return;
 	EGait CurrentGait = ABPBase->CurrentGait;
-	UAnimSequenceBase* Sequence = CurrentGait == EGait::Walking ? CycleWalkAnim : CycleJoggingAnim;
+	ELocomotionDirection CurrentDirection = ABPBase->VelocityLocomotionDirection;
+	const FCycleAnim& CycleAnim = CurrentGait == EGait::Walking ? WalkAnim : JogAnim;
+	UAnimSequenceBase* Sequence = nullptr;
+	switch (CurrentDirection)
+	{
+		case ELocomotionDirection::Forward:
+			Sequence = CycleAnim.ForwardAnim.Get();
+			break;
+		case ELocomotionDirection::Backward:
+			Sequence = CycleAnim.BackwardAnim.Get();
+			break;
+		case ELocomotionDirection::Left:
+			Sequence = CycleAnim.LeftAnim.Get();
+			break;
+		case ELocomotionDirection::Right:
+			Sequence = CycleAnim.RightAnim.Get();
+			break;
+	}
 	USequencePlayerLibrary::SetSequenceWithInertialBlending(Context, SequencePlayer, Sequence, 0.2f);
 }
