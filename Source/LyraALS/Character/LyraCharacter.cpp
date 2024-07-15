@@ -8,6 +8,7 @@
 #include "Camera/CameraComponent.h"
 
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Interface/AnimBPInterface.h"
 
@@ -45,6 +46,45 @@ ALyraCharacter::ALyraCharacter()
 void ALyraCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	UpdateGait(CurrentGait);
+}
+
+void ALyraCharacter::UpdateGait(EGait Gait)
+{
+	CurrentGait = Gait;
+	auto GaitSetting = GaitSettings.Find(Gait);
+	const auto CharMovement = GetCharacterMovement();
+	if (GaitSetting && CharMovement)
+	{
+		CharMovement->MaxWalkSpeed = GaitSetting->MaxWalkSpeed;
+		CharMovement->MaxAcceleration = GaitSetting->MaxAcceleration;
+		CharMovement->BrakingDecelerationWalking = GaitSetting->BrakingDeceleration;
+		CharMovement->BrakingFrictionFactor = GaitSetting->BrakingFrictionFactor;
+		CharMovement->BrakingFriction = GaitSetting->BrakingFriction;
+		CharMovement->bUseSeparateBrakingFriction = GaitSetting->UseSeperateBrakingFriction;
+	}
+	if (auto AnimInst = GetMesh()->GetAnimInstance())
+	{
+		if (AnimInst->GetClass()->ImplementsInterface(UAnimBPInterface::StaticClass()))
+		{
+			IAnimBPInterface::Execute_ReceivedCurrentGait(AnimInst, Gait);
+		}
+	}
+
+	// 避免使用PropertyAccess结点
+	// GetLinkedAnimInstances非常量重载为private，强制转换成const，以调用public版本
+	// 现在使用常规做法，避免以下代码（过度复杂）
+	/*
+	const TArray<UAnimInstance*>& LinkedAnimInstances = ((const USkeletalMeshComponent*)GetMesh())->GetLinkedAnimInstances();
+	for(auto li : LinkedAnimInstances)
+	{
+		if(li->GetClass()->ImplementsInterface(UAnimBPInterface::StaticClass()))
+		{
+			IAnimBPInterface::Execute_ReceivedCurrentGait(li, Gait);
+		}
+	}
+	*/
 }
 
 // Called every frame
@@ -70,65 +110,81 @@ void ALyraCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	if (!EnhancedInputComponent)
 	{
 		UE_LOG(LogLyraALS, Error, TEXT("'%s' 增强输入组件未绑定到玩家输入组件。请确保在编辑器中启用了增强输入系统。"), *GetNameSafe(this));
+		return;
 	}
-	else
-	{
-		// Jumping
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
-		// Moving
-		EnhancedInputComponent->BindActionValueLambda(MoveAction, ETriggerEvent::Triggered,
-		                                              [this](const FInputActionValue& Value)
-		                                              {
-			                                              FVector2D MovementVector = Value.Get<FVector2D>();
-			                                              const float Displacement = MovementVector.Size();
-			                                              if (Controller == nullptr ||
-				                                              FMath::IsNearlyZero(Displacement))
-				                                              return;
 
-			                                              // find out which way is forward
-			                                              const FRotator Rotation = Controller->
-				                                              GetControlRotation();
-			                                              const FRotator YawRotation(0, Rotation.Yaw, 0);
-			                                              auto MoveDirection = YawRotation.RotateVector(FVector{
-				                                              MovementVector.Y, MovementVector.X, 0.f
-			                                              });
+	// Jumping
+	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
+	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
-			                                              // add movement 
-			                                              AddMovementInput(MoveDirection, Displacement);
-		                                              });
-		// Looking
-		EnhancedInputComponent->BindActionValueLambda(LookAction, ETriggerEvent::Triggered,
-		                                              [this](const FInputActionValue& Value)
-		                                              {
-			                                              // input is a Vector2D
-			                                              FVector2D LookAxisVector = Value.Get<FVector2D>();
+	// Moving
+	EnhancedInputComponent->BindActionValueLambda(MoveAction, ETriggerEvent::Triggered,
+	                                              [this](const FInputActionValue& Value)
+	                                              {
+		                                              FVector2D MovementVector = Value.Get<FVector2D>();
+		                                              const float Displacement = MovementVector.Size();
+		                                              if (Controller == nullptr ||
+			                                              FMath::IsNearlyZero(Displacement))
+			                                              return;
 
-			                                              if (Controller != nullptr)
-			                                              {
-				                                              // add yaw and pitch input to controller
-				                                              AddControllerYawInput(LookAxisVector.X);
-				                                              AddControllerPitchInput(LookAxisVector.Y);
-			                                              }
+		                                              // find out which way is forward
+		                                              const FRotator Rotation = Controller->
+			                                              GetControlRotation();
+		                                              const FRotator YawRotation(0, Rotation.Yaw, 0);
+		                                              auto MoveDirection = YawRotation.RotateVector(FVector{
+			                                              MovementVector.Y, MovementVector.X, 0.f
 		                                              });
 
-		// Switching weapons
-		EnhancedInputComponent->BindActionValueLambda(SwitchWeaponAction, ETriggerEvent::Started,
-		                                              [this](const FInputActionValue& Value)
-		                                              {
-			                                              // input is a float
-			                                              int SwitchWeaponAxis = static_cast<int>(Value.Get<float>());
-			                                              check(SwitchWeaponAxis == 1 || SwitchWeaponAxis == 2 ||
-				                                              SwitchWeaponAxis == 3);
+		                                              // add movement 
+		                                              AddMovementInput(MoveDirection, Displacement);
+	                                              });
+	// Looking
+	EnhancedInputComponent->BindActionValueLambda(LookAction, ETriggerEvent::Triggered,
+	                                              [this](const FInputActionValue& Value)
+	                                              {
+		                                              // input is a Vector2D
+		                                              FVector2D LookAxisVector = Value.Get<FVector2D>();
 
-			                                              EquippedGun = static_cast<EGun>(SwitchWeaponAxis - 1);
-		                                              	auto AnimInst=GetMesh()->GetAnimInstance();
-		                                              	if(AnimInst)
-		                                              	{
-		                                              		check(AnimInst->GetClass()->ImplementsInterface(UAnimBPInterface::StaticClass()));
-		                                              		IAnimBPInterface::Execute_ReceivedEquippedGun(AnimInst,EquippedGun);
-		                                              	}
-		                                              });
-	}
+		                                              if (Controller != nullptr)
+		                                              {
+			                                              // add yaw and pitch input to controller
+			                                              AddControllerYawInput(LookAxisVector.X);
+			                                              AddControllerPitchInput(LookAxisVector.Y);
+		                                              }
+	                                              });
+
+	// Switching weapons
+	EnhancedInputComponent->BindActionValueLambda(SwitchWeaponAction, ETriggerEvent::Started,
+	                                              [this](const FInputActionValue& Value)
+	                                              {
+		                                              // input is a float
+		                                              int SwitchWeaponAxis = static_cast<int>(Value.Get<float>());
+		                                              check(SwitchWeaponAxis == 1 || SwitchWeaponAxis == 2 ||
+			                                              SwitchWeaponAxis == 3);
+		                                              SwitchWeaponAxis -= 1;
+		                                              GetMesh()->LinkAnimClassLayers(AnimLayers[SwitchWeaponAxis]);
+		                                              EquippedGun = static_cast<EGun>(SwitchWeaponAxis);
+		                                              auto AnimInst = GetMesh()->GetAnimInstance();
+		                                              if (AnimInst)
+		                                              {
+			                                              check(AnimInst->GetClass()->ImplementsInterface(
+				                                              UAnimBPInterface::StaticClass()));
+			                                              IAnimBPInterface::Execute_ReceivedEquippedGun(
+				                                              AnimInst, EquippedGun);
+		                                              }
+	                                              });
+
+	// Aiming
+	EnhancedInputComponent->BindActionValueLambda(AimAction, ETriggerEvent::Started,
+	                                              [this](const FInputActionValue& Value)
+	                                              {
+		                                              UpdateGait(EGait::Walking);
+	                                              });
+
+	EnhancedInputComponent->BindActionValueLambda(AimAction, ETriggerEvent::Completed,
+	                                              [this](const FInputActionValue& Value)
+	                                              {
+		                                              UpdateGait(EGait::Jogging);
+	                                              });
 }

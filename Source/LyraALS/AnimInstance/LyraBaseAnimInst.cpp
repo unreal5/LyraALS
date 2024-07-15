@@ -3,12 +3,20 @@
 
 #include "AnimInstance/LyraBaseAnimInst.h"
 
+#include "KismetAnimationLibrary.h"
 #include "SequencePlayerLibrary.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 void ULyraBaseAnimInst::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeThreadSafeUpdateAnimation(DeltaSeconds);
+
+	GetVelocityData();
+	GetLocationData();
+	GetRotationData();
+
+	UpdateOrientation(DeltaSeconds);
 }
 
 UCharacterMovementComponent* ULyraBaseAnimInst::GetCharacterMovementComponent() const
@@ -17,26 +25,32 @@ UCharacterMovementComponent* ULyraBaseAnimInst::GetCharacterMovementComponent() 
 	return Character ? Character->GetCharacterMovement() : nullptr;
 }
 
-void ULyraBaseAnimInst::IdleOnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
+void ULyraBaseAnimInst::GetVelocityData()
 {
-	EAnimNodeReferenceConversionResult Result;
-	auto SequencePlayer = USequencePlayerLibrary::ConvertToSequencePlayer(Node, Result);
-	if (Result == EAnimNodeReferenceConversionResult::Succeeded)
-	{
-		//USequencePlayerLibrary::SetSequence(SequencePlayer, IdleSequence);
-		UAnimSequenceBase* SelectedSequence = nullptr;
-		switch (EquippedGun)
-		{
-			case EGun::UnArmed:
-				SelectedSequence = IdleSequence;
-				break;
-			case EGun::Pistol:
-				SelectedSequence = PistolIdleSequence;
-				break;
-			case EGun::Rifle:
-				SelectedSequence = RifleIdleSequence;
-				break;
-		}
-		USequencePlayerLibrary::SetSequenceWithInertialBlending(Context, SequencePlayer, SelectedSequence, 0.2f);
-	}
+	auto CharacterMovementComponent = GetCharacterMovementComponent();
+	if (!CharacterMovementComponent) return;
+
+	CharacterVelocity = CharacterMovementComponent->Velocity;
+	CharacterVelocity2D = FVector(CharacterVelocity.X, CharacterVelocity.Y, 0.f);
+}
+
+void ULyraBaseAnimInst::GetLocationData()
+{
+	AActor* OwningActor = GetOwningActor();
+	if (!OwningActor) return;
+
+	WorldLocation = OwningActor->GetActorLocation();
+}
+
+void ULyraBaseAnimInst::GetRotationData()
+{
+	AActor* OwningActor = GetOwningActor();
+	if (!OwningActor) return;
+
+	WorldRotation = OwningActor->GetActorRotation();
+}
+
+void ULyraBaseAnimInst::UpdateOrientation(float DeltaTime)
+{
+	VelocityLocomotionAngle = UKismetAnimationLibrary::CalculateDirection(CharacterVelocity2D, WorldRotation);
 }

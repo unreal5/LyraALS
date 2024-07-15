@@ -3,8 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Enum/Gait.h"
 #include "Enum/Gun.h"
 #include "GameFramework/Character.h"
+#include "Struct/GaitSetting.h"
 #include "LyraCharacter.generated.h"
 
 class UInputAction;
@@ -43,6 +45,17 @@ class LYRAALS_API ALyraCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* SwitchWeaponAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* AimAction;
+
+	// 动画层
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "动画层", meta = (AllowPrivateAccess = "true"))
+	TArray<TSubclassOf<UAnimInstance>> AnimLayers;
+
+	// 设置
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "设置", meta = (AllowPrivateAccess = "true"))
+	TMap<EGait, FGaitSetting> GaitSettings;
+
 public:
 	// Sets default values for this character's properties
 	ALyraCharacter();
@@ -59,4 +72,7 @@ protected:
 
 private:
 	EGun EquippedGun = EGun::UnArmed;
+	EGait CurrentGait = EGait::Jogging;
+
+	void UpdateGait(EGait Gait);
 };

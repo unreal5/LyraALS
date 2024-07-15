@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+#include "Enum/Gait.h"
 #include "Enum/Gun.h"
 #include "LyraBaseAnimInst.generated.h"
 
@@ -19,22 +20,33 @@ class LYRAALS_API ULyraBaseAnimInst : public UAnimInstance
 public:
 	virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
 
-protected:
 	UFUNCTION(BlueprintPure, meta=(BlueprintThreadSafe))
 	class UCharacterMovementComponent* GetCharacterMovementComponent() const;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Character")
+	UPROPERTY(BlueprintReadWrite, Category = "WeaponState")
 	EGun EquippedGun;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Idle")
-	TObjectPtr<UAnimSequenceBase> IdleSequence;
+	UPROPERTY(BlueprintReadWrite, Category = "GaitState")
+	EGait CurrentGait;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Idle")
-	TObjectPtr<UAnimSequenceBase> PistolIdleSequence;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Idle")
-	TObjectPtr<UAnimSequenceBase> RifleIdleSequence;
+	UPROPERTY(BlueprintReadWrite, Category = "LocationData")
+	FVector WorldLocation;
 	
-	UFUNCTION(Category="Idle", BlueprintCallable, meta=(BlueprintThreadSafe))
-	void IdleOnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
+	UPROPERTY(BlueprintReadWrite, Category = "VelocityData")
+	FVector CharacterVelocity;
+
+	UPROPERTY(BlueprintReadWrite, Category = "VelocityData")
+	FVector CharacterVelocity2D;
+
+	UPROPERTY(BlueprintReadWrite, Category = "RotationData")
+	FRotator WorldRotation;
+
+	UPROPERTY(BlueprintReadWrite, Category = "RotationData")
+	float VelocityLocomotionAngle;
+private:
+	void GetVelocityData();
+	void GetLocationData();
+	void GetRotationData();
+
+	void UpdateOrientation(float DeltaTime);
 };
