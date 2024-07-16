@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
-#include "Struct/CycleAnim.h"
+#include "Struct/DirectionalAnimationSet.h"
 #include "AnimInst_LayerBase.generated.h"
 
 /**
@@ -27,10 +27,10 @@ protected:
 
 	// Cycle
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cycle")
-	FCycleAnim WalkAnim;
+	FDirectionalAnimationSet WalkCycleAnimationSet;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cycle")
-	FCycleAnim JogAnim;
+	FDirectionalAnimationSet JogCycleAnimationSet;
 	
 	UFUNCTION(Category="Cycle", BlueprintCallable, meta=(BlueprintThreadSafe))
 	void Cycle_OnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);

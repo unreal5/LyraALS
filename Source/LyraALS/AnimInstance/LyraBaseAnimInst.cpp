@@ -4,9 +4,9 @@
 #include "AnimInstance/LyraBaseAnimInst.h"
 
 #include "KismetAnimationLibrary.h"
-#include "SequencePlayerLibrary.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 void ULyraBaseAnimInst::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 {
@@ -14,7 +14,7 @@ void ULyraBaseAnimInst::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 
 	GetVelocityData();
 	GetLocationData();
-	GetRotationData();
+	GetRotationData(DeltaSeconds);
 
 	UpdateOrientation(DeltaSeconds);
 }
@@ -32,6 +32,7 @@ void ULyraBaseAnimInst::GetVelocityData()
 
 	CharacterVelocity = CharacterMovementComponent->Velocity;
 	CharacterVelocity2D = FVector(CharacterVelocity.X, CharacterVelocity.Y, 0.f);
+	CharacterSpeed2D = CharacterVelocity2D.Size2D();
 }
 
 void ULyraBaseAnimInst::GetLocationData()
@@ -42,12 +43,20 @@ void ULyraBaseAnimInst::GetLocationData()
 	WorldLocation = OwningActor->GetActorLocation();
 }
 
-void ULyraBaseAnimInst::GetRotationData()
+void ULyraBaseAnimInst::GetRotationData(float DeltaSeconds)
 {
 	AActor* OwningActor = GetOwningActor();
 	if (!OwningActor) return;
 
+	float LastFrameActorYaw = WorldRotation.Yaw;
 	WorldRotation = OwningActor->GetActorRotation();
+	float DeltaActorYaw = UKismetMathLibrary::SafeDivide(WorldRotation.Yaw - LastFrameActorYaw, DeltaSeconds);
+	// 如果向后运动，则角度取反。
+	if(VelocityLocomotionDirection == ELocomotionDirection::Backward)
+	{
+		DeltaActorYaw = -DeltaActorYaw;
+	}
+	LeanAngle = UKismetMathLibrary::ClampAngle(DeltaActorYaw, -90.f, 90.f);
 }
 
 void ULyraBaseAnimInst::UpdateOrientation(float DeltaTime)
@@ -73,7 +82,7 @@ ELocomotionDirection ULyraBaseAnimInst::CalculateLocomotionDirection(float Curre
 		BackwardMin += DeadZone;
 		BackwardMax -= DeadZone;
 	}
-	
+
 	if (CurrentLocomotionAngle < BackwardMin || CurrentLocomotionAngle > BackwardMax)
 	{
 		return ELocomotionDirection::Backward;

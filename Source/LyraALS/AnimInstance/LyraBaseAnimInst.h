@@ -38,9 +38,15 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "VelocityData")
 	FVector CharacterVelocity2D;
-
+	UPROPERTY(BlueprintReadWrite, Category = "VelocityData")
+	float CharacterSpeed2D;
+	
 	UPROPERTY(BlueprintReadWrite, Category = "RotationData")
 	FRotator WorldRotation;
+
+	// Delta Yaw between last frame and current frame per second
+	UPROPERTY(BlueprintReadWrite, Category = "RotationData")
+	float LeanAngle;
 
 	UPROPERTY(BlueprintReadWrite, Category = "LocomotionData")
 	float VelocityLocomotionAngle;
@@ -51,7 +57,7 @@ public:
 private:
 	void GetVelocityData();
 	void GetLocationData();
-	void GetRotationData();
+	void GetRotationData(float DeltaSeconds);
 
 	void UpdateOrientation(float DeltaTime);
 	ELocomotionDirection CalculateLocomotionDirection(float CurrentLocomotionAngle,

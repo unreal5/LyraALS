@@ -37,7 +37,7 @@ void UAnimInst_LayerBase::Cycle_OnUpdate(const FAnimUpdateContext& Context, cons
 	if (!ABPBase) return;
 	EGait CurrentGait = ABPBase->CurrentGait;
 	ELocomotionDirection CurrentDirection = ABPBase->VelocityLocomotionDirection;
-	const FCycleAnim& CycleAnim = CurrentGait == EGait::Walking ? WalkAnim : JogAnim;
+	const FDirectionalAnimationSet& CycleAnim = CurrentGait == EGait::Walking ? WalkCycleAnimationSet : JogCycleAnimationSet;
 	UAnimSequenceBase* Sequence = nullptr;
 	switch (CurrentDirection)
 	{
