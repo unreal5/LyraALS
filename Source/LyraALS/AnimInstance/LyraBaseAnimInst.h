@@ -53,12 +53,23 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "LocomotionData")
 	ELocomotionDirection VelocityLocomotionDirection;
+	
+	UPROPERTY(BlueprintReadOnly, Category = "AccelerationData")
+	FVector Acceleration;
 
+	UPROPERTY(BlueprintReadOnly, Category = "AccelerationData")
+	FVector Acceleration2D;
+
+	UPROPERTY(BlueprintReadOnly, Category = "AccelerationData")
+	bool bIsAccelerating;
+	
 private:
 	void GetVelocityData();
+	void GetAccelerationData();
 	void GetLocationData();
 	void GetRotationData(float DeltaSeconds);
 
+	
 	void UpdateOrientation(float DeltaTime);
 	ELocomotionDirection CalculateLocomotionDirection(float CurrentLocomotionAngle,
 	                                                  ELocomotionDirection CurrentLocomotionDirection,

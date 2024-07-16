@@ -13,6 +13,7 @@ void ULyraBaseAnimInst::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 	Super::NativeThreadSafeUpdateAnimation(DeltaSeconds);
 
 	GetVelocityData();
+	GetAccelerationData();
 	GetLocationData();
 	GetRotationData(DeltaSeconds);
 
@@ -52,11 +53,21 @@ void ULyraBaseAnimInst::GetRotationData(float DeltaSeconds)
 	WorldRotation = OwningActor->GetActorRotation();
 	float DeltaActorYaw = UKismetMathLibrary::SafeDivide(WorldRotation.Yaw - LastFrameActorYaw, DeltaSeconds);
 	// 如果向后运动，则角度取反。
-	if(VelocityLocomotionDirection == ELocomotionDirection::Backward)
+	if (VelocityLocomotionDirection == ELocomotionDirection::Backward)
 	{
 		DeltaActorYaw = -DeltaActorYaw;
 	}
 	LeanAngle = UKismetMathLibrary::ClampAngle(DeltaActorYaw, -90.f, 90.f);
+}
+
+void ULyraBaseAnimInst::GetAccelerationData()
+{
+	const auto CharacterMovementComponent = GetCharacterMovementComponent();
+	if (!CharacterMovementComponent) return;
+
+	Acceleration = CharacterMovementComponent->GetCurrentAcceleration();
+	Acceleration2D = FVector(Acceleration.X, Acceleration.Y, 0.f);
+	bIsAccelerating = Acceleration2D.SizeSquared2D() > 0.0001f;
 }
 
 void ULyraBaseAnimInst::UpdateOrientation(float DeltaTime)

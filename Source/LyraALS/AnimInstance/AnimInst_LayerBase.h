@@ -34,4 +34,14 @@ protected:
 	
 	UFUNCTION(Category="Cycle", BlueprintCallable, meta=(BlueprintThreadSafe))
 	void Cycle_OnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
+
+	// Stop
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Stop")
+	FDirectionalAnimationSet WalkStopAnimationSet;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Stop")
+	FDirectionalAnimationSet JogStopAnimationSet;
+	
+	UFUNCTION(Category="Stop", BlueprintCallable, meta=(BlueprintThreadSafe))
+	void Stop_BecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
 };

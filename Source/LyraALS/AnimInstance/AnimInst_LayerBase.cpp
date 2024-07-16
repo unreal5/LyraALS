@@ -4,6 +4,7 @@
 #include "AnimInstance/AnimInst_LayerBase.h"
 
 #include "LyraBaseAnimInst.h"
+#include "SequenceEvaluatorLibrary.h"
 #include "SequencePlayerLibrary.h"
 #include "Animation/AnimNodeReference.h"
 
@@ -37,22 +38,60 @@ void UAnimInst_LayerBase::Cycle_OnUpdate(const FAnimUpdateContext& Context, cons
 	if (!ABPBase) return;
 	EGait CurrentGait = ABPBase->CurrentGait;
 	ELocomotionDirection CurrentDirection = ABPBase->VelocityLocomotionDirection;
-	const FDirectionalAnimationSet& CycleAnim = CurrentGait == EGait::Walking ? WalkCycleAnimationSet : JogCycleAnimationSet;
+	const FDirectionalAnimationSet& CycleAnim = CurrentGait == EGait::Walking
+		                                            ? WalkCycleAnimationSet
+		                                            : JogCycleAnimationSet;
 	UAnimSequenceBase* Sequence = nullptr;
 	switch (CurrentDirection)
 	{
-		case ELocomotionDirection::Forward:
-			Sequence = CycleAnim.ForwardAnim.Get();
-			break;
-		case ELocomotionDirection::Backward:
-			Sequence = CycleAnim.BackwardAnim.Get();
-			break;
-		case ELocomotionDirection::Left:
-			Sequence = CycleAnim.LeftAnim.Get();
-			break;
-		case ELocomotionDirection::Right:
-			Sequence = CycleAnim.RightAnim.Get();
-			break;
+	case ELocomotionDirection::Forward:
+		Sequence = CycleAnim.ForwardAnim.Get();
+		break;
+	case ELocomotionDirection::Backward:
+		Sequence = CycleAnim.BackwardAnim.Get();
+		break;
+	case ELocomotionDirection::Left:
+		Sequence = CycleAnim.LeftAnim.Get();
+		break;
+	case ELocomotionDirection::Right:
+		Sequence = CycleAnim.RightAnim.Get();
+		break;
 	}
 	USequencePlayerLibrary::SetSequenceWithInertialBlending(Context, SequencePlayer, Sequence, 0.2f);
+}
+
+void UAnimInst_LayerBase::Stop_BecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
+{
+	EAnimNodeReferenceConversionResult Result;
+	FSequenceEvaluatorReference SequenceEvaluatorReference =
+		USequenceEvaluatorLibrary::ConvertToSequenceEvaluator(Node, Result);
+	if (Result != EAnimNodeReferenceConversionResult::Succeeded) return;
+
+	ULyraBaseAnimInst* ABPBase = GetABPBase();
+	if (!ABPBase) return;
+
+	// 选择动画
+	EGait CurrentGait = ABPBase->CurrentGait;
+	ELocomotionDirection CurrentDirection = ABPBase->VelocityLocomotionDirection;
+	const auto& SelectedAnimSet = CurrentGait == EGait::Walking
+		                              ? WalkStopAnimationSet
+		                              : JogStopAnimationSet;
+	UAnimSequenceBase* Sequence = nullptr;
+	switch (CurrentDirection)
+	{
+	case ELocomotionDirection::Forward:
+		Sequence = SelectedAnimSet.ForwardAnim.Get();
+		break;
+	case ELocomotionDirection::Backward:
+		Sequence = SelectedAnimSet.BackwardAnim.Get();
+		break;
+	case ELocomotionDirection::Left:
+		Sequence = SelectedAnimSet.LeftAnim.Get();
+		break;
+	case ELocomotionDirection::Right:
+		Sequence = SelectedAnimSet.RightAnim.Get();
+		break;
+	}
+	USequenceEvaluatorLibrary::SetSequence(SequenceEvaluatorReference, Sequence);
+	USequenceEvaluatorLibrary::SetExplicitTime(SequenceEvaluatorReference, 0.f);
 }
