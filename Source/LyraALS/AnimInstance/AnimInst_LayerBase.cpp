@@ -34,10 +34,35 @@ void UAnimInst_LayerBase::Idle_UpdateAnim(const FAnimUpdateContext& Context, con
 
 void UAnimInst_LayerBase::Start_BecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
 {
+	EAnimNodeReferenceConversionResult Result;
+	FSequenceEvaluatorReference SeqEvaRef = USequenceEvaluatorLibrary::ConvertToSequenceEvaluator(Node, Result);
+	if (Result != EAnimNodeReferenceConversionResult::Succeeded) return;
+
+	ULyraBaseAnimInst* ABPBase = GetABPBase();
+	if (!ABPBase) return;
+
+	// 选择动画
+	EGait CurrentGait = ABPBase->CurrentGait;
+	ELocomotionDirection CurrentDirection = ABPBase->VelocityLocomotionDirection;
+	auto Anim = SelectAnimSequeceFromAnimSets(WalkStartAnimationSet, JogStartAnimationSet, CurrentGait,
+	                                          CurrentDirection);
+	USequenceEvaluatorLibrary::SetSequence(SeqEvaRef, Anim);
+	USequenceEvaluatorLibrary::SetExplicitTime(SeqEvaRef, 0.f);
 }
 
 void UAnimInst_LayerBase::Start_OnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
 {
+	EAnimNodeReferenceConversionResult Result;
+	FSequenceEvaluatorReference SeqEvaRef = USequenceEvaluatorLibrary::ConvertToSequenceEvaluator(Node, Result);
+	if (Result != EAnimNodeReferenceConversionResult::Succeeded) return;
+
+	ULyraBaseAnimInst* ABPBase = GetABPBase();
+	if (!ABPBase) return;
+
+	// 进行距离匹配
+
+	UAnimDistanceMatchingLibrary::AdvanceTimeByDistanceMatching(Context, SeqEvaRef, ABPBase->DeltaLocation,
+	                                                            TEXT("Distance"));
 }
 
 void UAnimInst_LayerBase::Cycle_OnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)

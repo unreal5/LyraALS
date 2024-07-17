@@ -42,6 +42,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "LocationData")
 	FVector WorldLocation;
 
+	UPROPERTY(BlueprintReadWrite, Category = "LocationData")
+	float DeltaLocation;
+
 	UPROPERTY(BlueprintReadWrite, Category = "VelocityData")
 	FVector CharacterVelocity;
 

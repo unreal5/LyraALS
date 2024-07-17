@@ -42,7 +42,9 @@ void ULyraBaseAnimInst::GetLocationData()
 	AActor* OwningActor = GetOwningActor();
 	if (!OwningActor) return;
 
+	const FVector LastFrameWorldLocation = WorldLocation;
 	WorldLocation = OwningActor->GetActorLocation();
+	DeltaLocation = (WorldLocation - LastFrameWorldLocation).Size2D();
 }
 
 void ULyraBaseAnimInst::GetRotationData(float DeltaSeconds)
