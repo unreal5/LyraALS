@@ -18,6 +18,7 @@ void ULyraBaseAnimInst::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 	GetRotationData(DeltaSeconds);
 
 	UpdateOrientation(DeltaSeconds);
+	GetCharacterStates();
 }
 
 UCharacterMovementComponent* ULyraBaseAnimInst::GetCharacterMovementComponent() const
@@ -74,6 +75,7 @@ void ULyraBaseAnimInst::UpdateOrientation(float DeltaTime)
 {
 	VelocityLocomotionAngle = UKismetAnimationLibrary::CalculateDirection(CharacterVelocity2D, WorldRotation);
 
+	LastFrameLocomotionDirection = VelocityLocomotionDirection;
 	VelocityLocomotionDirection = CalculateLocomotionDirection(VelocityLocomotionAngle, VelocityLocomotionDirection);
 }
 
@@ -105,4 +107,13 @@ ELocomotionDirection ULyraBaseAnimInst::CalculateLocomotionDirection(float Curre
 	}
 
 	return CurrentLocomotionAngle > 0.f ? ELocomotionDirection::Right : ELocomotionDirection::Left;
+}
+
+void ULyraBaseAnimInst::GetCharacterStates()
+{
+	// 以这种奇怪的方式实现的原因在于，Gait是接口调用，被动传递的，它没有当前帧和上一帧的概念，
+	// 而别的变量是主动在NativeThreadSafeUpdateAnimation中获取的。
+	LastFrameGait = CurrentGait;
+	CurrentGait = InComingGait;
+	bIsGaitChanged = LastFrameGait != CurrentGait;
 }

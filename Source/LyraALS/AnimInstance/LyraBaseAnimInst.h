@@ -30,6 +30,15 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "GaitState")
 	EGait CurrentGait;
 
+	UPROPERTY(BlueprintReadWrite, Category = "GaitState")
+	EGait LastFrameGait;
+	
+	UPROPERTY(BlueprintReadWrite, Category = "GaitState")
+	EGait InComingGait;
+
+	UPROPERTY(BlueprintReadWrite, Category = "GaitState")
+	bool bIsGaitChanged;
+
 	UPROPERTY(BlueprintReadWrite, Category = "LocationData")
 	FVector WorldLocation;
 
@@ -40,7 +49,7 @@ public:
 	FVector CharacterVelocity2D;
 	UPROPERTY(BlueprintReadWrite, Category = "VelocityData")
 	float CharacterSpeed2D;
-	
+
 	UPROPERTY(BlueprintReadWrite, Category = "RotationData")
 	FRotator WorldRotation;
 
@@ -53,7 +62,10 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "LocomotionData")
 	ELocomotionDirection VelocityLocomotionDirection;
-	
+
+	UPROPERTY(BlueprintReadWrite, Category = "LocomotionData")
+	ELocomotionDirection LastFrameLocomotionDirection;
+
 	UPROPERTY(BlueprintReadOnly, Category = "AccelerationData")
 	FVector Acceleration;
 
@@ -62,18 +74,20 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "AccelerationData")
 	bool bIsAccelerating;
-	
+
 private:
 	void GetVelocityData();
 	void GetAccelerationData();
 	void GetLocationData();
 	void GetRotationData(float DeltaSeconds);
 
-	
+
 	void UpdateOrientation(float DeltaTime);
 	ELocomotionDirection CalculateLocomotionDirection(float CurrentLocomotionAngle,
 	                                                  ELocomotionDirection CurrentLocomotionDirection,
 	                                                  float ForwardMin = -50.f, float ForwardMax = 50.f,
 	                                                  float BackwardMin = -130.f, float BackwardMax = 130.f,
 	                                                  float DeadZone = 20.f);
+
+	void GetCharacterStates();
 };
