@@ -32,7 +32,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "GaitState")
 	EGait LastFrameGait;
-	
+
 	UPROPERTY(BlueprintReadWrite, Category = "GaitState")
 	EGait InComingGait;
 
@@ -77,6 +77,11 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "AccelerationData")
 	bool bIsAccelerating;
+
+	// pivot
+	UPROPERTY(BlueprintReadWrite, Category = "Pivot")
+	FVector PivotAcceleration2D;
+	
 
 private:
 	void GetVelocityData();
