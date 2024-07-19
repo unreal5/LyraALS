@@ -4,6 +4,7 @@
 #include "AnimInstance/LyraBaseAnimInst.h"
 
 #include "KismetAnimationLibrary.h"
+#include "LyraALS.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -25,6 +26,12 @@ UCharacterMovementComponent* ULyraBaseAnimInst::GetCharacterMovementComponent() 
 {
 	ACharacter* Character = Cast<ACharacter>(GetOwningActor());
 	return Character ? Character->GetCharacterMovement() : nullptr;
+}
+
+void ULyraBaseAnimInst::Pivot_BecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
+{
+	PivotAcceleration2D = Acceleration2D;
+	UE_LOG(LogLyraALS,Log,  TEXT("Pivot动画结点相关"));
 }
 
 void ULyraBaseAnimInst::GetVelocityData()
@@ -76,6 +83,10 @@ void ULyraBaseAnimInst::GetAccelerationData()
 void ULyraBaseAnimInst::UpdateOrientation(float DeltaTime)
 {
 	VelocityLocomotionAngle = UKismetAnimationLibrary::CalculateDirection(CharacterVelocity2D, WorldRotation);
+	// 计算加速度方向
+	AccelerationLocomotionAngle = UKismetAnimationLibrary::CalculateDirection(Acceleration2D, WorldRotation);
+	AccelerationLocomotionDirection = CalculateLocomotionDirection(AccelerationLocomotionAngle,
+	                                                               AccelerationLocomotionDirection);
 
 	LastFrameLocomotionDirection = VelocityLocomotionDirection;
 	VelocityLocomotionDirection = CalculateLocomotionDirection(VelocityLocomotionAngle, VelocityLocomotionDirection);

@@ -5,6 +5,7 @@
 
 #include "AnimCharacterMovementLibrary.h"
 #include "AnimDistanceMatchingLibrary.h"
+#include "LyraALS.h"
 #include "LyraBaseAnimInst.h"
 #include "SequenceEvaluatorLibrary.h"
 #include "SequencePlayerLibrary.h"
@@ -135,6 +136,37 @@ void UAnimInst_LayerBase::Stop_OnUpdate(const FAnimUpdateContext& Context, const
 		// 已经到达目标，正常播放动画
 		USequenceEvaluatorLibrary::AdvanceTime(Context, SequenceEvaluatorReference);
 	}
+}
+
+void UAnimInst_LayerBase::Pivot_BecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
+{
+	EAnimNodeReferenceConversionResult Result;
+	FSequenceEvaluatorReference SeqEvaRef = USequenceEvaluatorLibrary::ConvertToSequenceEvaluator(Node, Result);
+	if (Result != EAnimNodeReferenceConversionResult::Succeeded) return;
+	ULyraBaseAnimInst* ABPBase = GetABPBase();
+	if (!ABPBase) return;
+
+	EGait CurrentGait = ABPBase->CurrentGait;
+	ELocomotionDirection CurrentDirection = ABPBase->AccelerationLocomotionDirection;
+
+	UAnimSequenceBase* Sequence = SelectAnimSequeceFromAnimSets(WalkPivotAnimationSet, JogPivotAnimationSet,
+	                                                            CurrentGait, CurrentDirection);
+	USequenceEvaluatorLibrary::SetSequenceWithInertialBlending(Context, SeqEvaRef, Sequence);
+	USequenceEvaluatorLibrary::SetExplicitTime(SeqEvaRef, 0.f);
+
+	// 调试
+	// const auto Msg =FString::Printf(TEXT("Pivot_BecomeRelevant->%s"), *Sequence->GetName());
+	// UE_LOG(LogLyraALS, Log, TEXT("%s"), *Msg);
+	
+}
+
+void UAnimInst_LayerBase::Pivot_OnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
+{
+	EAnimNodeReferenceConversionResult Result;
+	FSequenceEvaluatorReference SeqEvaRef = USequenceEvaluatorLibrary::ConvertToSequenceEvaluator(Node, Result);
+	if (Result != EAnimNodeReferenceConversionResult::Succeeded) return;
+
+	USequenceEvaluatorLibrary::AdvanceTime(Context, SeqEvaRef);
 }
 
 UAnimSequenceBase* UAnimInst_LayerBase::SelectAnimSequeceFromAnimSets(const FDirectionalAnimationSet& WalkAnimSet,

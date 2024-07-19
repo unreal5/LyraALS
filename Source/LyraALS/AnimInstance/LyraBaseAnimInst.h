@@ -64,6 +64,12 @@ public:
 	float VelocityLocomotionAngle;
 
 	UPROPERTY(BlueprintReadWrite, Category = "LocomotionData")
+	float AccelerationLocomotionAngle;
+
+	UPROPERTY(BlueprintReadWrite, Category = "LocomotionData")
+	ELocomotionDirection AccelerationLocomotionDirection;
+	
+	UPROPERTY(BlueprintReadWrite, Category = "LocomotionData")
 	ELocomotionDirection VelocityLocomotionDirection;
 
 	UPROPERTY(BlueprintReadWrite, Category = "LocomotionData")
@@ -81,8 +87,10 @@ public:
 	// pivot
 	UPROPERTY(BlueprintReadWrite, Category = "Pivot")
 	FVector PivotAcceleration2D;
-	
 
+	// 测试Pivot输出动画结点相关
+	UFUNCTION(Category="Pivot", BlueprintCallable, meta=(BlueprintThreadSafe))
+	void Pivot_BecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
 private:
 	void GetVelocityData();
 	void GetAccelerationData();

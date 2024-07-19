@@ -67,6 +67,20 @@ protected:
 
 	UFUNCTION(Category="Stop", BlueprintCallable, meta=(BlueprintThreadSafe))
 	void Stop_OnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
+
+	// Pivot
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Pivot")
+	FDirectionalAnimationSet WalkPivotAnimationSet;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Pivot")
+	FDirectionalAnimationSet JogPivotAnimationSet;
+
+	UFUNCTION(Category="Pivot", BlueprintCallable, meta=(BlueprintThreadSafe))
+	void Pivot_BecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
+
+	UFUNCTION(Category="Pivot", BlueprintCallable, meta=(BlueprintThreadSafe))
+	void Pivot_OnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
+	
 private:
 	UAnimSequenceBase* SelectAnimSequeceFromAnimSets(const FDirectionalAnimationSet& WalkAnimSet,
 	                                     const FDirectionalAnimationSet& JogAnimSet,
