@@ -85,4 +85,6 @@ private:
 	UAnimSequenceBase* SelectAnimSequeceFromAnimSets(const FDirectionalAnimationSet& WalkAnimSet,
 	                                     const FDirectionalAnimationSet& JogAnimSet,
 	                                     EGait CurrentGait, ELocomotionDirection CurrentDirection) const;
+
+	UAnimSequenceBase* SelectPivotAnim();
 };
