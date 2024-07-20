@@ -69,6 +69,9 @@ protected:
 	void Stop_OnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
 
 	// Pivot
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Pivot")
+	FVector InitialAccWhenEnterPivot;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Pivot")
 	FDirectionalAnimationSet WalkPivotAnimationSet;
 

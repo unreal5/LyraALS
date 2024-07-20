@@ -5,6 +5,7 @@
 
 #include "KismetAnimationLibrary.h"
 #include "LyraALS.h"
+#include "Animation/AnimNodeReference.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -31,7 +32,7 @@ UCharacterMovementComponent* ULyraBaseAnimInst::GetCharacterMovementComponent() 
 void ULyraBaseAnimInst::Pivot_BecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
 {
 	PivotAcceleration2D = Acceleration2D;
-	UE_LOG(LogLyraALS,Log,  TEXT("Pivot动画结点相关"));
+	//UE_LOG(LogLyraALS,Log,  TEXT("Pivot动画结点相关"));
 }
 
 void ULyraBaseAnimInst::GetVelocityData()

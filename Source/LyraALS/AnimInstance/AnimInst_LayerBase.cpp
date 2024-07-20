@@ -151,6 +151,11 @@ void UAnimInst_LayerBase::Pivot_BecomeRelevant(const FAnimUpdateContext& Context
 	}
 	USequenceEvaluatorLibrary::SetExplicitTime(SeqEvaRef, 0.f);
 
+	if(const auto ABPBase = GetABPBase())
+	{
+		InitialAccWhenEnterPivot = ABPBase->Acceleration2D;
+		UE_LOG(LogLyraALS, Log, TEXT("Pivot_BecomeRelevant->加速度 = %s"), *InitialAccWhenEnterPivot.ToString());
+	}
 	// 调试
 	// const auto Msg =FString::Printf(TEXT("Pivot_BecomeRelevant->%s"), *Sequence->GetName());
 	// UE_LOG(LogLyraALS, Log, TEXT("%s"), *Msg);

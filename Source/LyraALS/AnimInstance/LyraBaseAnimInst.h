@@ -9,6 +9,7 @@
 #include "Enum/LocomotionDirection.h"
 #include "LyraBaseAnimInst.generated.h"
 
+struct FAnimNodeReference;
 struct FAnimUpdateContext;
 /**
  * 
