@@ -21,6 +21,9 @@ void ULyraBaseAnimInst::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 
 	UpdateOrientation(DeltaSeconds);
 	GetCharacterStates();
+
+	// turn in place
+	UpdateRootYawOffset(DeltaSeconds);
 }
 
 UCharacterMovementComponent* ULyraBaseAnimInst::GetCharacterMovementComponent() const
@@ -62,13 +65,14 @@ void ULyraBaseAnimInst::GetRotationData(float DeltaSeconds)
 
 	float LastFrameActorYaw = WorldRotation.Yaw;
 	WorldRotation = OwningActor->GetActorRotation();
-	float DeltaActorYaw = UKismetMathLibrary::SafeDivide(WorldRotation.Yaw - LastFrameActorYaw, DeltaSeconds);
+	DeltaActorYaw = WorldRotation.Yaw - LastFrameActorYaw;
+	float DeltaActorYawWithSign = UKismetMathLibrary::SafeDivide(DeltaActorYaw, DeltaSeconds);;
 	// 如果向后运动，则角度取反。
 	if (VelocityLocomotionDirection == ELocomotionDirection::Backward)
 	{
-		DeltaActorYaw = -DeltaActorYaw;
+		DeltaActorYawWithSign = -DeltaActorYawWithSign;
 	}
-	LeanAngle = UKismetMathLibrary::ClampAngle(DeltaActorYaw, -90.f, 90.f);
+	LeanAngle = UKismetMathLibrary::ClampAngle(DeltaActorYawWithSign, -90.f, 90.f);
 }
 
 void ULyraBaseAnimInst::GetAccelerationData()
@@ -84,6 +88,7 @@ void ULyraBaseAnimInst::GetAccelerationData()
 void ULyraBaseAnimInst::UpdateOrientation(float DeltaTime)
 {
 	VelocityLocomotionAngle = UKismetAnimationLibrary::CalculateDirection(CharacterVelocity2D, WorldRotation);
+	VelocityLocomotionAngleWithOffset = UKismetMathLibrary::NormalizeAxis(VelocityLocomotionAngle - RootYawOffset);
 	// 计算加速度方向
 	AccelerationLocomotionAngle = UKismetAnimationLibrary::CalculateDirection(Acceleration2D, WorldRotation);
 	AccelerationLocomotionDirection = CalculateLocomotionDirection(AccelerationLocomotionAngle,
@@ -130,4 +135,27 @@ void ULyraBaseAnimInst::GetCharacterStates()
 	LastFrameGait = CurrentGait;
 	CurrentGait = InComingGait;
 	bIsGaitChanged = LastFrameGait != CurrentGait;
+}
+
+void ULyraBaseAnimInst::UpdateRootYawOffset(float DeltaTime)
+{
+	if (RootYawOffsetMode == ERootYawOffsetMode::Accumulate)
+	{
+		// 范围限制在[-180,180]
+		// RootYawOffset = UKismetMathLibrary::NormalizeAxis(RootYawOffset);
+		SetRootYawOffset(RootYawOffset - DeltaActorYaw);
+	}
+	else if (RootYawOffsetMode == ERootYawOffsetMode::BlendOut)
+	{
+		SetRootYawOffset(UKismetMathLibrary::FloatSpringInterp(RootYawOffset, 0.f, FSS, 80.f, 1.f,
+		                                                       DeltaTime, 1.f, 0.5f));
+	}
+	// 除了idle之外，所有状态均应为BlendOut，因此在这设置，然后在Idle处修改成Accumulate
+	// 因为是在动画蓝图的“idle”状态中设置RootYawOffsetMode，实质上等于设置“下一帧”的RootYawOffsetMode
+	RootYawOffsetMode = ERootYawOffsetMode::BlendOut;
+}
+
+void ULyraBaseAnimInst::SetRootYawOffset(float Angle)
+{
+	RootYawOffset = UKismetMathLibrary::NormalizeAxis(Angle);
 }
