@@ -83,11 +83,40 @@ protected:
 
 	UFUNCTION(Category="Pivot", BlueprintCallable, meta=(BlueprintThreadSafe))
 	void Pivot_OnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
+
+	// 原地转身
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "原地转身")
+	UAnimSequenceBase* TurnLeft90;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "原地转身")
+	UAnimSequenceBase* TurnLeft180;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "原地转身")
+	UAnimSequenceBase* TurnRight90;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "原地转身")
+	UAnimSequenceBase* TurnRight180;
+
+	bool bIsGreaterThan90;
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "原地转身")
+	bool ShouldTurnLeft;
+	
+	UFUNCTION(Category="原地转身", BlueprintCallable, meta=(BlueprintThreadSafe))
+	void TurnInPlace_Output_BecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
+
+	UFUNCTION(Category="原地转身", BlueprintCallable, meta=(BlueprintThreadSafe))
+	void TurnInPlace_BecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
+
+	UFUNCTION(Category="原地转身", BlueprintCallable, meta=(BlueprintThreadSafe))
+	void TurnInPlace_OnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
 private:
 	UAnimSequenceBase* SelectAnimSequeceFromAnimSets(const FDirectionalAnimationSet& WalkAnimSet,
 	                                     const FDirectionalAnimationSet& JogAnimSet,
 	                                     EGait CurrentGait, ELocomotionDirection CurrentDirection) const;
 
 	UAnimSequenceBase* SelectPivotAnim();
+
+	// turn in place
+	UAnimSequenceBase* SelectTurnInPlaceAnimation() const;
+	float TurnInPlaceTime;
 };

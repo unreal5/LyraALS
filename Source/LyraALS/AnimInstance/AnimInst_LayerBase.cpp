@@ -5,6 +5,7 @@
 
 #include "AnimCharacterMovementLibrary.h"
 #include "AnimDistanceMatchingLibrary.h"
+#include "AnimExecutionContextLibrary.h"
 #include "LyraALS.h"
 #include "LyraBaseAnimInst.h"
 #include "SequenceEvaluatorLibrary.h"
@@ -151,7 +152,7 @@ void UAnimInst_LayerBase::Pivot_BecomeRelevant(const FAnimUpdateContext& Context
 	}
 	USequenceEvaluatorLibrary::SetExplicitTime(SeqEvaRef, 0.f);
 
-	if(const auto ABPBase = GetABPBase())
+	if (const auto ABPBase = GetABPBase())
 	{
 		InitialAccWhenEnterPivot = ABPBase->Acceleration2D;
 		UE_LOG(LogLyraALS, Log, TEXT("Pivot_BecomeRelevant->加速度 = %s"), *InitialAccWhenEnterPivot.ToString());
@@ -209,6 +210,44 @@ void UAnimInst_LayerBase::Pivot_OnUpdate(const FAnimUpdateContext& Context, cons
 	}
 }
 
+void UAnimInst_LayerBase::TurnInPlace_Output_BecomeRelevant(const FAnimUpdateContext& Context,
+                                                            const FAnimNodeReference& Node)
+{
+	auto ABPBase = GetABPBase();
+
+	if (!ABPBase) return;
+	const auto RootYawOffset = ABPBase->RootYawOffset;
+	ShouldTurnLeft = UKismetMathLibrary::SignOfFloat(RootYawOffset) > 0;
+
+	bIsGreaterThan90 = FMath::Abs(RootYawOffset) > 90.f;
+	UE_LOG(LogLyraALS, Log, TEXT("结点相关"));
+}
+
+void UAnimInst_LayerBase::TurnInPlace_BecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
+{
+	UE_LOG(LogLyraALS, Log, TEXT("动画求值器相关"));
+
+	EAnimNodeReferenceConversionResult Result;
+	FSequenceEvaluatorReference SeqEvaRef = USequenceEvaluatorLibrary::ConvertToSequenceEvaluator(Node, Result);
+	if (Result != EAnimNodeReferenceConversionResult::Succeeded) return;
+
+	UAnimSequenceBase* AnimSequenceBase = SelectTurnInPlaceAnimation();
+	USequenceEvaluatorLibrary::SetSequenceWithInertialBlending(Context, SeqEvaRef, AnimSequenceBase, 0.2f);
+	USequenceEvaluatorLibrary::SetExplicitTime(SeqEvaRef, 0.f);
+	
+}
+
+void UAnimInst_LayerBase::TurnInPlace_OnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
+{
+	EAnimNodeReferenceConversionResult Result;
+	FSequenceEvaluatorReference SeqEvaRef = USequenceEvaluatorLibrary::ConvertToSequenceEvaluator(Node, Result);
+	if (Result != EAnimNodeReferenceConversionResult::Succeeded) return;
+
+	TurnInPlaceTime = UAnimExecutionContextLibrary::GetDeltaTime(Context);
+	
+	USequenceEvaluatorLibrary::SetExplicitTime(SeqEvaRef,TurnInPlaceTime);
+}
+
 UAnimSequenceBase* UAnimInst_LayerBase::SelectAnimSequeceFromAnimSets(const FDirectionalAnimationSet& WalkAnimSet,
                                                                       const FDirectionalAnimationSet& JogAnimSet,
                                                                       EGait CurrentGait,
@@ -241,4 +280,16 @@ UAnimSequenceBase* UAnimInst_LayerBase::SelectPivotAnim()
 	UAnimSequenceBase* Sequence = SelectAnimSequeceFromAnimSets(WalkPivotAnimationSet, JogPivotAnimationSet,
 	                                                            CurrentGait, CurrentDirection);
 	return Sequence;
+}
+
+UAnimSequenceBase* UAnimInst_LayerBase::SelectTurnInPlaceAnimation() const
+{
+	if (bIsGreaterThan90)
+	{
+		return ShouldTurnLeft ? TurnLeft180 : TurnRight180;
+	}
+	else
+	{
+		return ShouldTurnLeft ? TurnLeft90 : TurnRight90;
+	} 
 }
