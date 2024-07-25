@@ -100,6 +100,12 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "原地转身")
 	bool ShouldTurnLeft;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "原地转身")
+	float TurnInPlaceTime;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "原地转身")
+	UAnimSequenceBase* FinalTurnAnimation;
 	
 	UFUNCTION(Category="原地转身", BlueprintCallable, meta=(BlueprintThreadSafe))
 	void TurnInPlace_Output_BecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
@@ -109,6 +115,9 @@ protected:
 
 	UFUNCTION(Category="原地转身", BlueprintCallable, meta=(BlueprintThreadSafe))
 	void TurnInPlace_OnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
+
+	UFUNCTION(Category="原地转身", BlueprintPure, meta=(BlueprintThreadSafe))
+	UAnimSequenceBase* SelectTurnInPlaceAnimation() const;
 private:
 	UAnimSequenceBase* SelectAnimSequeceFromAnimSets(const FDirectionalAnimationSet& WalkAnimSet,
 	                                     const FDirectionalAnimationSet& JogAnimSet,
@@ -117,6 +126,5 @@ private:
 	UAnimSequenceBase* SelectPivotAnim();
 
 	// turn in place
-	UAnimSequenceBase* SelectTurnInPlaceAnimation() const;
-	float TurnInPlaceTime;
+	
 };

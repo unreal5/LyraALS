@@ -38,6 +38,27 @@ void ULyraBaseAnimInst::Pivot_BecomeRelevant(const FAnimUpdateContext& Context, 
 	//UE_LOG(LogLyraALS,Log,  TEXT("Pivot动画结点相关"));
 }
 
+void ULyraBaseAnimInst::ProcessTurnYawCurve()
+{
+	float LastTurnYawCurve = TurnYawCurve;
+	//
+	auto IsTurning = GetCurveValue("IsTurning");
+	if (IsTurning < 1.f) // recovery or not turn in place
+	{
+		TurnYawCurve = 0.f;
+	}
+	else
+	{
+		TurnYawCurve = GetCurveValue("root_rotation_Z");
+		TurnYawCurve = UKismetMathLibrary::SafeDivide(TurnYawCurve, IsTurning);
+		if (!UKismetMathLibrary::NearlyEqual_FloatFloat(LastTurnYawCurve, 0.f))
+		{
+			RootYawOffset -= TurnYawCurve - LastTurnYawCurve;
+			SetRootYawOffset(RootYawOffset);
+		}
+	}
+}
+
 void ULyraBaseAnimInst::GetVelocityData()
 {
 	auto CharacterMovementComponent = GetCharacterMovementComponent();

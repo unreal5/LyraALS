@@ -231,10 +231,10 @@ void UAnimInst_LayerBase::TurnInPlace_BecomeRelevant(const FAnimUpdateContext& C
 	FSequenceEvaluatorReference SeqEvaRef = USequenceEvaluatorLibrary::ConvertToSequenceEvaluator(Node, Result);
 	if (Result != EAnimNodeReferenceConversionResult::Succeeded) return;
 
-	UAnimSequenceBase* AnimSequenceBase = SelectTurnInPlaceAnimation();
-	USequenceEvaluatorLibrary::SetSequenceWithInertialBlending(Context, SeqEvaRef, AnimSequenceBase, 0.2f);
-	USequenceEvaluatorLibrary::SetExplicitTime(SeqEvaRef, 0.f);
-	
+	FinalTurnAnimation = SelectTurnInPlaceAnimation();
+	USequenceEvaluatorLibrary::SetSequenceWithInertialBlending(Context, SeqEvaRef, FinalTurnAnimation, 0.2f);
+	TurnInPlaceTime = 0.f;
+	USequenceEvaluatorLibrary::SetExplicitTime(SeqEvaRef, TurnInPlaceTime);
 }
 
 void UAnimInst_LayerBase::TurnInPlace_OnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
@@ -243,9 +243,9 @@ void UAnimInst_LayerBase::TurnInPlace_OnUpdate(const FAnimUpdateContext& Context
 	FSequenceEvaluatorReference SeqEvaRef = USequenceEvaluatorLibrary::ConvertToSequenceEvaluator(Node, Result);
 	if (Result != EAnimNodeReferenceConversionResult::Succeeded) return;
 
-	TurnInPlaceTime = UAnimExecutionContextLibrary::GetDeltaTime(Context);
-	
-	USequenceEvaluatorLibrary::SetExplicitTime(SeqEvaRef,TurnInPlaceTime);
+	float DeltaTime = UAnimExecutionContextLibrary::GetDeltaTime(Context);
+	TurnInPlaceTime += DeltaTime;
+	USequenceEvaluatorLibrary::SetExplicitTime(SeqEvaRef, TurnInPlaceTime);
 }
 
 UAnimSequenceBase* UAnimInst_LayerBase::SelectAnimSequeceFromAnimSets(const FDirectionalAnimationSet& WalkAnimSet,
@@ -291,5 +291,5 @@ UAnimSequenceBase* UAnimInst_LayerBase::SelectTurnInPlaceAnimation() const
 	else
 	{
 		return ShouldTurnLeft ? TurnLeft90 : TurnRight90;
-	} 
+	}
 }

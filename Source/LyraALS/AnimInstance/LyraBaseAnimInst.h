@@ -105,10 +105,16 @@ public:
 	float RootYawOffset = 0;
 
 	UPROPERTY(BlueprintReadWrite, Category = "TurnInPlace")
+	float TurnYawCurve;
+	
+	UPROPERTY(BlueprintReadWrite, Category = "TurnInPlace")
 	ERootYawOffsetMode RootYawOffsetMode;
 
 	FFloatSpringState FSS;
 
+	// turn in place
+	UFUNCTION(Category="原地转身", BlueprintCallable, meta=(BlueprintThreadSafe))
+	void ProcessTurnYawCurve();
 private:
 	void GetVelocityData();
 	void GetAccelerationData();
