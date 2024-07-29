@@ -40,6 +40,10 @@ ALyraCharacter::ALyraCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	// Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+
+	// 可以蹲下
+	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
+	GetCharacterMovement()->SetCrouchedHalfHeight(60.f);
 }
 
 // Called when the game starts or when spawned
@@ -186,5 +190,21 @@ void ALyraCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	                                              [this](const FInputActionValue& Value)
 	                                              {
 		                                              UpdateGait(EGait::Jogging);
+	                                              });
+
+	// Crouching
+	EnhancedInputComponent->BindActionValueLambda(CrouchAction, ETriggerEvent::Started,
+	                                              [this](const FInputActionValue& Value)
+	                                              {
+		                                              if (CurrentGait == EGait::Crouch)
+		                                              {
+			                                              UpdateGait(EGait::Jogging);
+		                                              	UnCrouch();
+		                                              }
+		                                              else
+		                                              {
+			                                              UpdateGait(EGait::Crouch);
+		                                              	Crouch();
+		                                              }
 	                                              });
 }

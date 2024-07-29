@@ -48,6 +48,9 @@ class LYRAALS_API ALyraCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* AimAction;
 
+	/** Look Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* CrouchAction;
 	// 动画层
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "动画层", meta = (AllowPrivateAccess = "true"))
 	TArray<TSubclassOf<UAnimInstance>> AnimLayers;

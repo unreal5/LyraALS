@@ -92,6 +92,12 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "AccelerationData")
 	bool bIsAccelerating;
 
+	UPROPERTY(BlueprintReadWrite, Category = "蹲下")
+	bool IsCrouching;
+
+	UPROPERTY(BlueprintReadWrite, Category = "蹲下")
+	bool CrouchStateChanged;
+	
 	// pivot
 	UPROPERTY(BlueprintReadWrite, Category = "Pivot")
 	FVector PivotAcceleration2D;

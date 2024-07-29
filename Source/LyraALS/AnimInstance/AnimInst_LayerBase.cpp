@@ -28,10 +28,13 @@ void UAnimInst_LayerBase::Idle_UpdateAnim(const FAnimUpdateContext& Context, con
 {
 	EAnimNodeReferenceConversionResult Result;
 	FSequencePlayerReference SequencePlayer = USequencePlayerLibrary::ConvertToSequencePlayer(Node, Result);
-	if (Result == EAnimNodeReferenceConversionResult::Succeeded)
-	{
-		USequencePlayerLibrary::SetSequenceWithInertialBlending(Context, SequencePlayer, IdleAnimation, 0.2f);
-	}
+	if (Result != EAnimNodeReferenceConversionResult::Succeeded) return;
+	ULyraBaseAnimInst* ABPBase = GetABPBase();
+	if (!ABPBase) return;
+
+	UAnimSequenceBase* SeqBase = ABPBase->IsCrouching ? CrouchIdleAnimation : IdleAnimation;
+
+	USequencePlayerLibrary::SetSequenceWithInertialBlending(Context, SequencePlayer, SeqBase, 0.2f);
 }
 
 void UAnimInst_LayerBase::Start_BecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
@@ -46,7 +49,7 @@ void UAnimInst_LayerBase::Start_BecomeRelevant(const FAnimUpdateContext& Context
 	// 选择动画
 	EGait CurrentGait = ABPBase->CurrentGait;
 	ELocomotionDirection CurrentDirection = ABPBase->VelocityLocomotionDirection;
-	auto Anim = SelectAnimSequeceFromAnimSets(WalkStartAnimationSet, JogStartAnimationSet, CurrentGait,
+	auto Anim = SelectAnimSequeceFromAnimSets(WalkStartAnimationSet, JogStartAnimationSet, CrouchStartAnimationSet, CurrentGait,
 	                                          CurrentDirection);
 	USequenceEvaluatorLibrary::SetSequence(SeqEvaRef, Anim);
 	USequenceEvaluatorLibrary::SetExplicitTime(SeqEvaRef, 0.f);
@@ -77,7 +80,7 @@ void UAnimInst_LayerBase::Cycle_OnUpdate(const FAnimUpdateContext& Context, cons
 
 	EGait CurrentGait = ABPBase->CurrentGait;
 	ELocomotionDirection CurrentDirection = ABPBase->VelocityLocomotionDirection;
-	UAnimSequenceBase* Sequence = SelectAnimSequeceFromAnimSets(WalkCycleAnimationSet, JogCycleAnimationSet,
+	UAnimSequenceBase* Sequence = SelectAnimSequeceFromAnimSets(WalkCycleAnimationSet, JogCycleAnimationSet,CrouchCycleAnimationSet,
 	                                                            CurrentGait, CurrentDirection);
 	USequencePlayerLibrary::SetSequenceWithInertialBlending(Context, SequencePlayer, Sequence, 0.2f);
 }
@@ -97,7 +100,7 @@ void UAnimInst_LayerBase::Stop_BecomeRelevant(const FAnimUpdateContext& Context,
 	EGait CurrentGait = ABPBase->CurrentGait;
 	ELocomotionDirection CurrentDirection = ABPBase->VelocityLocomotionDirection;
 
-	UAnimSequenceBase* Sequence = SelectAnimSequeceFromAnimSets(WalkStopAnimationSet, JogStopAnimationSet,
+	UAnimSequenceBase* Sequence = SelectAnimSequeceFromAnimSets(WalkStopAnimationSet, JogStopAnimationSet,CrouchStopAnimationSet,
 	                                                            CurrentGait, CurrentDirection);
 
 	USequenceEvaluatorLibrary::SetSequence(SequenceEvaluatorReference, Sequence);
@@ -220,12 +223,12 @@ void UAnimInst_LayerBase::TurnInPlace_Output_BecomeRelevant(const FAnimUpdateCon
 	ShouldTurnLeft = UKismetMathLibrary::SignOfFloat(RootYawOffset) > 0;
 
 	bIsGreaterThan90 = FMath::Abs(RootYawOffset) > 90.f;
-	UE_LOG(LogLyraALS, Log, TEXT("结点相关"));
+	// UE_LOG(LogLyraALS, Log, TEXT("结点相关"));
 }
 
 void UAnimInst_LayerBase::TurnInPlace_BecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
 {
-	UE_LOG(LogLyraALS, Log, TEXT("动画求值器相关"));
+	// UE_LOG(LogLyraALS, Log, TEXT("动画求值器相关"));
 
 	EAnimNodeReferenceConversionResult Result;
 	FSequenceEvaluatorReference SeqEvaRef = USequenceEvaluatorLibrary::ConvertToSequenceEvaluator(Node, Result);
@@ -250,10 +253,13 @@ void UAnimInst_LayerBase::TurnInPlace_OnUpdate(const FAnimUpdateContext& Context
 
 UAnimSequenceBase* UAnimInst_LayerBase::SelectAnimSequeceFromAnimSets(const FDirectionalAnimationSet& WalkAnimSet,
                                                                       const FDirectionalAnimationSet& JogAnimSet,
+                                                                      const FDirectionalAnimationSet& CrouchAnimSet,
                                                                       EGait CurrentGait,
                                                                       ELocomotionDirection CurrentDirection) const
 {
-	auto&& SelectedAnimSet = CurrentGait == EGait::Walking ? WalkAnimSet : JogAnimSet;
+	auto&& SelectedAnimSet = CurrentGait == EGait::Walking
+		                         ? WalkAnimSet
+		                         : (CurrentGait == EGait::Jogging ? JogAnimSet : CrouchAnimSet);
 	switch (CurrentDirection)
 	{
 	case ELocomotionDirection::Forward:
@@ -277,7 +283,7 @@ UAnimSequenceBase* UAnimInst_LayerBase::SelectPivotAnim()
 	EGait CurrentGait = ABPBase->CurrentGait;
 	ELocomotionDirection CurrentDirection = ABPBase->AccelerationLocomotionDirection;
 
-	UAnimSequenceBase* Sequence = SelectAnimSequeceFromAnimSets(WalkPivotAnimationSet, JogPivotAnimationSet,
+	UAnimSequenceBase* Sequence = SelectAnimSequeceFromAnimSets(WalkPivotAnimationSet, JogPivotAnimationSet,CrouchPivotAnimationSet,
 	                                                            CurrentGait, CurrentDirection);
 	return Sequence;
 }
@@ -292,4 +298,19 @@ UAnimSequenceBase* UAnimInst_LayerBase::SelectTurnInPlaceAnimation() const
 	{
 		return ShouldTurnLeft ? TurnLeft90 : TurnRight90;
 	}
+}
+
+void UAnimInst_LayerBase::SetupStanceTransitionAnim(const FAnimUpdateContext& UpdateContext,
+                                                    const FAnimNodeReference& Node) const
+{
+	ULyraBaseAnimInst* ABPBase = GetABPBase();
+	if (!ABPBase) return;
+
+	EAnimNodeReferenceConversionResult Result;
+	auto SeqPlayer = USequencePlayerLibrary::ConvertToSequencePlayer(Node, Result);
+	if (Result != EAnimNodeReferenceConversionResult::Succeeded) return;
+
+	const bool IsCrouching = ABPBase->IsCrouching;
+	UAnimSequenceBase* AnimSeq = IsCrouching ? CrouchEntryAnim : CrouchExitAnim;
+	USequencePlayerLibrary::SetSequence(SeqPlayer, AnimSeq);
 }

@@ -156,6 +156,10 @@ void ULyraBaseAnimInst::GetCharacterStates()
 	LastFrameGait = CurrentGait;
 	CurrentGait = InComingGait;
 	bIsGaitChanged = LastFrameGait != CurrentGait;
+
+	bool LastFrameIsCrouching = IsCrouching;
+	IsCrouching = CurrentGait == EGait::Crouch;
+	CrouchStateChanged = IsCrouching != LastFrameIsCrouching;
 }
 
 void ULyraBaseAnimInst::UpdateRootYawOffset(float DeltaTime)

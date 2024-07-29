@@ -28,6 +28,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Idle")
 	TObjectPtr<UAnimSequenceBase> IdleAnimation;
 
+	
+	
 	UFUNCTION(Category="Idle", BlueprintCallable, meta=(BlueprintThreadSafe))
 	void Idle_UpdateAnim(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
 
@@ -38,6 +40,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Start")
 	FDirectionalAnimationSet JogStartAnimationSet;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Start")
+	FDirectionalAnimationSet CrouchStartAnimationSet;
 	// start function
 	UFUNCTION(Category="Start", BlueprintCallable, meta=(BlueprintThreadSafe))
 	void Start_BecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
@@ -52,6 +56,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cycle")
 	FDirectionalAnimationSet JogCycleAnimationSet;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cycle")
+	FDirectionalAnimationSet CrouchCycleAnimationSet;
+	
 	UFUNCTION(Category="Cycle", BlueprintCallable, meta=(BlueprintThreadSafe))
 	void Cycle_OnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
 
@@ -62,6 +69,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Stop")
 	FDirectionalAnimationSet JogStopAnimationSet;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Stop")
+	FDirectionalAnimationSet CrouchStopAnimationSet;
+	
 	UFUNCTION(Category="Stop", BlueprintCallable, meta=(BlueprintThreadSafe))
 	void Stop_BecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
 
@@ -78,6 +88,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Pivot")
 	FDirectionalAnimationSet JogPivotAnimationSet;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Pivot")
+	FDirectionalAnimationSet CrouchPivotAnimationSet;
+	
 	UFUNCTION(Category="Pivot", BlueprintCallable, meta=(BlueprintThreadSafe))
 	void Pivot_BecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
 
@@ -118,9 +131,23 @@ protected:
 
 	UFUNCTION(Category="原地转身", BlueprintPure, meta=(BlueprintThreadSafe))
 	UAnimSequenceBase* SelectTurnInPlaceAnimation() const;
+
+	// 蹲下-起立
+	UFUNCTION(Category=" 蹲下-起立", BlueprintCallable, meta=(BlueprintThreadSafe))
+	void SetupStanceTransitionAnim(const FAnimUpdateContext& UpdateContext, const FAnimNodeReference& Node) const;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Idle")
+	TObjectPtr<UAnimSequenceBase> CrouchIdleAnimation;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Idle")
+	TObjectPtr<UAnimSequenceBase> CrouchEntryAnim;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Idle")
+	TObjectPtr<UAnimSequenceBase> CrouchExitAnim;
 private:
 	UAnimSequenceBase* SelectAnimSequeceFromAnimSets(const FDirectionalAnimationSet& WalkAnimSet,
 	                                     const FDirectionalAnimationSet& JogAnimSet,
+	                                     const FDirectionalAnimationSet& CrouchAnimSet,
 	                                     EGait CurrentGait, ELocomotionDirection CurrentDirection) const;
 
 	UAnimSequenceBase* SelectPivotAnim();
