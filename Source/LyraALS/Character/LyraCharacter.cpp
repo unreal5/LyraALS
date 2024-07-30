@@ -61,7 +61,14 @@ void ALyraCharacter::UpdateGait(EGait Gait)
 	const auto CharMovement = GetCharacterMovement();
 	if (GaitSetting && CharMovement)
 	{
-		CharMovement->MaxWalkSpeed = GaitSetting->MaxWalkSpeed;
+		if (CurrentGait == EGait::Crouch)
+		{
+			CharMovement->MaxWalkSpeedCrouched = GaitSetting->MaxWalkSpeed;
+		}
+		else
+		{
+			CharMovement->MaxWalkSpeed = GaitSetting->MaxWalkSpeed;
+		}
 		CharMovement->MaxAcceleration = GaitSetting->MaxAcceleration;
 		CharMovement->BrakingDecelerationWalking = GaitSetting->BrakingDeceleration;
 		CharMovement->BrakingFrictionFactor = GaitSetting->BrakingFrictionFactor;
@@ -199,12 +206,12 @@ void ALyraCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		                                              if (CurrentGait == EGait::Crouch)
 		                                              {
 			                                              UpdateGait(EGait::Jogging);
-		                                              	UnCrouch();
+			                                              UnCrouch();
 		                                              }
 		                                              else
 		                                              {
 			                                              UpdateGait(EGait::Crouch);
-		                                              	Crouch();
+			                                              Crouch();
 		                                              }
 	                                              });
 }
