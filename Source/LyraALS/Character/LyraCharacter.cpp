@@ -5,6 +5,7 @@
 #include "LyraALS.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "KismetTraceUtils.h"
 #include "Camera/CameraComponent.h"
 
 #include "Components/CapsuleComponent.h"
@@ -107,6 +108,47 @@ void ALyraCharacter::UpdateGait(EGait Gait)
 void ALyraCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	// 只在空中才查询与地面的距离
+	if (GetCharacterMovement()->IsFalling())
+	{
+		// 查询与地面的距离
+		FHitResult HitResult;
+		// 找到胶囊体的最底部
+		const FVector Start = GetActorLocation() - FVector(
+			0.f, 0.f, GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+		const FVector End = Start + FVector(0.f, 0.f, -10000.f);
+		const float Radius = 5.f;
+		FCollisionQueryParams CollisionParams;
+		CollisionParams.AddIgnoredActor(this);
+
+		// 用球形查询离地面的距离
+		//UKismetSystemLibrary::SphereTraceSingle(GetWorld(), Start, End, 50.f, ECollisionChannel::ECC_Visibility, false,
+		//	                                        TArray<AActor*>(), EDrawDebugTrace::ForDuration, HitResult, true);
+		UWorld* World = GetWorld();
+		bool const bHit = World
+			                  ? World->SweepSingleByChannel(HitResult, Start, End, FQuat::Identity, ECC_Visibility,
+			                                                FCollisionShape::MakeSphere(Radius), CollisionParams)
+			                  : false;
+
+#if ENABLE_DRAW_DEBUG
+		DrawDebugSphereTraceSingle(World, Start, End, Radius, EDrawDebugTrace::ForOneFrame, bHit, HitResult,
+		                           FColor::Green, FColor::Red, 0.f);
+#endif
+		if (bHit)
+		{
+			// 计算与地面的距离
+			const float DistanceToGround = (HitResult.ImpactPoint - Start).Size();
+			UE_LOG(LogLyraALS, Log, TEXT("与地面的距离：%f"), DistanceToGround);
+			if (auto AnimInst = GetMesh()->GetAnimInstance())
+			{
+				if (AnimInst->GetClass()->ImplementsInterface(UAnimBPInterface::StaticClass()))
+				{
+					IAnimBPInterface::Execute_ReceivedGroundDistance(AnimInst, DistanceToGround);
+				}
+			}
+		}
+	}
 }
 
 // Called to bind functionality to input
