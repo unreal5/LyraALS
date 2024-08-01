@@ -121,6 +121,19 @@ public:
 	// turn in place
 	UFUNCTION(Category="原地转身", BlueprintCallable, meta=(BlueprintThreadSafe))
 	void ProcessTurnYawCurve();
+
+	// jumping
+	UPROPERTY(Category="跳跃", BlueprintReadOnly)
+	bool IsJumping;
+	
+	UPROPERTY(Category="跳跃", BlueprintReadOnly)
+	bool IsOnAir;
+
+	UPROPERTY(Category="跳跃", BlueprintReadOnly)
+	float TimeToJumpApex;
+	
+	UPROPERTY(Category="跳跃", BlueprintReadOnly)
+	bool IsFalling;
 private:
 	void GetVelocityData();
 	void GetAccelerationData();

@@ -224,6 +224,9 @@ void UAnimInst_LayerBase::TurnInPlace_Output_BecomeRelevant(const FAnimUpdateCon
 
 	bIsGreaterThan90 = FMath::Abs(RootYawOffset) > 90.f;
 	// UE_LOG(LogLyraALS, Log, TEXT("结点相关"));
+
+	// TODO: 如果旋转的角度大于180度，其实应该反向旋转。
+
 }
 
 void UAnimInst_LayerBase::TurnInPlace_BecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
@@ -290,13 +293,31 @@ UAnimSequenceBase* UAnimInst_LayerBase::SelectPivotAnim()
 
 UAnimSequenceBase* UAnimInst_LayerBase::SelectTurnInPlaceAnimation() const
 {
-	if (bIsGreaterThan90)
+	ULyraBaseAnimInst* ABPBase = GetABPBase();
+	if (!ABPBase) return nullptr;
+
+	EGait CurrentGait = ABPBase->CurrentGait;
+	if(CurrentGait == EGait::Crouch)
 	{
-		return ShouldTurnLeft ? TurnLeft180 : TurnRight180;
+		if (bIsGreaterThan90)
+		{
+			return ShouldTurnLeft ? CrouchTurnLeft180 : CrouchTurnRight180;
+		}
+		else
+		{
+			return ShouldTurnLeft ? CrouchTurnLeft90 : CrouchTurnRight90;
+		}
 	}
 	else
 	{
-		return ShouldTurnLeft ? TurnLeft90 : TurnRight90;
+		if (bIsGreaterThan90)
+		{
+			return ShouldTurnLeft ? TurnLeft180 : TurnRight180;
+		}
+		else
+		{
+			return ShouldTurnLeft ? TurnLeft90 : TurnRight90;
+		}
 	}
 }
 

@@ -44,6 +44,11 @@ ALyraCharacter::ALyraCharacter()
 	// 可以蹲下
 	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
 	GetCharacterMovement()->SetCrouchedHalfHeight(60.f);
+
+	// 设置跳参数
+	GetCharacterMovement()->JumpZVelocity = 700.f;
+	GetCharacterMovement()->BrakingDecelerationFalling = 2048.f;
+	GetCharacterMovement()->AirControl = 0.35f;
 }
 
 // Called when the game starts or when spawned

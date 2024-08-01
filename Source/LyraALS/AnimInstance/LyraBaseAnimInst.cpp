@@ -43,7 +43,7 @@ void ULyraBaseAnimInst::ProcessTurnYawCurve()
 	float LastTurnYawCurve = TurnYawCurve;
 	//
 	auto IsTurning = GetCurveValue("IsTurning");
-	if (IsTurning < 1.f) // recovery or not turn in place
+	if (FMath::IsNearlyZero(IsTurning, 0.01f)) // recovery or not turn in place
 	{
 		TurnYawCurve = 0.f;
 	}
@@ -160,6 +160,30 @@ void ULyraBaseAnimInst::GetCharacterStates()
 	bool LastFrameIsCrouching = IsCrouching;
 	IsCrouching = CurrentGait == EGait::Crouch;
 	CrouchStateChanged = IsCrouching != LastFrameIsCrouching;
+	// jumping
+	if (!GetCharacterMovementComponent()) return;
+
+	IsOnAir = GetCharacterMovementComponent()->IsFalling();
+	if (IsOnAir)
+	{
+		// 其实用两个变量，有点冗余。
+		IsJumping = CharacterVelocity.Z > 0.f;
+		IsFalling = CharacterVelocity.Z < 0.f;
+	}
+	else
+	{
+		IsJumping = false;
+		IsFalling = false;
+	}
+	if (IsJumping) // 计算到达最高点时间
+	{
+		TimeToJumpApex = CharacterVelocity.Z / -GetCharacterMovementComponent()->GetGravityZ();
+		// UE_LOG(LogLyraALS, Warning, TEXT("到达顶点时间：%f"), TimeToJumpApex);
+	}
+	else
+	{
+		TimeToJumpApex = 0.f;
+	}
 }
 
 void ULyraBaseAnimInst::UpdateRootYawOffset(float DeltaTime)

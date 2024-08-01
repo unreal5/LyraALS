@@ -97,7 +97,7 @@ protected:
 	UFUNCTION(Category="Pivot", BlueprintCallable, meta=(BlueprintThreadSafe))
 	void Pivot_OnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
 
-	// 原地转身
+	// 原地转身-站立
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "原地转身")
 	UAnimSequenceBase* TurnLeft90;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "原地转身")
@@ -109,6 +109,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "原地转身")
 	UAnimSequenceBase* TurnRight180;
 
+	// 原地转身-蹲下
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "原地转身")
+	UAnimSequenceBase* CrouchTurnLeft90;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "原地转身")
+	UAnimSequenceBase* CrouchTurnLeft180;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "原地转身")
+	UAnimSequenceBase* CrouchTurnRight90;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "原地转身")
+	UAnimSequenceBase* CrouchTurnRight180;
+	
 	bool bIsGreaterThan90;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "原地转身")
@@ -117,7 +129,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "原地转身")
 	float TurnInPlaceTime;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "原地转身")
+	UPROPERTY()
 	UAnimSequenceBase* FinalTurnAnimation;
 	
 	UFUNCTION(Category="原地转身", BlueprintCallable, meta=(BlueprintThreadSafe))
@@ -144,6 +156,25 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Idle")
 	TObjectPtr<UAnimSequenceBase> CrouchExitAnim;
+
+	// 跳
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Jump")
+	TObjectPtr<UAnimSequenceBase> JumpStartAnim;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Jump")
+	TObjectPtr<UAnimSequenceBase> JumpLoopAnim;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Jump")
+	TObjectPtr<UAnimSequenceBase> JumpApexAnim;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Jump")
+	TObjectPtr<UAnimSequenceBase> JumpFallAnim;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Jump")
+	TObjectPtr<UAnimSequenceBase> JumpLandAnim;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Jump")
+	TObjectPtr<UAnimSequenceBase> JumpRecoveryAnim;
 private:
 	UAnimSequenceBase* SelectAnimSequeceFromAnimSets(const FDirectionalAnimationSet& WalkAnimSet,
 	                                     const FDirectionalAnimationSet& JogAnimSet,
