@@ -31,5 +31,5 @@ public:
 	void ReceivedCurrentGait(EGait Gait);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "动画蓝图接口")
-	void ReceivedGroundDistance(float GroundDistance);
+	void ReceivedGroundDistance(float InComingGroundDistance);
 };

@@ -110,7 +110,8 @@ void ALyraCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	// 只在空中才查询与地面的距离
-	if (GetCharacterMovement()->IsFalling())
+	UWorld* World = GetWorld();
+	if (GetCharacterMovement()->IsFalling() && World)
 	{
 		// 查询与地面的距离
 		FHitResult HitResult;
@@ -125,11 +126,9 @@ void ALyraCharacter::Tick(float DeltaTime)
 		// 用球形查询离地面的距离
 		//UKismetSystemLibrary::SphereTraceSingle(GetWorld(), Start, End, 50.f, ECollisionChannel::ECC_Visibility, false,
 		//	                                        TArray<AActor*>(), EDrawDebugTrace::ForDuration, HitResult, true);
-		UWorld* World = GetWorld();
-		bool const bHit = World
-			                  ? World->SweepSingleByChannel(HitResult, Start, End, FQuat::Identity, ECC_Visibility,
-			                                                FCollisionShape::MakeSphere(Radius), CollisionParams)
-			                  : false;
+
+		bool const bHit = World->SweepSingleByChannel(HitResult, Start, End, FQuat::Identity, ECC_Visibility,
+		                                              FCollisionShape::MakeSphere(Radius), CollisionParams);
 
 #if ENABLE_DRAW_DEBUG
 		DrawDebugSphereTraceSingle(World, Start, End, Radius, EDrawDebugTrace::ForOneFrame, bHit, HitResult,
@@ -138,7 +137,7 @@ void ALyraCharacter::Tick(float DeltaTime)
 		if (bHit)
 		{
 			// 计算与地面的距离
-			const float DistanceToGround = (HitResult.ImpactPoint - Start).Size();
+			const float DistanceToGround = HitResult.Distance;
 			UE_LOG(LogLyraALS, Log, TEXT("与地面的距离：%f"), DistanceToGround);
 			if (auto AnimInst = GetMesh()->GetAnimInstance())
 			{

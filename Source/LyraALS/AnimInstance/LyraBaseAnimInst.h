@@ -134,6 +134,9 @@ public:
 	
 	UPROPERTY(Category="跳跃", BlueprintReadOnly)
 	bool IsFalling;
+
+	UPROPERTY(Category="跳跃", BlueprintReadWrite)
+	float GroundDistanceWhenJumping;
 private:
 	void GetVelocityData();
 	void GetAccelerationData();
