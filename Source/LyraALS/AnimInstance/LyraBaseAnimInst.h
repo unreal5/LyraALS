@@ -137,6 +137,9 @@ public:
 
 	UPROPERTY(Category="跳跃", BlueprintReadWrite)
 	float GroundDistanceWhenJumping;
+
+	UPROPERTY(Category="跳跃", BlueprintReadWrite)
+	float TimeFalling;
 private:
 	void GetVelocityData();
 	void GetAccelerationData();
@@ -151,7 +154,7 @@ private:
 	                                                  float BackwardMin = -130.f, float BackwardMax = 130.f,
 	                                                  float DeadZone = 20.f);
 
-	void GetCharacterStates();
+	void GetCharacterStates(float DeltaTime);
 	void UpdateRootYawOffset(float DeltaTime);
 	void SetRootYawOffset(float Angle);
 };

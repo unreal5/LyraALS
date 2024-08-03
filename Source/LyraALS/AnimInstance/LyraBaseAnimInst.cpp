@@ -20,7 +20,7 @@ void ULyraBaseAnimInst::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 	GetRotationData(DeltaSeconds);
 
 	UpdateOrientation(DeltaSeconds);
-	GetCharacterStates();
+	GetCharacterStates(DeltaSeconds);
 
 	// turn in place
 	UpdateRootYawOffset(DeltaSeconds);
@@ -149,7 +149,7 @@ ELocomotionDirection ULyraBaseAnimInst::CalculateLocomotionDirection(float Curre
 	return CurrentLocomotionAngle > 0.f ? ELocomotionDirection::Right : ELocomotionDirection::Left;
 }
 
-void ULyraBaseAnimInst::GetCharacterStates()
+void ULyraBaseAnimInst::GetCharacterStates(float DeltaTime)
 {
 	// 以这种奇怪的方式实现的原因在于，Gait是接口调用，被动传递的，它没有当前帧和上一帧的概念，
 	// 而别的变量是主动在NativeThreadSafeUpdateAnimation中获取的。
@@ -183,6 +183,15 @@ void ULyraBaseAnimInst::GetCharacterStates()
 	else
 	{
 		TimeToJumpApex = 0.f;
+	}
+
+	if (IsFalling)
+	{
+		TimeFalling += DeltaTime;
+	}
+	else if (IsJumping)
+	{
+		TimeFalling = 0.f;
 	}
 }
 
