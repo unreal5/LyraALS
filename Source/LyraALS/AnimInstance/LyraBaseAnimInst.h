@@ -65,6 +65,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "RotationData")
 	float LeanAngle;
 
+	UPROPERTY(BlueprintReadWrite, Category = "RotationData")
+	float AimPitch;
+	
 	UPROPERTY(BlueprintReadWrite, Category = "LocomotionData")
 	float VelocityLocomotionAngle;
 

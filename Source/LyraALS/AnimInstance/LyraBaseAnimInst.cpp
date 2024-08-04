@@ -81,11 +81,11 @@ void ULyraBaseAnimInst::GetLocationData()
 
 void ULyraBaseAnimInst::GetRotationData(float DeltaSeconds)
 {
-	AActor* OwningActor = GetOwningActor();
-	if (!OwningActor) return;
+	APawn* PawnOwner = TryGetPawnOwner();
+	if (!PawnOwner) return;
 
 	float LastFrameActorYaw = WorldRotation.Yaw;
-	WorldRotation = OwningActor->GetActorRotation();
+	WorldRotation = PawnOwner->GetActorRotation();
 	DeltaActorYaw = WorldRotation.Yaw - LastFrameActorYaw;
 	float DeltaActorYawWithSign = UKismetMathLibrary::SafeDivide(DeltaActorYaw, DeltaSeconds);;
 	// 如果向后运动，则角度取反。
@@ -94,6 +94,7 @@ void ULyraBaseAnimInst::GetRotationData(float DeltaSeconds)
 		DeltaActorYawWithSign = -DeltaActorYawWithSign;
 	}
 	LeanAngle = UKismetMathLibrary::ClampAngle(DeltaActorYawWithSign, -90.f, 90.f);
+	AimPitch = UKismetMathLibrary::NormalizeAxis(PawnOwner->GetBaseAimRotation().Pitch);
 }
 
 void ULyraBaseAnimInst::GetAccelerationData()
