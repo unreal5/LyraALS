@@ -50,6 +50,16 @@ ALyraCharacter::ALyraCharacter()
 	GetCharacterMovement()->JumpZVelocity = 700.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 2048.f;
 	GetCharacterMovement()->AirControl = 0.35f;
+
+	// 添加武器组件
+	Pistol = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Pistol"));
+	Pistol->SetupAttachment(GetMesh(), TEXT("PistolUnEquip"));
+	Pistol->SetSkeletalMesh(ConstructorHelpers::FObjectFinder<USkeletalMesh>(
+		TEXT("/Game/ALS/SkeletalMesh/Pistol/SK_Pistol")).Object);
+	Rifle = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Rifle"));
+	Rifle->SetupAttachment(GetMesh(),TEXT("RifleUnEquip"));
+	Rifle->SetSkeletalMesh(ConstructorHelpers::FObjectFinder<USkeletalMesh>(
+		TEXT("/Game/ALS/SkeletalMesh/Rifle/SK_Rifle")).Object);
 }
 
 // Called when the game starts or when spawned
@@ -102,6 +112,26 @@ void ALyraCharacter::UpdateGait(EGait Gait)
 		}
 	}
 	*/
+}
+
+void ALyraCharacter::ChangeWeapon()
+{
+	const auto& AttachmentRule = FAttachmentTransformRules::SnapToTargetIncludingScale;
+	if (EquippedGun == EGun::UnArmed)
+	{
+		Pistol->AttachToComponent(GetMesh(), AttachmentRule, WeaponSocketName.PistolUnEquipped);
+		Rifle->AttachToComponent(GetMesh(), AttachmentRule, WeaponSocketName.RifleUnEquipped);
+	}
+	else if (EquippedGun == EGun::Pistol)
+	{
+		Pistol->AttachToComponent(GetMesh(), AttachmentRule, WeaponSocketName.WeaponEquipped);
+		Rifle->AttachToComponent(GetMesh(), AttachmentRule, WeaponSocketName.RifleUnEquipped);
+	}
+	else if (EquippedGun == EGun::Rifle)
+	{
+		Pistol->AttachToComponent(GetMesh(), AttachmentRule, WeaponSocketName.PistolUnEquipped);
+		Rifle->AttachToComponent(GetMesh(), AttachmentRule, WeaponSocketName.WeaponEquipped);
+	}
 }
 
 // Called every frame
@@ -222,14 +252,15 @@ void ALyraCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		                                              SwitchWeaponAxis -= 1;
 		                                              GetMesh()->LinkAnimClassLayers(AnimLayers[SwitchWeaponAxis]);
 		                                              EquippedGun = static_cast<EGun>(SwitchWeaponAxis);
-		                                              auto AnimInst = GetMesh()->GetAnimInstance();
-		                                              if (AnimInst)
+		                                              if (auto AnimInst = GetMesh()->GetAnimInstance())
 		                                              {
 			                                              check(AnimInst->GetClass()->ImplementsInterface(
 				                                              UAnimBPInterface::StaticClass()));
 			                                              IAnimBPInterface::Execute_ReceivedEquippedGun(
 				                                              AnimInst, EquippedGun);
 		                                              }
+
+		                                              ChangeWeapon();
 	                                              });
 
 	// Aiming

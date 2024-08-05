@@ -7,6 +7,7 @@
 #include "Enum/Gun.h"
 #include "GameFramework/Character.h"
 #include "Struct/GaitSetting.h"
+#include "Struct/WeaponSocket.h"
 #include "LyraCharacter.generated.h"
 
 class UInputAction;
@@ -18,6 +19,13 @@ UCLASS()
 class LYRAALS_API ALyraCharacter : public ACharacter
 {
 	GENERATED_BODY()
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "武器", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USkeletalMeshComponent> Pistol;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "武器", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USkeletalMeshComponent> Rifle;
+	
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
@@ -78,4 +86,8 @@ private:
 	EGait CurrentGait = EGait::Jogging;
 
 	void UpdateGait(EGait Gait);
+	void ChangeWeapon();
+
+	UPROPERTY()
+	FWeaponSocketName WeaponSocketName;
 };
