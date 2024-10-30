@@ -10,3 +10,11 @@ enum class EGuns : uint8
 	Rifle,
 	EG_Max UMETA(Hidden)
 };
+
+UENUM(BlueprintType)
+enum class EGait : uint8
+{
+	Walking,
+	Jogging,
+	EG_Max UMETA(Hidden)
+};
