@@ -28,3 +28,14 @@ enum class ELocomotionDirection : uint8
 	Left UMETA(DisplayName = "左"),
 	ELD_Max UMETA(Hidden)
 };
+
+UENUM(BlueprintType)
+enum class ERootYawOffsetMode : uint8
+{
+	//位于空闲状态时，要累加
+	Accumulate,
+	// 非空闲状态
+	BlendOut,
+	// 默认状态，不做任何处理
+	Hold,
+};
