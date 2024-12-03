@@ -16,6 +16,7 @@ enum class EGait : uint8
 {
 	Walking,
 	Jogging,
+	Crouching,
 	EG_Max UMETA(Hidden)
 };
 
