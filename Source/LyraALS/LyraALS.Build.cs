@@ -9,6 +9,7 @@ public class LyraALS : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
 		PublicDependencyModuleNames.AddRange(["Core", "CoreUObject", "Engine", "InputCore"]);
+		PrivateDependencyModuleNames.AddRange(["EnhancedInput"]);
 		PublicIncludePaths.Add("LyraALS/");
 	}
 }
