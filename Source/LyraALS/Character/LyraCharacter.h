@@ -47,6 +47,10 @@ class LYRAALS_API ALyraCharacter : public ACharacter
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* Key3Action;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = LinkAnimClassLayer, meta = (AllowPrivateAccess = "true"))
+	TMap<EGunTypes, TSubclassOf<UAnimInstance>> LinkAnimClassMap;
+	
 public:
 	// Sets default values for this character's properties
 	ALyraCharacter();
@@ -62,7 +66,8 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	EGunTypes EquippedGunType = EGunTypes::UnArmed;
-	
+private:
+	bool OnEquippedGunChanged();
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

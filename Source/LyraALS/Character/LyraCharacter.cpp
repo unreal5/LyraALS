@@ -30,10 +30,7 @@ void ALyraCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	// 强制根据当前的状态切换武器
-	if (auto AnimInterface = GetMesh()->GetAnimInstance())
-	{
-		ILyraAnimationInterface::Execute_ReceiveEquippedGun(AnimInterface, EquippedGunType);
-	}
+	OnEquippedGunChanged();
 }
 
 void ALyraCharacter::NotifyControllerChanged()
@@ -71,15 +68,8 @@ void ALyraCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 			// 类型没有改变，不需要切换
 			if (GunType == EquippedGunType) return;
 			EquippedGunType = GunType;
-			// 调用接口函数
-			if (auto AnimInterface = GetMesh()->GetAnimInstance())
-			{
-				ILyraAnimationInterface::Execute_ReceiveEquippedGun(AnimInterface, EquippedGunType);
-			}
-			else
-			{
-				checkf(false, TEXT("AnimInstance is null"));
-			}
+			OnEquippedGunChanged();
+			
 			/*
 			const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EGunTypes"), true);
 			auto DisplayName = EnumPtr->GetDisplayNameTextByValue(static_cast<int64>(EquippedGunType)).ToString();
@@ -95,6 +85,22 @@ void ALyraCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	{
 		UE_LOG(LogTemp, Error, TEXT("'%s' 查找增强型输入组件失败，请确保在项目设置中启用增强型输入插件。"), *GetNameSafe(this));
 	}
+}
+
+bool ALyraCharacter::OnEquippedGunChanged()
+{
+	if (auto AnimInterface = GetMesh()->GetAnimInstance())
+	{
+		if (auto LinkAnimClassItem = LinkAnimClassMap.Find(EquippedGunType))
+		{
+			GetMesh()->LinkAnimClassLayers(*LinkAnimClassItem);
+		
+			ILyraAnimationInterface::Execute_ReceiveEquippedGun(AnimInterface, EquippedGunType);
+			return true;
+		}
+	}
+	checkf(false, TEXT("AnimInstance is null or link anim class item is empty"));
+	return false;
 }
 
 void ALyraCharacter::Move(const FInputActionValue& Value)
