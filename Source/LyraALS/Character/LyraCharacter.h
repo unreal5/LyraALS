@@ -48,6 +48,9 @@ class LYRAALS_API ALyraCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* Key3Action;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* AimAction;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = LinkAnimClassLayer, meta = (AllowPrivateAccess = "true"))
 	TMap<EGunTypes, TSubclassOf<UAnimInstance>> LinkAnimClassMap;
 	

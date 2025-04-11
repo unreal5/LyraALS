@@ -63,7 +63,7 @@ void ALyraCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ALyraCharacter::Look);
 
-		auto Lambda = [this](const FInputActionValue& Value, const EGunTypes GunType)
+		auto WeaponKeyLambda = [this](const FInputActionValue& Value, const EGunTypes GunType)
 		{
 			// 类型没有改变，不需要切换
 			if (GunType == EquippedGunType) return;
@@ -77,9 +77,18 @@ void ALyraCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 			*/
 		};
 		// 键盘1，2，3
-		EnhancedInputComponent->BindActionValueLambda(Key1Action, ETriggerEvent::Started, Lambda, EGunTypes::UnArmed);
-		EnhancedInputComponent->BindActionValueLambda(Key2Action, ETriggerEvent::Started, Lambda, EGunTypes::Pistol);
-		EnhancedInputComponent->BindActionValueLambda(Key3Action, ETriggerEvent::Started, Lambda, EGunTypes::Rifle);
+		EnhancedInputComponent->BindActionValueLambda(Key1Action, ETriggerEvent::Started, WeaponKeyLambda, EGunTypes::UnArmed);
+		EnhancedInputComponent->BindActionValueLambda(Key2Action, ETriggerEvent::Started, WeaponKeyLambda, EGunTypes::Pistol);
+		EnhancedInputComponent->BindActionValueLambda(Key3Action, ETriggerEvent::Started, WeaponKeyLambda, EGunTypes::Rifle);
+
+
+		auto AimingLambda = [this](auto, bool bIsAiming)
+		{
+			FString Msg = bIsAiming ? TEXT("开始瞄准") : TEXT("停止瞄准");
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *Msg);
+		};
+		EnhancedInputComponent->BindActionValueLambda(AimAction, ETriggerEvent::Started, AimingLambda, true);
+		EnhancedInputComponent->BindActionValueLambda(AimAction, ETriggerEvent::Completed, AimingLambda, false);
 	}
 	else
 	{

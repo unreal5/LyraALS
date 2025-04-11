@@ -23,6 +23,9 @@ protected:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="VelocityData")
 	FVector CharacterVelocity2D;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="VelocityData")
+	float CharacterSpeed;
 	
 	UFUNCTION(BlueprintCallable, Category="VelocityData", meta=(BlueprintThreadSafe))
 	void GetVelocityData();

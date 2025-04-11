@@ -22,4 +22,5 @@ void ULyraAnimInstance::GetVelocityData()
 	
 	CharacterVelocity = CharMovementComp->Velocity;
 	CharacterVelocity2D = FVector(CharacterVelocity.X, CharacterVelocity.Y, 0.f);
+	CharacterSpeed = CharacterVelocity.Size();
 }
