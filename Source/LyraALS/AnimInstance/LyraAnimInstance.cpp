@@ -6,7 +6,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-UCharacterMovementComponent* ULyraAnimInstance::GetLyraCharacterMovementComponent()
+UCharacterMovementComponent* ULyraAnimInstance::GetLyraCharacterMovementComponent() const
 {
 	if (auto Char = Cast<ACharacter>(GetOwningActor()))
 	{

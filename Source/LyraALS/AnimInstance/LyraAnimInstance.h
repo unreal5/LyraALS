@@ -16,7 +16,7 @@ class LYRAALS_API ULyraAnimInstance : public UAnimInstance
 	GENERATED_BODY()
 protected:
 	UFUNCTION(BlueprintCallable, Category="Common", meta=(BlueprintThreadSafe, BlueprintPure))
-	UCharacterMovementComponent* GetLyraCharacterMovementComponent();
+	UCharacterMovementComponent* GetLyraCharacterMovementComponent() const;
 	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="VelocityData")
 	FVector CharacterVelocity;
