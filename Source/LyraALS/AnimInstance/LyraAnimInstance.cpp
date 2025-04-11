@@ -3,3 +3,23 @@
 
 #include "AnimInstance/LyraAnimInstance.h"
 
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+
+UCharacterMovementComponent* ULyraAnimInstance::GetLyraCharacterMovementComponent()
+{
+	if (auto Char = Cast<ACharacter>(GetOwningActor()))
+	{
+		return Char->GetCharacterMovement();
+	}
+	return nullptr;
+}
+
+void ULyraAnimInstance::GetVelocityData()
+{
+	auto CharMovementComp = GetLyraCharacterMovementComponent();
+	if (!CharMovementComp) return;
+	
+	CharacterVelocity = CharMovementComp->Velocity;
+	CharacterVelocity2D = FVector(CharacterVelocity.X, CharacterVelocity.Y, 0.f);
+}
