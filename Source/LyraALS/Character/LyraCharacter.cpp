@@ -4,6 +4,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
 #include "Interface/LyraAnimationInterface.h"
@@ -31,6 +32,8 @@ void ALyraCharacter::BeginPlay()
 	Super::BeginPlay();
 	// 强制根据当前的状态切换武器
 	OnEquippedGunChanged();
+	// 强制根据当前的状态切换速度相关的设置
+	UpdateGait(CurrentGait);
 }
 
 void ALyraCharacter::NotifyControllerChanged()
@@ -69,7 +72,7 @@ void ALyraCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 			if (GunType == EquippedGunType) return;
 			EquippedGunType = GunType;
 			OnEquippedGunChanged();
-			
+
 			/*
 			const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EGunTypes"), true);
 			auto DisplayName = EnumPtr->GetDisplayNameTextByValue(static_cast<int64>(EquippedGunType)).ToString();
@@ -77,15 +80,21 @@ void ALyraCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 			*/
 		};
 		// 键盘1，2，3
-		EnhancedInputComponent->BindActionValueLambda(Key1Action, ETriggerEvent::Started, WeaponKeyLambda, EGunTypes::UnArmed);
-		EnhancedInputComponent->BindActionValueLambda(Key2Action, ETriggerEvent::Started, WeaponKeyLambda, EGunTypes::Pistol);
-		EnhancedInputComponent->BindActionValueLambda(Key3Action, ETriggerEvent::Started, WeaponKeyLambda, EGunTypes::Rifle);
+		EnhancedInputComponent->BindActionValueLambda(Key1Action, ETriggerEvent::Started, WeaponKeyLambda,
+		                                              EGunTypes::UnArmed);
+		EnhancedInputComponent->BindActionValueLambda(Key2Action, ETriggerEvent::Started, WeaponKeyLambda,
+		                                              EGunTypes::Pistol);
+		EnhancedInputComponent->BindActionValueLambda(Key3Action, ETriggerEvent::Started, WeaponKeyLambda,
+		                                              EGunTypes::Rifle);
 
 
 		auto AimingLambda = [this](auto, bool bIsAiming)
 		{
-			FString Msg = bIsAiming ? TEXT("开始瞄准") : TEXT("停止瞄准");
-			UE_LOG(LogTemp, Warning, TEXT("%s"), *Msg);
+			auto Gait = bIsAiming ? EGait::Walking : EGait::Jogging;
+			if (Gait != CurrentGait)
+			{
+				UpdateGait(Gait);
+			}
 		};
 		EnhancedInputComponent->BindActionValueLambda(AimAction, ETriggerEvent::Started, AimingLambda, true);
 		EnhancedInputComponent->BindActionValueLambda(AimAction, ETriggerEvent::Completed, AimingLambda, false);
@@ -103,12 +112,35 @@ bool ALyraCharacter::OnEquippedGunChanged()
 		if (auto LinkAnimClassItem = LinkAnimClassMap.Find(EquippedGunType))
 		{
 			GetMesh()->LinkAnimClassLayers(*LinkAnimClassItem);
-		
+
 			ILyraAnimationInterface::Execute_ReceiveEquippedGun(AnimInterface, EquippedGunType);
 			return true;
 		}
 	}
 	checkf(false, TEXT("AnimInstance is null or link anim class item is empty"));
+	return false;
+}
+
+bool ALyraCharacter::UpdateGait(EGait NewGait)
+{
+	CurrentGait = NewGait;
+	if (auto AnimInstance = GetMesh()->GetAnimInstance())
+	{
+		ILyraAnimationInterface::Execute_ReceiveCurrentGait(AnimInstance, CurrentGait);
+	}
+	if (auto GaitSetting = GaitSettingsMap.Find(CurrentGait))
+	{
+		if (auto CharMovementComp = GetCharacterMovement())
+		{
+			CharMovementComp->MaxWalkSpeed = GaitSetting->MaxWalkSpeed;
+			CharMovementComp->MaxAcceleration = GaitSetting->MaxAcceleration;
+			CharMovementComp->BrakingDecelerationWalking = GaitSetting->BrakingDeceleration;
+			CharMovementComp->BrakingFrictionFactor = GaitSetting->BrakingFrictionFactor;
+			CharMovementComp->BrakingFriction = GaitSetting->BrakingFriction;
+			CharMovementComp->bUseSeparateBrakingFriction = GaitSetting->UseSeparateBrakingFriction;
+			return true;
+		}
+	}
 	return false;
 }
 

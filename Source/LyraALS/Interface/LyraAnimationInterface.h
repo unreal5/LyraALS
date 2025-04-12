@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Enums/Gait.h"
 
 #include "Enums/GunTypes.h"
 
@@ -27,4 +28,7 @@ class LYRAALS_API ILyraAnimationInterface
 public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void ReceiveEquippedGun(EGunTypes GunType);
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void ReceiveCurrentGait(EGait Gait);
 };

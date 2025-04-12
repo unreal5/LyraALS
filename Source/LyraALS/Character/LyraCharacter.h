@@ -3,10 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Enums/Gait.h"
 
 #include "Enums/GunTypes.h"
 
 #include "GameFramework/Character.h"
+#include "Structs/GaitSetting.h"
 #include "LyraCharacter.generated.h"
 
 struct FInputActionValue;
@@ -53,7 +55,9 @@ class LYRAALS_API ALyraCharacter : public ACharacter
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = LinkAnimClassLayer, meta = (AllowPrivateAccess = "true"))
 	TMap<EGunTypes, TSubclassOf<UAnimInstance>> LinkAnimClassMap;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = GaitSettings, meta = (AllowPrivateAccess = "true"))
+	TMap<EGait, FGaitSetting> GaitSettingsMap;
 public:
 	// Sets default values for this character's properties
 	ALyraCharacter();
@@ -69,8 +73,10 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	EGunTypes EquippedGunType = EGunTypes::UnArmed;
+	EGait CurrentGait = EGait::Jogging;
 private:
 	bool OnEquippedGunChanged();
+	bool UpdateGait(EGait NewGait);
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

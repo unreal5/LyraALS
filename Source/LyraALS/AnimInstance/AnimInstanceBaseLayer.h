@@ -16,6 +16,10 @@ class LYRAALS_API UAnimInstanceBaseLayer : public UAnimInstance
 {
 	GENERATED_BODY()
 protected:
+	/* Common category */
+	UFUNCTION(BlueprintCallable, Category="Common", meta=(BlueprintThreadSafe, BlueprintPure))
+	class ULyraAnimInstance* GetMainAnimInstance() const;
+	
 	/* Idle category */
 	UPROPERTY(EditDefaultsOnly, Category = "Idle")
 	UAnimSequenceBase* IdleAnim;
