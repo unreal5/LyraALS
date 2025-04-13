@@ -1,12 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AnimInstance/LyraAnimInstance.h"
+#include "AnimInstance/AnimInstance_Main.h"
 
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-UCharacterMovementComponent* ULyraAnimInstance::GetLyraCharacterMovementComponent() const
+UCharacterMovementComponent* UAnimInstance_Main::GetCharacterMovementComponent() const
 {
 	if (auto Char = Cast<ACharacter>(GetOwningActor()))
 	{
@@ -15,9 +15,9 @@ UCharacterMovementComponent* ULyraAnimInstance::GetLyraCharacterMovementComponen
 	return nullptr;
 }
 
-void ULyraAnimInstance::GetVelocityData()
+void UAnimInstance_Main::GetVelocityData()
 {
-	auto CharMovementComp = GetLyraCharacterMovementComponent();
+	auto CharMovementComp = GetCharacterMovementComponent();
 	if (!CharMovementComp) return;
 	
 	CharacterVelocity = CharMovementComp->Velocity;

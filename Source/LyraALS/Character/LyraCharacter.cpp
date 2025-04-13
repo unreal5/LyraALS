@@ -17,7 +17,7 @@ ALyraCharacter::ALyraCharacter()
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = 400.0f; // The camera follows at this distance behind the character
-	CameraBoom->SocketOffset = FVector{0.f, 100.f, 150.f}; // The camera is at this offset from the boom
+	CameraBoom->SocketOffset = FVector{0.f, 100.f, 50.f}; // The camera is at this offset from the boom
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 
 	// Create a follow camera

@@ -5,14 +5,14 @@
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
 #include "Enums/Gait.h"
-#include "LyraAnimInstance.generated.h"
+#include "AnimInstance_Main.generated.h"
 
 class UCharacterMovementComponent;
 /**
  * 
  */
 UCLASS()
-class LYRAALS_API ULyraAnimInstance : public UAnimInstance
+class LYRAALS_API UAnimInstance_Main : public UAnimInstance
 {
 	GENERATED_BODY()
 public:
@@ -20,7 +20,7 @@ public:
 	EGait CurrentGait = EGait::Walking;
 protected:
 	UFUNCTION(BlueprintCallable, Category="Common", meta=(BlueprintThreadSafe, BlueprintPure))
-	UCharacterMovementComponent* GetLyraCharacterMovementComponent() const;
+	UCharacterMovementComponent* GetCharacterMovementComponent() const;
 	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="VelocityData")
 	FVector CharacterVelocity;
