@@ -24,3 +24,11 @@ void UAnimInstance_Main::GetVelocityData()
 	CharacterVelocity2D = FVector(CharacterVelocity.X, CharacterVelocity.Y, 0.f);
 	CharacterSpeed = CharacterVelocity.Size();
 }
+
+void UAnimInstance_Main::GetLocationData()
+{
+	auto OwningActor = GetOwningActor();
+	if (!OwningActor) return;
+
+	WorldLocation = OwningActor->GetActorLocation();
+}

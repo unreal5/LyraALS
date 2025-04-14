@@ -21,17 +21,25 @@ public:
 protected:
 	UFUNCTION(BlueprintCallable, Category="Common", meta=(BlueprintThreadSafe, BlueprintPure))
 	UCharacterMovementComponent* GetCharacterMovementComponent() const;
-	
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="VelocityData")
+
+	// Velocity Data
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Velocity")
 	FVector CharacterVelocity;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="VelocityData")
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Velocity")
 	FVector CharacterVelocity2D;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="VelocityData")
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Velocity")
 	float CharacterSpeed;
 	
-	UFUNCTION(BlueprintCallable, Category="VelocityData", meta=(BlueprintThreadSafe))
+	UFUNCTION(BlueprintCallable, Category="Data | Velocity", meta=(BlueprintThreadSafe))
 	void GetVelocityData();
+
+	// Location Data
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Location")
+	FVector WorldLocation;
+	
+	UFUNCTION(BlueprintCallable, Category="Data | Location", meta=(BlueprintThreadSafe))
+	void GetLocationData();
 
 };
