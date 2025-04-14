@@ -5,13 +5,14 @@
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
 #include "Enums/Gait.h"
+#include "Enums/LocomotionDirection.h"
 #include "AnimInstance_Main.generated.h"
 
 class UCharacterMovementComponent;
 /**
  * 
  */
-UCLASS()
+UCLASS(DisplayName = "主动画实例", Blueprintable, BlueprintType)
 class LYRAALS_API UAnimInstance_Main : public UAnimInstance
 {
 	GENERATED_BODY()
@@ -42,4 +43,23 @@ protected:
 	UFUNCTION(BlueprintCallable, Category="Data | Location", meta=(BlueprintThreadSafe))
 	void GetLocationData();
 
+	// Rotation Data
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Rotation")
+	FRotator WorldRotation;
+
+	UFUNCTION(BlueprintCallable, Category="Data | Rotation", meta=(BlueprintThreadSafe))
+	void GetRotationData();
+
+	// Orientation Data
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Locomotion")
+	float VelocityLocomotionangle;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Locomotion")
+	ELocomotionDirection VelocityLocomotionDirection = ELocomotionDirection::Forward;
+	
+	UFUNCTION(BlueprintCallable, Category="Data | Locomotion", meta=(BlueprintThreadSafe))
+	void UpdateOrientationData();
+
+	UFUNCTION(BlueprintCallable, Category="Data | Locomotion", meta=(BlueprintThreadSafe))
+	void CalculateLocomotionDirection();
 };

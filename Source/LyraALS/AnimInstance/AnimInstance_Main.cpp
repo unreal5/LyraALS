@@ -3,6 +3,7 @@
 
 #include "AnimInstance/AnimInstance_Main.h"
 
+#include "KismetAnimationLibrary.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -19,7 +20,7 @@ void UAnimInstance_Main::GetVelocityData()
 {
 	auto CharMovementComp = GetCharacterMovementComponent();
 	if (!CharMovementComp) return;
-	
+
 	CharacterVelocity = CharMovementComp->Velocity;
 	CharacterVelocity2D = FVector(CharacterVelocity.X, CharacterVelocity.Y, 0.f);
 	CharacterSpeed = CharacterVelocity.Size();
@@ -31,4 +32,17 @@ void UAnimInstance_Main::GetLocationData()
 	if (!OwningActor) return;
 
 	WorldLocation = OwningActor->GetActorLocation();
+}
+
+void UAnimInstance_Main::GetRotationData()
+{
+	auto OwningActor = GetOwningActor();
+	if (!OwningActor) return;
+
+	WorldRotation = OwningActor->GetActorRotation();
+}
+
+void UAnimInstance_Main::UpdateOrientationData()
+{
+	VelocityLocomotionangle = UKismetAnimationLibrary::CalculateDirection(CharacterVelocity2D, WorldRotation);
 }
