@@ -4,6 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+
+#include "Enums/Gait.h"
+#include "Enums/LocomotionDirection.h"
+
+#include "Structs/DirectionalAnimation.h"
+
 #include "AnimInstance_Layer.generated.h"
 
 struct FAnimNodeReference;
@@ -29,14 +35,15 @@ protected:
 
 	/* Cycle category */
 	UPROPERTY(EditDefaultsOnly, Category = "Cycle")
-	UAnimSequenceBase* CycleWalkingAnim;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Cycle")
-	UAnimSequenceBase* CycleJoggingAnim;
+	TMap<EGait, FDirectionalAnimation> CycleAnimations;
 
 	//UFUNCTION(BlueprintCallable, Category = "Cycle", meta = (BlueprintThreadSafe))
 	//void CycleOnBecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
 	
 	UFUNCTION(BlueprintCallable, Category = "Cycle", meta = (BlueprintThreadSafe))
 	void CycleOnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
+
+private:
+	UAnimSequenceBase* SelectAnimByGaitAndDirection(
+		const EGait& CurrentGait, const ELocomotionDirection& CurrentLocomotionDirection, const TMap<EGait, FDirectionalAnimation>& Animations) const;
 };

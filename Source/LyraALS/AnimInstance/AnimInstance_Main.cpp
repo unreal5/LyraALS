@@ -45,4 +45,40 @@ void UAnimInstance_Main::GetRotationData()
 void UAnimInstance_Main::UpdateOrientationData()
 {
 	VelocityLocomotionangle = UKismetAnimationLibrary::CalculateDirection(CharacterVelocity2D, WorldRotation);
+	VelocityLocomotionDirection = CalculateLocomotionDirection(VelocityLocomotionDirection, VelocityLocomotionangle);
+}
+
+ELocomotionDirection UAnimInstance_Main::CalculateLocomotionDirection(
+	const ELocomotionDirection& CurrentLocomotionDirection, float CurrentLocomotionAngle, float BackwardThreshold,
+	float ForwardThreshold, const float DeadZone)
+{
+	const float AbsAngle = FMath::Abs(CurrentLocomotionAngle);
+
+	// 对于前后向，扩大阀值
+	if (CurrentLocomotionDirection == ELocomotionDirection::Backward)
+	{
+		BackwardThreshold -= DeadZone;
+	}
+	else if (CurrentLocomotionDirection == ELocomotionDirection::Forward)
+	{
+		ForwardThreshold += DeadZone;
+	}
+	else if (CurrentLocomotionDirection == ELocomotionDirection::Right)
+	{
+		BackwardThreshold += DeadZone;
+	}
+	else
+	{
+		ForwardThreshold -= DeadZone;
+	}
+
+	if (AbsAngle >= BackwardThreshold)
+	{
+		return ELocomotionDirection::Backward;
+	}
+	if (AbsAngle <= ForwardThreshold)
+	{
+		return ELocomotionDirection::Forward;
+	}
+	return CurrentLocomotionAngle > 0.f ? ELocomotionDirection::Right : ELocomotionDirection::Left;
 }

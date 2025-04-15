@@ -19,6 +19,9 @@ class LYRAALS_API UAnimInstance_Main : public UAnimInstance
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Gait", meta=(DisplayName="当前步态"))
 	EGait CurrentGait = EGait::Walking;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Locomotion")
+	ELocomotionDirection VelocityLocomotionDirection = ELocomotionDirection::Forward;
 protected:
 	UFUNCTION(BlueprintCallable, Category="Common", meta=(BlueprintThreadSafe, BlueprintPure))
 	UCharacterMovementComponent* GetCharacterMovementComponent() const;
@@ -53,13 +56,10 @@ protected:
 	// Orientation Data
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Locomotion")
 	float VelocityLocomotionangle;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Locomotion")
-	ELocomotionDirection VelocityLocomotionDirection = ELocomotionDirection::Forward;
 	
 	UFUNCTION(BlueprintCallable, Category="Data | Locomotion", meta=(BlueprintThreadSafe))
 	void UpdateOrientationData();
 
-	UFUNCTION(BlueprintCallable, Category="Data | Locomotion", meta=(BlueprintThreadSafe))
-	void CalculateLocomotionDirection();
+	//UFUNCTION(BlueprintCallable, Category="Data | Locomotion", meta=(BlueprintThreadSafe))
+	ELocomotionDirection CalculateLocomotionDirection(const ELocomotionDirection& CurrentLocomotionDirection, float CurrentLocomotionAngle, float BackwardThreshold = 135.f, float ForwardThreshold = 45.f, const float DeadZone = 10.f);
 };

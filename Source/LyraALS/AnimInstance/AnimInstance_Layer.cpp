@@ -40,6 +40,13 @@ void UAnimInstance_Layer::CycleOnBecomeRelevant(const FAnimUpdateContext& Contex
 */
 void UAnimInstance_Layer::CycleOnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
 {
+	auto ABPBase = GetABPBase();
+	if (!ABPBase) return;
+	// 获取当前步态
+	const EGait CurrentGait = ABPBase->CurrentGait;
+	// 获取当前运动方向
+	const ELocomotionDirection CurrentLocomotionDirection = ABPBase->VelocityLocomotionDirection;
+
 	FSequencePlayerReference sp;
 	bool Result;
 	USequencePlayerLibrary::ConvertToSequencePlayerPure(Node, sp, Result);
@@ -49,11 +56,48 @@ void UAnimInstance_Layer::CycleOnUpdate(const FAnimUpdateContext& Context, const
 	float CurrentTime = USequencePlayerLibrary::GetAccumulatedTime(sp);
 	// 加上当前帧的DeltaTime
 
+	// 根据步态和方向选择动画。
+	const auto SelectedAnim = SelectAnimByGaitAndDirection(CurrentGait, CurrentLocomotionDirection, CycleAnimations);
+	if (SelectedAnim)
+	{
+		USequencePlayerLibrary::SetSequenceWithInertialBlending(Context, sp, SelectedAnim);
+	}
+	else
+	{
+		// do nothing.
+	}
+
 	//UAnimExecutionContextLibrary::GetDeltaTime(Context);
 	//CurrentTime += Context.GetContext()->GetDeltaTime(); 
-	
-	auto SelectedAnim = GetABPBase()->CurrentGait == EGait::Walking ? CycleWalkingAnim : CycleJoggingAnim;
-	USequencePlayerLibrary::SetSequenceWithInertialBlending(Context, sp, SelectedAnim);
-	//USequencePlayerLibrary::SetAccumulatedTime(sp, CurrentTime);
-	//USequencePlayerLibrary::SetStartPosition(sp, 0.f);
+}
+
+UAnimSequenceBase* UAnimInstance_Layer::SelectAnimByGaitAndDirection(const EGait& CurrentGait,
+                                                                     const ELocomotionDirection&
+                                                                     CurrentLocomotionDirection,
+                                                                     const TMap<EGait, FDirectionalAnimation>&
+                                                                     Animations) const
+{
+	const FDirectionalAnimation* DirectionAnim = Animations.Find(CurrentGait);
+	if (!DirectionAnim)
+	{
+		return nullptr;
+	}
+	UAnimSequenceBase* SelectedAnim = nullptr;
+	switch (CurrentLocomotionDirection)
+	{
+	case ELocomotionDirection::Forward:
+		SelectedAnim = DirectionAnim->ForwardAnim;
+		break;
+	case ELocomotionDirection::Backward:
+		SelectedAnim = DirectionAnim->BackwardAnim;
+		break;
+	case ELocomotionDirection::Left:
+		SelectedAnim = DirectionAnim->LeftAnim;
+		break;
+	case ELocomotionDirection::Right:
+		SelectedAnim = DirectionAnim->RightAnim;
+		break;
+	}
+	check(!!SelectedAnim);
+	return SelectedAnim;
 }
