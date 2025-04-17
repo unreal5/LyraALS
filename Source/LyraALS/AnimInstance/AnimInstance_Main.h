@@ -22,6 +22,17 @@ public:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Locomotion")
 	ELocomotionDirection VelocityLocomotionDirection = ELocomotionDirection::Forward;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Rotation")
+	float ActorYaw;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Rotation")
+	float LastFrameActorYaw;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Rotation")
+	float DeltaActorYaw;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Rotation")
+	float LeanAngle;
+
+
 protected:
 	UFUNCTION(BlueprintCallable, Category="Common", meta=(BlueprintThreadSafe, BlueprintPure))
 	UCharacterMovementComponent* GetCharacterMovementComponent() const;
@@ -39,6 +50,16 @@ protected:
 	UFUNCTION(BlueprintCallable, Category="Data | Velocity", meta=(BlueprintThreadSafe))
 	void GetVelocityData();
 
+	// Acceleration Data
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Acceleration")
+	FVector Acceleration;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Acceleration")
+	FVector Acceleration2D;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Acceleration")
+	bool IsAcceleration;
+	UFUNCTION(BlueprintCallable, Category="Data | Acceleration", meta=(BlueprintThreadSafe))
+	void GetAccelerationData();
+	
 	// Location Data
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Location")
 	FVector WorldLocation;
@@ -51,7 +72,7 @@ protected:
 	FRotator WorldRotation;
 
 	UFUNCTION(BlueprintCallable, Category="Data | Rotation", meta=(BlueprintThreadSafe))
-	void GetRotationData();
+	void GetRotationData(float DeltaTime);
 
 	// Orientation Data
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Locomotion")

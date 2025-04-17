@@ -7,6 +7,8 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+#include "Kismet/KismetMathLibrary.h"
+
 UCharacterMovementComponent* UAnimInstance_Main::GetCharacterMovementComponent() const
 {
 	if (auto Char = Cast<ACharacter>(GetOwningActor()))
@@ -26,6 +28,16 @@ void UAnimInstance_Main::GetVelocityData()
 	CharacterSpeed = CharacterVelocity.Size();
 }
 
+void UAnimInstance_Main::GetAccelerationData()
+{
+	auto CharMovementComp = GetCharacterMovementComponent();
+	if (!CharMovementComp) return;
+	
+	Acceleration = CharMovementComp->GetCurrentAcceleration();
+	Acceleration2D = FVector(Acceleration.X, Acceleration.Y, 0.f);
+	IsAcceleration = !Acceleration2D.IsNearlyZero();
+}
+
 void UAnimInstance_Main::GetLocationData()
 {
 	auto OwningActor = GetOwningActor();
@@ -34,12 +46,21 @@ void UAnimInstance_Main::GetLocationData()
 	WorldLocation = OwningActor->GetActorLocation();
 }
 
-void UAnimInstance_Main::GetRotationData()
+void UAnimInstance_Main::GetRotationData(float DeltaTime)
 {
 	auto OwningActor = GetOwningActor();
 	if (!OwningActor) return;
 
 	WorldRotation = OwningActor->GetActorRotation();
+
+	LastFrameActorYaw = ActorYaw;
+	ActorYaw = WorldRotation.Yaw;
+	DeltaActorYaw = UKismetMathLibrary::SafeDivide(ActorYaw - LastFrameActorYaw, DeltaTime);
+	LeanAngle = FMath::Clamp(DeltaActorYaw / 6.f, -90.f, 90.f);
+	if (VelocityLocomotionDirection == ELocomotionDirection::Backward)
+    {
+        LeanAngle = -LeanAngle;
+    }
 }
 
 void UAnimInstance_Main::UpdateOrientationData()
