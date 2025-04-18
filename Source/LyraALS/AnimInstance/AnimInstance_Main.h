@@ -83,4 +83,7 @@ protected:
 
 	//UFUNCTION(BlueprintCallable, Category="Data | Locomotion", meta=(BlueprintThreadSafe))
 	ELocomotionDirection CalculateLocomotionDirection(const ELocomotionDirection& CurrentLocomotionDirection, float CurrentLocomotionAngle, float BackwardThreshold = 135.f, float ForwardThreshold = 45.f, const float DeadZone = 10.f);
+
+public:
+	virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
 };

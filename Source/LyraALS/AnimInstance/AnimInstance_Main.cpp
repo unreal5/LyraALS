@@ -103,3 +103,8 @@ ELocomotionDirection UAnimInstance_Main::CalculateLocomotionDirection(
 	}
 	return CurrentLocomotionAngle > 0.f ? ELocomotionDirection::Right : ELocomotionDirection::Left;
 }
+
+void UAnimInstance_Main::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
+{
+	Super::NativeThreadSafeUpdateAnimation(DeltaSeconds);
+}

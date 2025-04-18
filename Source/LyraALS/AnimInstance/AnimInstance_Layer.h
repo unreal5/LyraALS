@@ -43,6 +43,16 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Cycle", meta = (BlueprintThreadSafe))
 	void CycleOnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
 
+	/* Stop category */
+	UPROPERTY(EditDefaultsOnly, Category = "Stop")
+	TMap<EGait, FDirectionalAnimation> StopAnimations;
+	
+	UFUNCTION(BlueprintCallable, Category = "Stop", meta = (BlueprintThreadSafe))
+	void StopOnBecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
+
+	UFUNCTION(BlueprintCallable, Category = "Stop", meta = (BlueprintThreadSafe))
+	void StopOnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
+	
 private:
 	UAnimSequenceBase* SelectAnimByGaitAndDirection(
 		const EGait& CurrentGait, const ELocomotionDirection& CurrentLocomotionDirection, const TMap<EGait, FDirectionalAnimation>& Animations) const;

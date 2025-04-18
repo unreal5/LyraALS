@@ -5,7 +5,10 @@
 
 #include "AnimExecutionContextLibrary.h"
 #include "AnimInstance_Main.h"
+#include "SequenceEvaluatorLibrary.h"
 #include "SequencePlayerLibrary.h"
+#include "Animation/AnimInstanceProxy.h"
+#include "AnimNodes/AnimNode_SequenceEvaluator.h"
 
 UAnimInstance_Main* UAnimInstance_Layer::GetABPBase() const
 {
@@ -69,6 +72,39 @@ void UAnimInstance_Layer::CycleOnUpdate(const FAnimUpdateContext& Context, const
 
 	//UAnimExecutionContextLibrary::GetDeltaTime(Context);
 	//CurrentTime += Context.GetContext()->GetDeltaTime(); 
+}
+
+// 当相关时，判定使用哪个动画
+void UAnimInstance_Layer::StopOnBecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
+{
+	auto ABPBase = GetABPBase();
+	if (!ABPBase) return;
+
+
+	// 当前使用分层动画，因此返回的是分层动画的实例，例如：UnArmed_Layer，……。
+	// 仅供学习测试
+	/*
+	auto&& Proxy = GetProxyOnAnyThread<FAnimInstanceProxy>();
+	auto LayerAnimInst = Cast<UAnimInstance_Layer>(Proxy.GetAnimInstanceObject());
+	if (!LayerAnimInst) return;
+	*/
+	FSequenceEvaluatorReference SequenceEvaluator;
+	bool Result;
+	USequenceEvaluatorLibrary::ConvertToSequenceEvaluatorPure(Node, SequenceEvaluator, Result);
+	if (!Result) return;
+	auto SelectedAnim = SelectAnimByGaitAndDirection(ABPBase->CurrentGait, ABPBase->VelocityLocomotionDirection, StopAnimations);
+	if (SelectedAnim)
+	{
+		USequenceEvaluatorLibrary::SetSequenceWithInertialBlending(Context, SequenceEvaluator, SelectedAnim);
+	}
+	else
+	{
+		// do nothing.
+	}
+}
+
+void UAnimInstance_Layer::StopOnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
+{
 }
 
 UAnimSequenceBase* UAnimInstance_Layer::SelectAnimByGaitAndDirection(const EGait& CurrentGait,
