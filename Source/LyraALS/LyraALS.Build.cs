@@ -8,7 +8,7 @@ public class LyraALS : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PrivateDependencyModuleNames.AddRange(["AnimGraphRuntime", "EnhancedInput"]);
+		PrivateDependencyModuleNames.AddRange(["AnimGraphRuntime", "EnhancedInput", "AnimationLocomotionLibraryRuntime"]);
 		PublicDependencyModuleNames.AddRange(["Core", "CoreUObject", "Engine", "InputCore"]);
 
 		PublicIncludePaths.Add("LyraALS/");

@@ -25,6 +25,9 @@ protected:
 	/* Common category */
 	UFUNCTION(BlueprintCallable, Category="Common", meta=(BlueprintThreadSafe, BlueprintPure))
 	class UAnimInstance_Main* GetABPBase() const;
+
+	UFUNCTION(BlueprintCallable, Category="Common", meta=(BlueprintThreadSafe, BlueprintPure))
+	class UCharacterMovementComponent* GetCharacterMovementComponent() const;
 	
 	/* Idle category */
 	UPROPERTY(EditDefaultsOnly, Category = "Idle")

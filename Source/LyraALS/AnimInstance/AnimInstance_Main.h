@@ -33,10 +33,10 @@ public:
 	float LeanAngle;
 
 
-protected:
+
 	UFUNCTION(BlueprintCallable, Category="Common", meta=(BlueprintThreadSafe, BlueprintPure))
 	UCharacterMovementComponent* GetCharacterMovementComponent() const;
-
+protected:
 	// Velocity Data
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Velocity")
 	FVector CharacterVelocity;
