@@ -7,6 +7,7 @@
 #include "SequenceEvaluatorLibrary.h"
 #include "SequencePlayerLibrary.h"
 #include "AnimCharacterMovementLibrary.h"
+#include "AnimDistanceMatchingLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 UAnimInstance_Main* UAnimInstance_Layer::GetABPBase() const
@@ -84,9 +85,6 @@ void UAnimInstance_Layer::CycleOnUpdate(const FAnimUpdateContext& Context, const
 // 当相关时，判定使用哪个动画
 void UAnimInstance_Layer::StopOnBecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
 {
-
-
-
 	// 当前使用分层动画，因此返回的是分层动画的实例，例如：UnArmed_Layer，……。
 	// 仅供学习测试
 	/*
@@ -96,7 +94,7 @@ void UAnimInstance_Layer::StopOnBecomeRelevant(const FAnimUpdateContext& Context
 	*/
 	auto ABPBase = GetABPBase();
 	if (!ABPBase) return;
-	
+
 	FSequenceEvaluatorReference SequenceEvaluator;
 	bool Result;
 	USequenceEvaluatorLibrary::ConvertToSequenceEvaluatorPure(Node, SequenceEvaluator, Result);
@@ -122,14 +120,14 @@ void UAnimInstance_Layer::StopOnUpdate(const FAnimUpdateContext& Context, const 
 		UE_LOG(LogTemp, Error, TEXT("UAnimInstance_Layer::StopOnUpdate: CharacterMovementComp is nullptr"));
 		return;
 	}
-	
+
 	FSequenceEvaluatorReference SequenceEvaluator;
 	bool Result;
 	USequenceEvaluatorLibrary::ConvertToSequenceEvaluatorPure(Node, SequenceEvaluator, Result);
 	if (!Result) return;
 
 	// 预测停止位置
-	auto Velocity= CharacterMovementComp->Velocity;
+	auto Velocity = CharacterMovementComp->Velocity;
 	bool bUseSeparateBrakingFriction = CharacterMovementComp->bUseSeparateBrakingFriction;
 	auto BrakingFriction = CharacterMovementComp->BrakingFriction;
 	auto GroundFriction = CharacterMovementComp->GroundFriction;
@@ -143,12 +141,12 @@ void UAnimInstance_Layer::StopOnUpdate(const FAnimUpdateContext& Context, const 
 	if (FMath::IsNearlyZero(StopDistance, 0.0001f))
 	{
 		USequenceEvaluatorLibrary::AdvanceTime(Context, SequenceEvaluator);
-		UE_LOG(LogTemp, Warning, TEXT("AdvanceTime: %f"), StopDistance);
 	}
 	else
 	{
 		// 找帧，推进
-		UE_LOG(LogTemp, Warning, TEXT("找帧->推进时间线"));
+		//UE_LOG(LogTemp, Warning, TEXT("AdvanceTime: %f"), StopDistance);
+		UAnimDistanceMatchingLibrary::DistanceMatchToTarget(SequenceEvaluator, StopDistance, FName("Distance"));
 	}
 }
 

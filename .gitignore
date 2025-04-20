@@ -18,4 +18,4 @@ CourseAssets
 *.sln
 *.suo
 *.vsconfig
-*.uproject.DotSettings.user
+*.user
