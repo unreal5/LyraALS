@@ -23,6 +23,9 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Locomotion")
 	ELocomotionDirection VelocityLocomotionDirection = ELocomotionDirection::Forward;
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Locomotion")
+	ELocomotionDirection LastFrameVelocityLocomotionDirection = ELocomotionDirection::Forward;
+	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Rotation")
 	float ActorYaw;
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Rotation")

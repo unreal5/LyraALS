@@ -65,6 +65,7 @@ void UAnimInstance_Main::GetRotationData(float DeltaTime)
 
 void UAnimInstance_Main::UpdateOrientationData()
 {
+	LastFrameVelocityLocomotionDirection = VelocityLocomotionDirection;
 	VelocityLocomotionangle = UKismetAnimationLibrary::CalculateDirection(CharacterVelocity2D, WorldRotation);
 	VelocityLocomotionDirection = CalculateLocomotionDirection(VelocityLocomotionDirection, VelocityLocomotionangle);
 }
