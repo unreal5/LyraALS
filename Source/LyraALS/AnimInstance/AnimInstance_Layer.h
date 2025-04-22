@@ -55,7 +55,14 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Stop", meta = (BlueprintThreadSafe))
 	void StopOnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
-	
+
+	// Start category
+	UPROPERTY(EditDefaultsOnly, Category = "Start")
+	TMap<EGait, FDirectionalAnimation> StartAnimations;
+	UFUNCTION(BlueprintCallable, Category = "Start", meta = (BlueprintThreadSafe))
+	void StartOnBecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
+	UFUNCTION(BlueprintCallable, Category = "Start", meta = (BlueprintThreadSafe))
+	void StartOnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
 private:
 	UAnimSequenceBase* SelectAnimByGaitAndDirection(
 		const EGait& CurrentGait, const ELocomotionDirection& CurrentLocomotionDirection, const TMap<EGait, FDirectionalAnimation>& Animations) const;

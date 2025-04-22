@@ -43,7 +43,9 @@ void UAnimInstance_Main::GetLocationData()
 	auto OwningActor = GetOwningActor();
 	if (!OwningActor) return;
 
+	LastFrameWorldLocation = WorldLocation;;
 	WorldLocation = OwningActor->GetActorLocation();
+	DeltaLocation = (WorldLocation - LastFrameWorldLocation).Size2D();
 }
 
 void UAnimInstance_Main::GetRotationData(float DeltaTime)

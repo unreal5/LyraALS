@@ -23,7 +23,7 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Locomotion")
 	ELocomotionDirection VelocityLocomotionDirection = ELocomotionDirection::Forward;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Locomotion")
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category="Data | Locomotion")
 	ELocomotionDirection LastFrameVelocityLocomotionDirection = ELocomotionDirection::Forward;
 	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Rotation")
@@ -35,7 +35,8 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Rotation")
 	float LeanAngle;
 
-
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Location")
+	float DeltaLocation = 0.f;
 
 	UFUNCTION(BlueprintCallable, Category="Common", meta=(BlueprintThreadSafe, BlueprintPure))
 	UCharacterMovementComponent* GetCharacterMovementComponent() const;
@@ -66,6 +67,8 @@ protected:
 	// Location Data
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Location")
 	FVector WorldLocation;
+	UPROPERTY(Transient)
+	FVector LastFrameWorldLocation;
 	
 	UFUNCTION(BlueprintCallable, Category="Data | Location", meta=(BlueprintThreadSafe))
 	void GetLocationData();
