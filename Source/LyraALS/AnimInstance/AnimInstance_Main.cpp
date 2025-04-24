@@ -107,6 +107,11 @@ ELocomotionDirection UAnimInstance_Main::CalculateLocomotionDirection(
 	return CurrentLocomotionAngle > 0.f ? ELocomotionDirection::Right : ELocomotionDirection::Left;
 }
 
+void UAnimInstance_Main::PivotOnBecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
+{
+	PivotAcceleration2D = Acceleration2D;
+}
+
 void UAnimInstance_Main::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeThreadSafeUpdateAnimation(DeltaSeconds);

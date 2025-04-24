@@ -8,6 +8,8 @@
 #include "Enums/LocomotionDirection.h"
 #include "AnimInstance_Main.generated.h"
 
+struct FAnimNodeReference;
+struct FAnimUpdateContext;
 class UCharacterMovementComponent;
 /**
  * 
@@ -38,6 +40,9 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Location")
 	float DeltaLocation = 0.f;
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Acceleration")
+	FVector PivotAcceleration2D = FVector::ZeroVector;
+	
 	UFUNCTION(BlueprintCallable, Category="Common", meta=(BlueprintThreadSafe, BlueprintPure))
 	UCharacterMovementComponent* GetCharacterMovementComponent() const;
 protected:
@@ -90,6 +95,9 @@ protected:
 	//UFUNCTION(BlueprintCallable, Category="Data | Locomotion", meta=(BlueprintThreadSafe))
 	ELocomotionDirection CalculateLocomotionDirection(const ELocomotionDirection& CurrentLocomotionDirection, float CurrentLocomotionAngle, float BackwardThreshold = 135.f, float ForwardThreshold = 45.f, const float DeadZone = 10.f);
 
+	// Pivot 相关
+	UFUNCTION(BlueprintCallable, Category = "Stop", meta = (BlueprintThreadSafe))
+	void PivotOnBecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
 public:
 	virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
 };
