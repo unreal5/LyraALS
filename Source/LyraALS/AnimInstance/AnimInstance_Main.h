@@ -40,6 +40,11 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Location")
 	float DeltaLocation = 0.f;
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Locomotion")
+	float AccelerationLocomotionAngle = 0.f;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Locomotion")
+	ELocomotionDirection AccelerationLocomotionDirection;
+	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Acceleration")
 	FVector PivotAcceleration2D = FVector::ZeroVector;
 	

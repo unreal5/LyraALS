@@ -32,7 +32,7 @@ void UAnimInstance_Main::GetAccelerationData()
 {
 	auto CharMovementComp = GetCharacterMovementComponent();
 	if (!CharMovementComp) return;
-	
+
 	Acceleration = CharMovementComp->GetCurrentAcceleration();
 	Acceleration2D = FVector(Acceleration.X, Acceleration.Y, 0.f);
 	IsAcceleration = !Acceleration2D.IsNearlyZero();
@@ -60,16 +60,21 @@ void UAnimInstance_Main::GetRotationData(float DeltaTime)
 	DeltaActorYaw = UKismetMathLibrary::SafeDivide(ActorYaw - LastFrameActorYaw, DeltaTime);
 	LeanAngle = FMath::Clamp(DeltaActorYaw / 6.f, -90.f, 90.f);
 	if (VelocityLocomotionDirection == ELocomotionDirection::Backward)
-    {
-        LeanAngle = -LeanAngle;
-    }
+	{
+		LeanAngle = -LeanAngle;
+	}
 }
 
 void UAnimInstance_Main::UpdateOrientationData()
 {
 	LastFrameVelocityLocomotionDirection = VelocityLocomotionDirection;
+	// 计算加速度与角色的夹角
+	AccelerationLocomotionAngle = UKismetAnimationLibrary::CalculateDirection(Acceleration2D, WorldRotation);
+
 	VelocityLocomotionangle = UKismetAnimationLibrary::CalculateDirection(CharacterVelocity2D, WorldRotation);
 	VelocityLocomotionDirection = CalculateLocomotionDirection(VelocityLocomotionDirection, VelocityLocomotionangle);
+
+	AccelerationLocomotionDirection =	CalculateLocomotionDirection(AccelerationLocomotionDirection, AccelerationLocomotionAngle);
 }
 
 ELocomotionDirection UAnimInstance_Main::CalculateLocomotionDirection(

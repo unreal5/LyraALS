@@ -188,6 +188,42 @@ void UAnimInstance_Layer::StartOnUpdate(const FAnimUpdateContext& Context, const
 	UAnimDistanceMatchingLibrary::AdvanceTimeByDistanceMatching(Context, SequenceEvaluator, Distance,FName("Distance"));
 }
 
+void UAnimInstance_Layer::PivotOnBecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
+{
+	auto ABPBase = GetABPBase();
+	if (!ABPBase) return;
+	
+	FSequenceEvaluatorReference SequenceEvaluator;
+	bool Result;
+	USequenceEvaluatorLibrary::ConvertToSequenceEvaluatorPure(Node, SequenceEvaluator, Result);
+	if (!Result) return;
+
+	// 获取当前步态
+	const EGait CurrentGait = ABPBase->CurrentGait;
+	// 获取当前运动方向
+	const ELocomotionDirection CurrentAccelerationLocomotionDirection = ABPBase->AccelerationLocomotionDirection;
+	auto SelectedAnim = SelectAnimByGaitAndDirection(CurrentGait, CurrentAccelerationLocomotionDirection, PivotAnimations);
+	if (!SelectedAnim)
+	{
+		checkf(false, TEXT("检查Pivot动画是否设置"));
+		// do nothing.
+		return;
+	}
+	USequenceEvaluatorLibrary::SetSequenceWithInertialBlending(Context, SequenceEvaluator, SelectedAnim);
+	USequenceEvaluatorLibrary::SetExplicitTime(SequenceEvaluator, 0.f);
+}
+
+void UAnimInstance_Layer::PivotOnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
+{
+	auto ABPBase = GetABPBase();
+	if (!ABPBase) return;
+	
+	FSequenceEvaluatorReference SequenceEvaluator;
+	bool Result;
+	USequenceEvaluatorLibrary::ConvertToSequenceEvaluatorPure(Node, SequenceEvaluator, Result);
+	if (!Result) return;
+}
+
 UAnimSequenceBase* UAnimInstance_Layer::SelectAnimByGaitAndDirection(const EGait& CurrentGait,
                                                                      const ELocomotionDirection&
                                                                      CurrentLocomotionDirection,

@@ -63,6 +63,17 @@ protected:
 	void StartOnBecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
 	UFUNCTION(BlueprintCallable, Category = "Start", meta = (BlueprintThreadSafe))
 	void StartOnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
+
+
+	// Pivot category
+	UPROPERTY(EditDefaultsOnly, Category = "Pivot")
+	TMap<EGait, FDirectionalAnimation> PivotAnimations;
+	
+	UFUNCTION(BlueprintCallable, Category = "Pivot", meta = (BlueprintThreadSafe))
+	void PivotOnBecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
+
+	UFUNCTION(BlueprintCallable, Category = "Pivot", meta = (BlueprintThreadSafe))
+	void PivotOnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
 private:
 	UAnimSequenceBase* SelectAnimByGaitAndDirection(
 		const EGait& CurrentGait, const ELocomotionDirection& CurrentLocomotionDirection, const TMap<EGait, FDirectionalAnimation>& Animations) const;
