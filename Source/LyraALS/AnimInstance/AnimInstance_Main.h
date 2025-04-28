@@ -27,6 +27,9 @@ public:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category="Data | Locomotion")
 	ELocomotionDirection LastFrameVelocityLocomotionDirection = ELocomotionDirection::Forward;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Velocity")
+	FVector CharacterVelocity2D;
 	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Rotation")
 	float ActorYaw;
@@ -50,13 +53,10 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category="Common", meta=(BlueprintThreadSafe, BlueprintPure))
 	UCharacterMovementComponent* GetCharacterMovementComponent() const;
-protected:
+
 	// Velocity Data
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Velocity")
 	FVector CharacterVelocity;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Velocity")
-	FVector CharacterVelocity2D;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Velocity")
 	float CharacterSpeed;

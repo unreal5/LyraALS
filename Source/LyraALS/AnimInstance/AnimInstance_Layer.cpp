@@ -177,7 +177,7 @@ void UAnimInstance_Layer::StartOnUpdate(const FAnimUpdateContext& Context, const
 {
 	auto ABPBase = GetABPBase();
 	if (!ABPBase) return;
-	
+
 	FSequenceEvaluatorReference SequenceEvaluator;
 	bool Result;
 	USequenceEvaluatorLibrary::ConvertToSequenceEvaluatorPure(Node, SequenceEvaluator, Result);
@@ -185,14 +185,15 @@ void UAnimInstance_Layer::StartOnUpdate(const FAnimUpdateContext& Context, const
 
 	//USequenceEvaluatorLibrary::AdvanceTime(Context, SequenceEvaluator);
 	float Distance = ABPBase->DeltaLocation;
-	UAnimDistanceMatchingLibrary::AdvanceTimeByDistanceMatching(Context, SequenceEvaluator, Distance,FName("Distance"));
+	UAnimDistanceMatchingLibrary::AdvanceTimeByDistanceMatching(Context, SequenceEvaluator, Distance,
+	                                                            FName("Distance"));
 }
 
 void UAnimInstance_Layer::PivotOnBecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
 {
 	auto ABPBase = GetABPBase();
 	if (!ABPBase) return;
-	
+
 	FSequenceEvaluatorReference SequenceEvaluator;
 	bool Result;
 	USequenceEvaluatorLibrary::ConvertToSequenceEvaluatorPure(Node, SequenceEvaluator, Result);
@@ -202,7 +203,8 @@ void UAnimInstance_Layer::PivotOnBecomeRelevant(const FAnimUpdateContext& Contex
 	const EGait CurrentGait = ABPBase->CurrentGait;
 	// 获取当前运动方向
 	const ELocomotionDirection CurrentAccelerationLocomotionDirection = ABPBase->AccelerationLocomotionDirection;
-	auto SelectedAnim = SelectAnimByGaitAndDirection(CurrentGait, CurrentAccelerationLocomotionDirection, PivotAnimations);
+	auto SelectedAnim = SelectAnimByGaitAndDirection(CurrentGait, CurrentAccelerationLocomotionDirection,
+	                                                 PivotAnimations);
 	if (!SelectedAnim)
 	{
 		checkf(false, TEXT("检查Pivot动画是否设置"));
@@ -217,11 +219,52 @@ void UAnimInstance_Layer::PivotOnUpdate(const FAnimUpdateContext& Context, const
 {
 	auto ABPBase = GetABPBase();
 	if (!ABPBase) return;
-	
+
 	FSequenceEvaluatorReference SequenceEvaluator;
 	bool Result;
 	USequenceEvaluatorLibrary::ConvertToSequenceEvaluatorPure(Node, SequenceEvaluator, Result);
 	if (!Result) return;
+
+	// 通过计算加速度和速度的点积，得出目前角色位于哪个阶段（停止？前进？）
+	auto Velocity2D = ABPBase->CharacterVelocity2D.GetSafeNormal2D();
+	auto Acceleration2D = ABPBase->PivotAcceleration2D.GetSafeNormal2D();
+	auto Dot = FVector::DotProduct(Velocity2D, Acceleration2D);
+	if (Dot < 0.f) // 停止阶段，进行距离匹配
+	{
+		// 获取当前步态
+		const EGait CurrentGait = ABPBase->CurrentGait;
+		// 获取当前运动方向
+		const ELocomotionDirection CurrentAccelerationLocomotionDirection = ABPBase->AccelerationLocomotionDirection;
+		auto SelectedAnim = SelectAnimByGaitAndDirection(CurrentGait, CurrentAccelerationLocomotionDirection,
+		                                                 PivotAnimations);
+		auto PreviousAnim = USequenceEvaluatorLibrary::GetSequence(SequenceEvaluator);
+		// 如果当前动画和上次的动画不一样，重新设置，要进行调试，感觉这里多此一举。
+		if (!SelectedAnim || SelectedAnim != PreviousAnim)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("检查Pivot动画是否设置"));
+			USequenceEvaluatorLibrary::SetSequenceWithInertialBlending(Context, SequenceEvaluator, SelectedAnim);
+			USequenceEvaluatorLibrary::SetExplicitTime(SequenceEvaluator, 0.f);
+		}
+
+		auto CharacterMovementComp = GetCharacterMovementComponent();
+		if (!CharacterMovementComp)
+		{
+			UE_LOG(LogTemp, Error, TEXT("UAnimInstance_Layer::PivotOnUpdate: CharacterMovementComp is nullptr"));
+			return;
+		}
+		// 预测折返点位置
+		auto Velocity = ABPBase->CharacterVelocity;
+		auto GroundFriction = CharacterMovementComp->GroundFriction;
+		// ABPBase->Acceleration2D 和 ABPBase->PivotAcceleration2D 要注意区别
+		auto StopDistance = UAnimCharacterMovementLibrary::PredictGroundMovementPivotLocation(
+			ABPBase->Acceleration2D, Velocity, GroundFriction).Size2D();
+		UAnimDistanceMatchingLibrary::DistanceMatchToTarget(SequenceEvaluator, StopDistance, FName("Distance"));
+	}
+	else // 加速阶段，按距离推进
+	{
+		UAnimDistanceMatchingLibrary::AdvanceTimeByDistanceMatching(Context, SequenceEvaluator, ABPBase->DeltaLocation,
+		                                                            FName("Distance"));
+	}
 }
 
 UAnimSequenceBase* UAnimInstance_Layer::SelectAnimByGaitAndDirection(const EGait& CurrentGait,
