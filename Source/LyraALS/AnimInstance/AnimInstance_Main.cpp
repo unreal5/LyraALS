@@ -74,7 +74,8 @@ void UAnimInstance_Main::UpdateOrientationData()
 	VelocityLocomotionangle = UKismetAnimationLibrary::CalculateDirection(CharacterVelocity2D, WorldRotation);
 	VelocityLocomotionDirection = CalculateLocomotionDirection(VelocityLocomotionDirection, VelocityLocomotionangle);
 
-	AccelerationLocomotionDirection =	CalculateLocomotionDirection(AccelerationLocomotionDirection, AccelerationLocomotionAngle);
+	AccelerationLocomotionDirection = CalculateLocomotionDirection(AccelerationLocomotionDirection,
+	                                                               AccelerationLocomotionAngle);
 }
 
 ELocomotionDirection UAnimInstance_Main::CalculateLocomotionDirection(

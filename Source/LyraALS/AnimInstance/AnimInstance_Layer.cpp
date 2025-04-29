@@ -194,25 +194,22 @@ void UAnimInstance_Layer::PivotOnBecomeRelevant(const FAnimUpdateContext& Contex
 	auto ABPBase = GetABPBase();
 	if (!ABPBase) return;
 
+	bIsStopPhase = true;
+
 	FSequenceEvaluatorReference SequenceEvaluator;
 	bool Result;
 	USequenceEvaluatorLibrary::ConvertToSequenceEvaluatorPure(Node, SequenceEvaluator, Result);
 	if (!Result) return;
 
-	// 获取当前步态
+	// 获取当前步态、运动方向
 	const EGait CurrentGait = ABPBase->CurrentGait;
-	// 获取当前运动方向
-	const ELocomotionDirection CurrentAccelerationLocomotionDirection = ABPBase->AccelerationLocomotionDirection;
-	auto SelectedAnim = SelectAnimByGaitAndDirection(CurrentGait, CurrentAccelerationLocomotionDirection,
-	                                                 PivotAnimations);
-	if (!SelectedAnim)
+	const ELocomotionDirection AccelDirection = ABPBase->AccelerationLocomotionDirection;
+	// 计算出应选择的动画
+	if (auto SelectedAnim = SelectAnimByGaitAndDirection(CurrentGait, AccelDirection, PivotAnimations))
 	{
-		checkf(false, TEXT("检查Pivot动画是否设置"));
-		// do nothing.
-		return;
+		USequenceEvaluatorLibrary::SetSequenceWithInertialBlending(Context, SequenceEvaluator, SelectedAnim);
+		USequenceEvaluatorLibrary::SetExplicitTime(SequenceEvaluator, 0.f);
 	}
-	USequenceEvaluatorLibrary::SetSequenceWithInertialBlending(Context, SequenceEvaluator, SelectedAnim);
-	USequenceEvaluatorLibrary::SetExplicitTime(SequenceEvaluator, 0.f);
 }
 
 void UAnimInstance_Layer::PivotOnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
@@ -226,10 +223,11 @@ void UAnimInstance_Layer::PivotOnUpdate(const FAnimUpdateContext& Context, const
 	if (!Result) return;
 
 	// 通过计算加速度和速度的点积，得出目前角色位于哪个阶段（停止？前进？）
-	auto Velocity2D = ABPBase->CharacterVelocity2D.GetSafeNormal2D();
-	auto Acceleration2D = ABPBase->PivotAcceleration2D.GetSafeNormal2D();
-	auto Dot = FVector::DotProduct(Velocity2D, Acceleration2D);
-	if (Dot < 0.f) // 停止阶段，进行距离匹配
+	auto Velocity2D = ABPBase->CharacterVelocity2D;
+	//auto Acceleration2D = EnterPivotAcceleration2D;//ABPBase->PivotAcceleration2D.GetSafeNormal2D();
+	//auto Dot = FVector::DotProduct(Velocity2D, EnterPivotAcceleration2D);
+	//if (Dot < 0.f) // 停止阶段，进行距离匹配
+	if (bIsStopPhase)
 	{
 		// 获取当前步态
 		const EGait CurrentGait = ABPBase->CurrentGait;
@@ -241,9 +239,7 @@ void UAnimInstance_Layer::PivotOnUpdate(const FAnimUpdateContext& Context, const
 		// 如果当前动画和上次的动画不一样，重新设置，要进行调试，感觉这里多此一举。
 		if (!SelectedAnim || SelectedAnim != PreviousAnim)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("检查Pivot动画是否设置"));
 			USequenceEvaluatorLibrary::SetSequenceWithInertialBlending(Context, SequenceEvaluator, SelectedAnim);
-			USequenceEvaluatorLibrary::SetExplicitTime(SequenceEvaluator, 0.f);
 		}
 
 		auto CharacterMovementComp = GetCharacterMovementComponent();
@@ -259,11 +255,20 @@ void UAnimInstance_Layer::PivotOnUpdate(const FAnimUpdateContext& Context, const
 		auto StopDistance = UAnimCharacterMovementLibrary::PredictGroundMovementPivotLocation(
 			ABPBase->Acceleration2D, Velocity, GroundFriction).Size2D();
 		UAnimDistanceMatchingLibrary::DistanceMatchToTarget(SequenceEvaluator, StopDistance, FName("Distance"));
+
+		//UE_LOG(LogTemp, Warning, TEXT("stop阶段，距离：%f"), StopDistance);
+		// 强制加速度和速度一致
+		if (FMath::IsNearlyZero(StopDistance, 0.1f))
+		{
+			//EnterPivotAcceleration2D = ABPBase->CharacterVelocity2D;
+			bIsStopPhase = false;
+		}
 	}
 	else // 加速阶段，按距离推进
 	{
 		UAnimDistanceMatchingLibrary::AdvanceTimeByDistanceMatching(Context, SequenceEvaluator, ABPBase->DeltaLocation,
 		                                                            FName("Distance"));
+		//UE_LOG(LogTemp, Warning, TEXT("推进阶段，距离 = %f"), ABPBase->DeltaLocation);
 	}
 }
 

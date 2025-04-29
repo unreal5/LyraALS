@@ -66,6 +66,10 @@ protected:
 
 
 	// Pivot category
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Pivot")
+	//FVector EnterPivotAcceleration2D;
+	bool bIsStopPhase;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Pivot")
 	TMap<EGait, FDirectionalAnimation> PivotAnimations;
 	
