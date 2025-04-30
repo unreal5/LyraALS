@@ -194,8 +194,6 @@ void UAnimInstance_Layer::PivotOnBecomeRelevant(const FAnimUpdateContext& Contex
 	auto ABPBase = GetABPBase();
 	if (!ABPBase) return;
 
-	bIsStopPhase = true;
-
 	FSequenceEvaluatorReference SequenceEvaluator;
 	bool Result;
 	USequenceEvaluatorLibrary::ConvertToSequenceEvaluatorPure(Node, SequenceEvaluator, Result);
@@ -222,53 +220,41 @@ void UAnimInstance_Layer::PivotOnUpdate(const FAnimUpdateContext& Context, const
 	USequenceEvaluatorLibrary::ConvertToSequenceEvaluatorPure(Node, SequenceEvaluator, Result);
 	if (!Result) return;
 
+	// 二步计算：1、位于哪个阶段？2、stop则进行距离匹配，推进动画；start阶段则推进动画
+
 	// 通过计算加速度和速度的点积，得出目前角色位于哪个阶段（停止？前进？）
 	auto Velocity2D = ABPBase->CharacterVelocity2D;
-	//auto Acceleration2D = EnterPivotAcceleration2D;//ABPBase->PivotAcceleration2D.GetSafeNormal2D();
-	//auto Dot = FVector::DotProduct(Velocity2D, EnterPivotAcceleration2D);
-	//if (Dot < 0.f) // 停止阶段，进行距离匹配
-	if (bIsStopPhase)
+	const auto Acceleration2D = ABPBase->Acceleration2D;
+	const FName CurveName = FName("Distance");
+
+	if (FVector::DotProduct(Velocity2D, Acceleration2D) < 0.f) // 停止阶段，进行距离匹配
 	{
-		// 获取当前步态
+		auto CharacterMovementComp = GetCharacterMovementComponent();
+		if (!CharacterMovementComp) return;
+
 		const EGait CurrentGait = ABPBase->CurrentGait;
-		// 获取当前运动方向
 		const ELocomotionDirection CurrentAccelerationLocomotionDirection = ABPBase->AccelerationLocomotionDirection;
+		auto PreviousAnim = USequenceEvaluatorLibrary::GetSequence(SequenceEvaluator);
 		auto SelectedAnim = SelectAnimByGaitAndDirection(CurrentGait, CurrentAccelerationLocomotionDirection,
 		                                                 PivotAnimations);
-		auto PreviousAnim = USequenceEvaluatorLibrary::GetSequence(SequenceEvaluator);
-		// 如果当前动画和上次的动画不一样，重新设置，要进行调试，感觉这里多此一举。
-		if (!SelectedAnim || SelectedAnim != PreviousAnim)
+		if (SelectedAnim != PreviousAnim)
 		{
+			// 如果不一致，需要重新设置动画，否则动作会很滑稽。
 			USequenceEvaluatorLibrary::SetSequenceWithInertialBlending(Context, SequenceEvaluator, SelectedAnim);
-		}
-
-		auto CharacterMovementComp = GetCharacterMovementComponent();
-		if (!CharacterMovementComp)
-		{
-			UE_LOG(LogTemp, Error, TEXT("UAnimInstance_Layer::PivotOnUpdate: CharacterMovementComp is nullptr"));
-			return;
+			// 在折返运动时，会经常发生这种情况，并不需要重置时间；因为随后我们会根据折返点匹配到相应的动画帧。
 		}
 		// 预测折返点位置
 		auto Velocity = ABPBase->CharacterVelocity;
 		auto GroundFriction = CharacterMovementComp->GroundFriction;
-		// ABPBase->Acceleration2D 和 ABPBase->PivotAcceleration2D 要注意区别
 		auto StopDistance = UAnimCharacterMovementLibrary::PredictGroundMovementPivotLocation(
-			ABPBase->Acceleration2D, Velocity, GroundFriction).Size2D();
-		UAnimDistanceMatchingLibrary::DistanceMatchToTarget(SequenceEvaluator, StopDistance, FName("Distance"));
-
-		//UE_LOG(LogTemp, Warning, TEXT("stop阶段，距离：%f"), StopDistance);
-		// 强制加速度和速度一致
-		if (FMath::IsNearlyZero(StopDistance, 0.1f))
-		{
-			//EnterPivotAcceleration2D = ABPBase->CharacterVelocity2D;
-			bIsStopPhase = false;
-		}
+			Acceleration2D, Velocity, GroundFriction).Size2D();
+		UAnimDistanceMatchingLibrary::DistanceMatchToTarget(SequenceEvaluator, StopDistance, CurveName);
 	}
 	else // 加速阶段，按距离推进
 	{
-		UAnimDistanceMatchingLibrary::AdvanceTimeByDistanceMatching(Context, SequenceEvaluator, ABPBase->DeltaLocation,
-		                                                            FName("Distance"));
-		//UE_LOG(LogTemp, Warning, TEXT("推进阶段，距离 = %f"), ABPBase->DeltaLocation);
+		const auto DeltaLocation = ABPBase->DeltaLocation;
+		UAnimDistanceMatchingLibrary::AdvanceTimeByDistanceMatching(Context, SequenceEvaluator, DeltaLocation,
+		                                                            CurveName);
 	}
 }
 
