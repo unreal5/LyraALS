@@ -57,8 +57,8 @@ void UAnimInstance_Main::GetRotationData(float DeltaTime)
 
 	LastFrameActorYaw = ActorYaw;
 	ActorYaw = WorldRotation.Yaw;
-	DeltaActorYaw = UKismetMathLibrary::SafeDivide(ActorYaw - LastFrameActorYaw, DeltaTime);
-	LeanAngle = FMath::Clamp(DeltaActorYaw / 6.f, -90.f, 90.f);
+	DeltaActorYaw = ActorYaw - LastFrameActorYaw;
+	LeanAngle = FMath::Clamp(UKismetMathLibrary::SafeDivide(DeltaActorYaw, DeltaTime) / 6.f, -90.f, 90.f);
 	if (VelocityLocomotionDirection == ELocomotionDirection::Backward)
 	{
 		LeanAngle = -LeanAngle;
