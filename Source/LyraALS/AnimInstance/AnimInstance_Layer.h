@@ -21,18 +21,19 @@ UCLASS()
 class LYRAALS_API UAnimInstance_Layer : public UAnimInstance
 {
 	GENERATED_BODY()
+
 protected:
 	/* Common category */
-	UFUNCTION(BlueprintCallable, Category="Common", meta=(BlueprintThreadSafe, BlueprintPure))
+	UFUNCTION(BlueprintCallable, Category="Common", BlueprintPure, meta=(BlueprintThreadSafe))
 	class UAnimInstance_Main* GetABPBase() const;
 
-	UFUNCTION(BlueprintCallable, Category="Common", meta=(BlueprintThreadSafe, BlueprintPure))
+	UFUNCTION(BlueprintCallable, Category="Common", BlueprintPure, meta=(BlueprintThreadSafe))
 	class UCharacterMovementComponent* GetCharacterMovementComponent() const;
-	
+
 	/* Idle category */
 	UPROPERTY(EditDefaultsOnly, Category = "Idle")
 	UAnimSequenceBase* IdleAnim;
-	
+
 	UFUNCTION(BlueprintCallable, Category = "Idle", meta = (BlueprintThreadSafe))
 	void IdleOnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
 
@@ -42,14 +43,14 @@ protected:
 
 	//UFUNCTION(BlueprintCallable, Category = "Cycle", meta = (BlueprintThreadSafe))
 	//void CycleOnBecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
-	
+
 	UFUNCTION(BlueprintCallable, Category = "Cycle", meta = (BlueprintThreadSafe))
 	void CycleOnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
 
 	/* Stop category */
 	UPROPERTY(EditDefaultsOnly, Category = "Stop")
 	TMap<EGait, FDirectionalAnimation> StopAnimations;
-	
+
 	UFUNCTION(BlueprintCallable, Category = "Stop", meta = (BlueprintThreadSafe))
 	void StopOnBecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
 
@@ -69,13 +70,15 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Pivot")
 	TMap<EGait, FDirectionalAnimation> PivotAnimations;
-	
+
 	UFUNCTION(BlueprintCallable, Category = "Pivot", meta = (BlueprintThreadSafe))
 	void PivotOnBecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
 
 	UFUNCTION(BlueprintCallable, Category = "Pivot", meta = (BlueprintThreadSafe))
 	void PivotOnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
+
 private:
 	UAnimSequenceBase* SelectAnimByGaitAndDirection(
-		const EGait& CurrentGait, const ELocomotionDirection& CurrentLocomotionDirection, const TMap<EGait, FDirectionalAnimation>& Animations) const;
+		const EGait& CurrentGait, const ELocomotionDirection& CurrentLocomotionDirection,
+		const TMap<EGait, FDirectionalAnimation>& Animations) const;
 };
