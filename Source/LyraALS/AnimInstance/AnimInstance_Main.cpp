@@ -9,6 +9,32 @@
 
 #include "Kismet/KismetMathLibrary.h"
 
+void UAnimInstance_Main::UpdateRootYawOffset(float DeltaTime)
+{
+	switch (RootYawOffsetMode)
+	{
+	case ERootYawOffsetMode::Accumulate:
+		SetRootYawOffset(RootYawOffset - DeltaActorYaw);
+		break;
+	case ERootYawOffsetMode::BlendOut:
+		{
+			float SpringInterp = UKismetMathLibrary::FloatSpringInterp(RootYawOffset, 0.f, RootYawOffsetSpringState,
+			                                                           80.f,
+			                                                           1.f, DeltaTime, 1.f, 0.5f);
+			SetRootYawOffset(SpringInterp);
+		}
+		break;
+	default:
+		break;
+	}
+	RootYawOffsetMode = ERootYawOffsetMode::BlendOut;
+}
+
+void UAnimInstance_Main::SetRootYawOffset(float Angle)
+{
+	RootYawOffset = UKismetMathLibrary::NormalizeAxis(Angle);
+}
+
 UCharacterMovementComponent* UAnimInstance_Main::GetCharacterMovementComponent() const
 {
 	if (auto Char = Cast<ACharacter>(GetOwningActor()))
@@ -72,6 +98,10 @@ void UAnimInstance_Main::UpdateOrientationData()
 	AccelerationLocomotionAngle = UKismetAnimationLibrary::CalculateDirection(Acceleration2D, WorldRotation);
 
 	VelocityLocomotionangle = UKismetAnimationLibrary::CalculateDirection(CharacterVelocity2D, WorldRotation);
+	// 由于插值的存在，在角色运动时，RootYawOffset并不立即为0，这里给补偿回去（先 - RootYawOffset, 然后在动画层中 + RootYawOffset。
+	// 其实不计算也可以，直接在ABP_Layer中使用VelocityLocomotionangle + RootYawOffset。
+	VelocityLocomotionAngleWithOffset = UKismetMathLibrary::NormalizeAxis(VelocityLocomotionangle - RootYawOffset);
+
 	VelocityLocomotionDirection = CalculateLocomotionDirection(VelocityLocomotionDirection, VelocityLocomotionangle);
 
 	AccelerationLocomotionDirection = CalculateLocomotionDirection(AccelerationLocomotionDirection,

@@ -6,6 +6,8 @@
 #include "Animation/AnimInstance.h"
 #include "Enums/Gait.h"
 #include "Enums/LocomotionDirection.h"
+#include "Enums/RootYawOffsetMode.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "AnimInstance_Main.generated.h"
 
 struct FAnimNodeReference;
@@ -47,6 +49,16 @@ public:
 	float AccelerationLocomotionAngle = 0.f;
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Locomotion")
 	ELocomotionDirection AccelerationLocomotionDirection;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="RootYawOffset")
+	float RootYawOffset = 0.f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="RootYawOffset")
+	ERootYawOffsetMode RootYawOffsetMode = ERootYawOffsetMode::Accumulate;
+	UFUNCTION(BlueprintCallable, Category="RootYawOffset", meta=(BlueprintThreadSafe))
+	void UpdateRootYawOffset(float DeltaTime);
+	UFUNCTION(BlueprintCallable, Category="RootYawOffset", meta=(BlueprintThreadSafe))
+	void SetRootYawOffset(float Angle);
+	FFloatSpringState RootYawOffsetSpringState;
 	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Acceleration")
 	FVector PivotAcceleration2D = FVector::ZeroVector;
@@ -93,6 +105,9 @@ public:
 	// Orientation Data
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Locomotion")
 	float VelocityLocomotionangle;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Locomotion")
+	float VelocityLocomotionAngleWithOffset;
 	
 	UFUNCTION(BlueprintCallable, Category="Data | Locomotion", meta=(BlueprintThreadSafe))
 	void UpdateOrientationData();
