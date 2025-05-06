@@ -258,6 +258,36 @@ void UAnimInstance_Layer::PivotOnUpdate(const FAnimUpdateContext& Context, const
 	}
 }
 
+void UAnimInstance_Layer::SetUpTurnInPlaceEntry(const FAnimUpdateContext& Context,
+                                                           const FAnimNodeReference& Node)
+{
+	auto ABPBase = GetABPBase();
+	if (!ABPBase) return;
+	bShouldTurnLeft = FMath::Sign(ABPBase->RootYawOffset) > 0.f;
+}
+
+void UAnimInstance_Layer::TurnInPlaceOnBecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
+{
+	FSequenceEvaluatorReference SequenceEvaluator;
+	bool Result;
+	USequenceEvaluatorLibrary::ConvertToSequenceEvaluatorPure(Node, SequenceEvaluator, Result);
+	if (!Result) return;
+
+	auto TurnInPlaceAnim = bShouldTurnLeft ? TurnLeftAnim : TurnRightAnim;
+	USequenceEvaluatorLibrary::SetSequenceWithInertialBlending(Context, SequenceEvaluator, TurnInPlaceAnim);
+	USequenceEvaluatorLibrary::SetExplicitTime(SequenceEvaluator, 0.f);
+}
+
+void UAnimInstance_Layer::TurnInPlaceOnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
+{
+	FSequenceEvaluatorReference SequenceEvaluator;
+	bool Result;
+	USequenceEvaluatorLibrary::ConvertToSequenceEvaluatorPure(Node, SequenceEvaluator, Result);
+	if (!Result) return;
+	USequenceEvaluatorLibrary::AdvanceTime(Context, SequenceEvaluator);
+}
+
+
 UAnimSequenceBase* UAnimInstance_Layer::SelectAnimByGaitAndDirection(const EGait& CurrentGait,
                                                                      const ELocomotionDirection&
                                                                      CurrentLocomotionDirection,

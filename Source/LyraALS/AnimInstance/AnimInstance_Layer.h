@@ -77,6 +77,23 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Pivot", meta = (BlueprintThreadSafe))
 	void PivotOnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
 
+	// turn in place
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "TurnInPlace")
+	bool bShouldTurnLeft;
+	
+	UFUNCTION(BlueprintCallable, Category = "TurnInPlace", meta = (BlueprintThreadSafe))
+	void SetUpTurnInPlaceEntry(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
+
+	UFUNCTION(BlueprintCallable, Category = "TurnInPlace", meta = (BlueprintThreadSafe))
+	void TurnInPlaceOnBecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
+	
+	UFUNCTION(BlueprintCallable, Category = "TurnInPlace", meta = (BlueprintThreadSafe))
+	void TurnInPlaceOnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "TurnInPlace")
+	UAnimSequenceBase* TurnLeftAnim;
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "TurnInPlace")
+	UAnimSequenceBase* TurnRightAnim;
 private:
 	UAnimSequenceBase* SelectAnimByGaitAndDirection(
 		const EGait& CurrentGait, const ELocomotionDirection& CurrentLocomotionDirection,
