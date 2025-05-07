@@ -99,6 +99,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "TurnInPlace")
 	UAnimSequenceBase* TurnRightAnim180;
 
+	UPROPERTY(VisibleDefaultsOnly,BlueprintReadOnly, Category = "TurnInPlace")
+	UAnimSequenceBase* FinalTurnAnimation;
+
+	UPROPERTY(VisibleDefaultsOnly,BlueprintReadOnly, Category = "TurnInPlace")
 	float TurnInPlaceTime;
 private:
 	UAnimSequenceBase* SelectAnimByGaitAndDirection(

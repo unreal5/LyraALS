@@ -118,6 +118,14 @@ public:
 	// Pivot 相关
 	UFUNCTION(BlueprintCallable, Category = "Stop", meta = (BlueprintThreadSafe))
 	void PivotOnBecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
+
+	// Idle-turn in place
+	UFUNCTION(BlueprintCallable, Category = "Idle", meta = (BlueprintThreadSafe))
+	void OnUpdateIdleState(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
+
+	void ProcessTurnYawCurve();
+	float TurnYawCurveValue;
+	float LastFrameTurnYawCurveValue;
 public:
 	virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
 };

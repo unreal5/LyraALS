@@ -274,9 +274,9 @@ void UAnimInstance_Layer::TurnInPlaceOnBecomeRelevant(const FAnimUpdateContext& 
 	USequenceEvaluatorLibrary::ConvertToSequenceEvaluatorPure(Node, SequenceEvaluator, Result);
 	if (!Result) return;
 
-	auto TurnInPlaceAnim = SelectTurnInPlaceAnimation(bShouldTurnLeft);
+	FinalTurnAnimation = SelectTurnInPlaceAnimation(bShouldTurnLeft);
 
-	USequenceEvaluatorLibrary::SetSequenceWithInertialBlending(Context, SequenceEvaluator, TurnInPlaceAnim);
+	USequenceEvaluatorLibrary::SetSequenceWithInertialBlending(Context, SequenceEvaluator, FinalTurnAnimation);
 	TurnInPlaceTime = 0.f;
 	USequenceEvaluatorLibrary::SetExplicitTime(SequenceEvaluator, TurnInPlaceTime);
 }
@@ -289,7 +289,8 @@ void UAnimInstance_Layer::TurnInPlaceOnUpdate(const FAnimUpdateContext& Context,
 	if (!Result) return;
 
 	TurnInPlaceTime += UAnimExecutionContextLibrary::GetDeltaTime(Context);
-	float IsTurning = GetCurveValue("IsTurning");
+	
+	
 	USequenceEvaluatorLibrary::SetExplicitTime(SequenceEvaluator, TurnInPlaceTime);
 }
 

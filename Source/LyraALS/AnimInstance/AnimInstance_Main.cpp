@@ -4,8 +4,10 @@
 #include "AnimInstance/AnimInstance_Main.h"
 
 #include "KismetAnimationLibrary.h"
+#include "Animation/AnimInstanceProxy.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "Kismet/KismetMathLibrary.h"
 
@@ -148,7 +150,44 @@ void UAnimInstance_Main::PivotOnBecomeRelevant(const FAnimUpdateContext& Context
 	PivotAcceleration2D = Acceleration2D;
 }
 
+void UAnimInstance_Main::OnUpdateIdleState(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
+{
+	RootYawOffsetMode = ERootYawOffsetMode::Accumulate;
+	ProcessTurnYawCurve();
+}
+
+void UAnimInstance_Main::ProcessTurnYawCurve()
+{
+	LastFrameTurnYawCurveValue = TurnYawCurveValue;
+	float IsTurningValue = GetCurveValue("IsTurning");
+	if (IsTurningValue < 1.f) // recovery phase
+	{
+		TurnYawCurveValue = LastFrameTurnYawCurveValue = 0.f;
+	}
+	else
+	{
+		TurnYawCurveValue = UKismetMathLibrary::SafeDivide(GetCurveValue("root_rotation_Z"), IsTurningValue);
+		if (!FMath::IsNearlyZero(LastFrameTurnYawCurveValue))
+		{
+			const float Delta = TurnYawCurveValue - LastFrameTurnYawCurveValue;
+			SetRootYawOffset(RootYawOffset - Delta);
+		}
+	}
+}
+
+
 void UAnimInstance_Main::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeThreadSafeUpdateAnimation(DeltaSeconds);
+	auto NativeThreadId = FPlatformTLS::GetCurrentThreadId();
+	// 如果判定游戏正在运行？
+	if (GWorld && GWorld->HasBegunPlay() && !UGameplayStatics::IsGamePaused(GWorld))
+	{
+		auto&& Proxy = GetProxyOnAnyThread<FAnimInstanceProxy>();
+		//if (GGameThreadId == NativeThreadId)
+		//{
+		//	UE_LOG(LogTemp, Warning, TEXT("主线程调用Native thread safe update animation"));
+		//}
+		//UE_LOG(LogTemp, Warning, TEXT("游戏线程ID: %d, 当前线程ID: %d, Proxy Id = %s"), GGameThreadId, NativeThreadId, *Proxy.GetAnimInstanceName());
+	}
 }
