@@ -91,11 +91,19 @@ protected:
 	void TurnInPlaceOnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "TurnInPlace")
-	UAnimSequenceBase* TurnLeftAnim;
+	UAnimSequenceBase* TurnLeftAnim90;
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "TurnInPlace")
-	UAnimSequenceBase* TurnRightAnim;
+	UAnimSequenceBase* TurnLeftAnim180;
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "TurnInPlace")
+	UAnimSequenceBase* TurnRightAnim90;
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "TurnInPlace")
+	UAnimSequenceBase* TurnRightAnim180;
+
+	float TurnInPlaceTime;
 private:
 	UAnimSequenceBase* SelectAnimByGaitAndDirection(
 		const EGait& CurrentGait, const ELocomotionDirection& CurrentLocomotionDirection,
 		const TMap<EGait, FDirectionalAnimation>& Animations) const;
+
+	UAnimSequenceBase* SelectTurnInPlaceAnimation(const bool bTurnLeftOrRight) const;
 };

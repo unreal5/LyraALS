@@ -8,6 +8,7 @@
 #include "SequencePlayerLibrary.h"
 #include "AnimCharacterMovementLibrary.h"
 #include "AnimDistanceMatchingLibrary.h"
+#include "AnimExecutionContextLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 UAnimInstance_Main* UAnimInstance_Layer::GetABPBase() const
@@ -259,7 +260,7 @@ void UAnimInstance_Layer::PivotOnUpdate(const FAnimUpdateContext& Context, const
 }
 
 void UAnimInstance_Layer::SetUpTurnInPlaceEntry(const FAnimUpdateContext& Context,
-                                                           const FAnimNodeReference& Node)
+                                                const FAnimNodeReference& Node)
 {
 	auto ABPBase = GetABPBase();
 	if (!ABPBase) return;
@@ -273,9 +274,11 @@ void UAnimInstance_Layer::TurnInPlaceOnBecomeRelevant(const FAnimUpdateContext& 
 	USequenceEvaluatorLibrary::ConvertToSequenceEvaluatorPure(Node, SequenceEvaluator, Result);
 	if (!Result) return;
 
-	auto TurnInPlaceAnim = bShouldTurnLeft ? TurnLeftAnim : TurnRightAnim;
+	auto TurnInPlaceAnim = SelectTurnInPlaceAnimation(bShouldTurnLeft);
+
 	USequenceEvaluatorLibrary::SetSequenceWithInertialBlending(Context, SequenceEvaluator, TurnInPlaceAnim);
-	USequenceEvaluatorLibrary::SetExplicitTime(SequenceEvaluator, 0.f);
+	TurnInPlaceTime = 0.f;
+	USequenceEvaluatorLibrary::SetExplicitTime(SequenceEvaluator, TurnInPlaceTime);
 }
 
 void UAnimInstance_Layer::TurnInPlaceOnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
@@ -284,7 +287,10 @@ void UAnimInstance_Layer::TurnInPlaceOnUpdate(const FAnimUpdateContext& Context,
 	bool Result;
 	USequenceEvaluatorLibrary::ConvertToSequenceEvaluatorPure(Node, SequenceEvaluator, Result);
 	if (!Result) return;
-	USequenceEvaluatorLibrary::AdvanceTime(Context, SequenceEvaluator);
+
+	TurnInPlaceTime += UAnimExecutionContextLibrary::GetDeltaTime(Context);
+	float IsTurning = GetCurveValue("IsTurning");
+	USequenceEvaluatorLibrary::SetExplicitTime(SequenceEvaluator, TurnInPlaceTime);
 }
 
 
@@ -317,4 +323,19 @@ UAnimSequenceBase* UAnimInstance_Layer::SelectAnimByGaitAndDirection(const EGait
 	}
 	check(!!SelectedAnim);
 	return SelectedAnim;
+}
+
+UAnimSequenceBase* UAnimInstance_Layer::SelectTurnInPlaceAnimation(const bool bTurnLeftOrRight) const
+{
+	auto ABPBase = GetABPBase();
+	if (!ABPBase) return nullptr;
+	bool GreaterThan90 = FMath::Abs(ABPBase->RootYawOffset) >= 90.f ? true : false;
+	if (bTurnLeftOrRight)
+	{
+		return GreaterThan90 ? TurnLeftAnim180 : TurnLeftAnim90;
+	}
+	else
+	{
+		return GreaterThan90 ? TurnRightAnim180 : TurnRightAnim90;
+	}
 }
