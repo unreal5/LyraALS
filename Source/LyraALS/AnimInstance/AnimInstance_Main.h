@@ -124,7 +124,9 @@ public:
 	void OnUpdateIdleState(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
 
 	void ProcessTurnYawCurve();
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "RootYawOffset")
 	float TurnYawCurveValue;
+	
 	float LastFrameTurnYawCurveValue;
 public:
 	virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
