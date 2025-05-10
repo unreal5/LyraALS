@@ -128,6 +128,10 @@ public:
 	float TurnYawCurveValue;
 	
 	float LastFrameTurnYawCurveValue;
+
+	// 下蹲相关
+	UPROPERTY(BlueprintReadWrite, Category="Crouching")
+	bool bIsCrouching = false;
 public:
 	virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
 };

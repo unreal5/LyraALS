@@ -104,7 +104,7 @@ void UAnimInstance_Layer::StopOnBecomeRelevant(const FAnimUpdateContext& Context
 	                                                 StopAnimations);
 	if (!SelectedAnim)
 	{
-		checkf(false, TEXT("检查停止动画是否设置"));
+		//checkf(false, TEXT("检查停止动画是否设置"));
 		// do nothing.
 		return;
 	}
@@ -166,7 +166,7 @@ void UAnimInstance_Layer::StartOnBecomeRelevant(const FAnimUpdateContext& Contex
 	auto SelectedAnim = SelectAnimByGaitAndDirection(CurrentGait, CurrentLocomotionDirection, StartAnimations);
 	if (!SelectedAnim)
 	{
-		checkf(false, TEXT("检查开始动画是否设置"));
+		//checkf(false, TEXT("检查开始动画是否设置"));
 		// do nothing.
 		return;
 	}

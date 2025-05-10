@@ -25,6 +25,8 @@ ALyraCharacter::ALyraCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	// Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+
+	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
 }
 
 void ALyraCharacter::BeginPlay()
@@ -87,6 +89,8 @@ void ALyraCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		EnhancedInputComponent->BindActionValueLambda(Key3Action, ETriggerEvent::Started, WeaponKeyLambda,
 		                                              EGunTypes::Rifle);
 
+		// Crouch
+		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &ThisClass::OnCrouch);
 
 		auto AimingLambda = [this](auto, bool bIsAiming)
 		{
@@ -169,5 +173,22 @@ void ALyraCharacter::Look(const FInputActionValue& Value)
 		// add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
+	}
+}
+
+void ALyraCharacter::OnCrouch(const FInputActionValue& Value)
+{
+	switch (CurrentGait)
+	{
+	case EGait::Crouch:
+		UpdateGait(EGait::Jogging);
+		UnCrouch();
+		break;
+	case EGait::Jogging:
+		// fall through
+	case EGait::Walking:
+		UpdateGait(EGait::Crouch);
+		Crouch();
+		break;
 	}
 }
