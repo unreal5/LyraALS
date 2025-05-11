@@ -132,6 +132,10 @@ public:
 	// 下蹲相关
 	UPROPERTY(BlueprintReadWrite, Category="Crouching")
 	bool bIsCrouching = false;
+	UPROPERTY(BlueprintReadWrite, Category="Crouching")
+	bool LastFrameIsCrouched;
+	UPROPERTY(BlueprintReadWrite, Category="Crouching")
+	bool CrouchStateChanged;
 public:
 	virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
 };
