@@ -29,27 +29,16 @@ void UAnimInstance_Layer::IdleOnUpdate(const FAnimUpdateContext& Context, const 
 	FSequencePlayerReference sp;
 	bool Result;
 	USequencePlayerLibrary::ConvertToSequencePlayerPure(Node, sp, Result);
-	if (Result)
-	{
-		USequencePlayerLibrary::SetSequenceWithInertialBlending(Context, sp, IdleAnim);
-	}
-}
-
-/* 如果只在BecomeRelevant中设置动画，则在Update时，如果切换状态，无法切换动画 */
-/* 因此，需要在Update中，根据步态设置动画 */
-/*
-void UAnimInstance_Layer::CycleOnBecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
-{
-	FSequencePlayerReference sp;
-	bool Result;
-	USequencePlayerLibrary::ConvertToSequencePlayerPure(Node, sp, Result);
 	if (!Result) return;
+	auto ABPBase = GetABPBase();
+	if (!ABPBase) return;
 
-	auto SelectedAnim = GetABPBase()->CurrentGait == EGait::Walking ? CycleWalkingAnim : CycleJoggingAnim;
+	const bool bIsCrounching = ABPBase->bIsCrouching;
+
+	const auto SelectedAnim = bIsCrounching ? CrouchIdleAnim : IdleAnim;
 	USequencePlayerLibrary::SetSequenceWithInertialBlending(Context, sp, SelectedAnim);
-	USequencePlayerLibrary::SetStartPosition(sp, 0.f);
 }
-*/
+
 void UAnimInstance_Layer::CycleOnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
 {
 	auto ABPBase = GetABPBase();
@@ -289,8 +278,8 @@ void UAnimInstance_Layer::TurnInPlaceOnUpdate(const FAnimUpdateContext& Context,
 	if (!Result) return;
 
 	TurnInPlaceTime += UAnimExecutionContextLibrary::GetDeltaTime(Context);
-	
-	
+
+
 	USequenceEvaluatorLibrary::SetExplicitTime(SequenceEvaluator, TurnInPlaceTime);
 }
 

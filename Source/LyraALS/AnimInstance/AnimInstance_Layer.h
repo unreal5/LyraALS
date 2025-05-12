@@ -33,6 +33,12 @@ protected:
 	/* Idle category */
 	UPROPERTY(EditDefaultsOnly, Category = "Idle")
 	UAnimSequenceBase* IdleAnim;
+	UPROPERTY(EditDefaultsOnly, Category = "Idle|Crouch")
+	UAnimSequenceBase* CrouchIdleAnim;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Idle|Crouch")
+	UAnimSequenceBase* CrouchEntryAnim;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Idle|Crouch")
+	UAnimSequenceBase* CrouchExitAnim;
 
 	UFUNCTION(BlueprintCallable, Category = "Idle", meta = (BlueprintThreadSafe))
 	void IdleOnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
@@ -78,32 +84,33 @@ protected:
 	void PivotOnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
 
 	// turn in place
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "TurnInPlace")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TurnInPlace")
 	bool bShouldTurnLeft;
-	
+
 	UFUNCTION(BlueprintCallable, Category = "TurnInPlace", meta = (BlueprintThreadSafe))
 	void SetUpTurnInPlaceEntry(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
 
 	UFUNCTION(BlueprintCallable, Category = "TurnInPlace", meta = (BlueprintThreadSafe))
 	void TurnInPlaceOnBecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
-	
+
 	UFUNCTION(BlueprintCallable, Category = "TurnInPlace", meta = (BlueprintThreadSafe))
 	void TurnInPlaceOnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
 
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "TurnInPlace")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TurnInPlace")
 	UAnimSequenceBase* TurnLeftAnim90;
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "TurnInPlace")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TurnInPlace")
 	UAnimSequenceBase* TurnLeftAnim180;
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "TurnInPlace")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TurnInPlace")
 	UAnimSequenceBase* TurnRightAnim90;
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "TurnInPlace")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TurnInPlace")
 	UAnimSequenceBase* TurnRightAnim180;
 
-	UPROPERTY(VisibleDefaultsOnly,BlueprintReadOnly, Category = "TurnInPlace")
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "TurnInPlace")
 	UAnimSequenceBase* FinalTurnAnimation;
 
-	UPROPERTY(VisibleDefaultsOnly,BlueprintReadOnly, Category = "TurnInPlace")
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "TurnInPlace")
 	float TurnInPlaceTime;
+
 private:
 	UAnimSequenceBase* SelectAnimByGaitAndDirection(
 		const EGait& CurrentGait, const ELocomotionDirection& CurrentLocomotionDirection,
