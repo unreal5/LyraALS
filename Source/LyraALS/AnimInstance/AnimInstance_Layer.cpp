@@ -319,13 +319,34 @@ UAnimSequenceBase* UAnimInstance_Layer::SelectTurnInPlaceAnimation(const bool bT
 {
 	auto ABPBase = GetABPBase();
 	if (!ABPBase) return nullptr;
-	bool GreaterThan90 = FMath::Abs(ABPBase->RootYawOffset) >= 90.f ? true : false;
+	float RootYawOffset = UKismetMathLibrary::NormalizeAxis(ABPBase->RootYawOffset);
+	bool GreaterThan90 = UKismetMathLibrary::InRange_FloatFloat(FMath::Abs(RootYawOffset), 90.f, 180.f)
+		                     ? true
+		                     : false;
+
+	const bool bIsCrouching = ABPBase->CurrentGait == EGait::Crouch;
 	if (bTurnLeftOrRight)
 	{
-		return GreaterThan90 ? TurnLeftAnim180 : TurnLeftAnim90;
+		if (bIsCrouching)
+		{
+			return GreaterThan90 ? TurnLeftAnim180Crouch : TurnLeftAnim90Crouch;
+		}
+		else
+		{
+			return GreaterThan90 ? TurnLeftAnim180 : TurnLeftAnim90;
+		}
 	}
 	else
 	{
-		return GreaterThan90 ? TurnRightAnim180 : TurnRightAnim90;
+		if (bIsCrouching)
+		{
+			return GreaterThan90 ? TurnRightAnim180Crouch : TurnRightAnim90Crouch;
+		}
+		else
+		{
+			return GreaterThan90 ? TurnRightAnim180 : TurnRightAnim90;
+		}
 	}
 }
+
+

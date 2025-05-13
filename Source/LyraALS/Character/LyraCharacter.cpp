@@ -142,6 +142,8 @@ bool ALyraCharacter::UpdateGait(EGait NewGait)
 			CharMovementComp->BrakingFrictionFactor = GaitSetting->BrakingFrictionFactor;
 			CharMovementComp->BrakingFriction = GaitSetting->BrakingFriction;
 			CharMovementComp->bUseSeparateBrakingFriction = GaitSetting->UseSeparateBrakingFriction;
+			// Crouch时的速度
+			CharMovementComp->MaxWalkSpeedCrouched = GaitSetting->MaxWalkSpeed;
 			return true;
 		}
 	}

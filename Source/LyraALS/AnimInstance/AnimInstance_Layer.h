@@ -105,6 +105,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TurnInPlace")
 	UAnimSequenceBase* TurnRightAnim180;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TurnInPlace")
+	UAnimSequenceBase* TurnLeftAnim90Crouch;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TurnInPlace")
+	UAnimSequenceBase* TurnLeftAnim180Crouch;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TurnInPlace")
+	UAnimSequenceBase* TurnRightAnim90Crouch;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TurnInPlace")
+	UAnimSequenceBase* TurnRightAnim180Crouch;
+	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "TurnInPlace")
 	UAnimSequenceBase* FinalTurnAnimation;
 
