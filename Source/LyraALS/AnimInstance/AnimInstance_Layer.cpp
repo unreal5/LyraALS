@@ -348,5 +348,3 @@ UAnimSequenceBase* UAnimInstance_Layer::SelectTurnInPlaceAnimation(const bool bT
 		}
 	}
 }
-
-
