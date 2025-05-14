@@ -136,6 +136,16 @@ public:
 	bool LastFrameIsCrouched;
 	UPROPERTY(BlueprintReadWrite, Category="Crouching")
 	bool CrouchStateChanged;
+
+	// Jump
+	UPROPERTY(Transient, BlueprintReadWrite, Category="Jump")
+	bool bIsOnAir = false;
+	UPROPERTY(Transient, BlueprintReadWrite, Category="Jump")
+	bool bIsJumping = false;
+	UPROPERTY(Transient, BlueprintReadWrite, Category="Jump")
+	bool bIsFalling = false;
+	UPROPERTY(Transient, BlueprintReadWrite, Category="Jump")
+	float TimeToJumpApex = 0.f;
 public:
 	virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
 };
