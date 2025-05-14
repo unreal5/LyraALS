@@ -120,6 +120,12 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "TurnInPlace")
 	float TurnInPlaceTime;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anim|Jump")
+	UAnimSequenceBase* JumpStartAnim;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anim|Jump")
+	UAnimSequenceBase* JumpStartLoopAnim;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anim|Jump")
+	UAnimSequenceBase* JumpApexAnim;
 private:
 	UAnimSequenceBase* SelectAnimByGaitAndDirection(
 		const EGait& CurrentGait, const ELocomotionDirection& CurrentLocomotionDirection,
