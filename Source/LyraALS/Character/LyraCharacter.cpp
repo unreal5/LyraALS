@@ -155,24 +155,6 @@ bool ALyraCharacter::UpdateGait(EGait NewGait)
 void ALyraCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	// 这里的功能移动到动画实例中
-	/*
-	// 脚部
-	FVector Start = GetActorLocation() - FVector{0.f, 0.f, GetCapsuleComponent()->GetScaledCapsuleHalfHeight()};
-	// 向下
-	FVector End = FVector{Start.X, Start.Y, Start.Z - 1000.f};
-	float Radius = 5.f;
-	FHitResult Hit;
-	TArray<AActor*> ActorsToIgnore;
-	// 这里的Trace是一个球形的Trace
-	UKismetSystemLibrary::SphereTraceSingle(this, Start, End,
-	                                        Radius, UEngineTypes::ConvertToTraceType(ECC_Visibility), false,
-	                                        ActorsToIgnore,
-	                                        EDrawDebugTrace::ForOneFrame, Hit, true);
-	if (Hit.bBlockingHit)
-	{
-		
-	}*/
 }
 
 void ALyraCharacter::Move(const FInputActionValue& Value)

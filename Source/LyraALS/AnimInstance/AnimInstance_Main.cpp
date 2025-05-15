@@ -198,20 +198,28 @@ void UAnimInstance_Main::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 
 void UAnimInstance_Main::UpdateDistanceToGround()
 {
-	if (auto Char = Cast<ACharacter>(GetOwningActor()))
-	{
-		// 脚部
-		FVector Start = WorldLocation - FVector{0.f, 0.f, Char->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()};
-		// 向下
-		FVector End = FVector{Start.X, Start.Y, Start.Z - 1000.f};
-		float Radius = 5.f;
-		FHitResult Hit;
-		TArray<AActor*> ActorsToIgnore;
-		// 此时位于线程中，不允许使用主线程绘制，因此EDrawDebugTrace::None
-		UKismetSystemLibrary::SphereTraceSingle(this, Start, End,
-		                                        Radius, UEngineTypes::ConvertToTraceType(ECC_Visibility), false,
-		                                        ActorsToIgnore,
-		                                        EDrawDebugTrace::None, Hit, true);
-		DistanceToGround = Hit.bBlockingHit ? Hit.Distance : 0.f;
-	}
+	UWorld* World = GetWorld();
+	if (!World) return;
+	auto Char = Cast<ACharacter>(GetOwningActor());
+	if (!Char) return;
+	const float CapsuleHalfHeight = Char->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	// 脚部
+	FVector Start = WorldLocation - FVector{0.f, 0.f, CapsuleHalfHeight};
+	// 向下
+	FVector End = FVector{Start.X, Start.Y, Start.Z - 1000.f};
+	float Radius = 5.f;
+	FHitResult HitResult;
+	TArray<AActor*> ActorsToIgnore;
+	// 此时位于线程中，不允许使用主线程绘制，因此EDrawDebugTrace::None
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(GetOwningActor());
+	/*
+	UKismetSystemLibrary::SphereTraceSingle(this, Start, End,
+	                                        Radius, UEngineTypes::ConvertToTraceType(ECC_Visibility), false,
+	                                        ActorsToIgnore,
+	                                        EDrawDebugTrace::None, HitResult, true);*/
+
+	World->SweepSingleByChannel(HitResult, Start, End, FQuat::Identity, ECC_Visibility,
+	                            FCollisionShape::MakeSphere(Radius), Params);
+	DistanceToGround = HitResult.bBlockingHit ? HitResult.Distance : 0.f;
 }

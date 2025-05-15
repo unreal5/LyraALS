@@ -135,6 +135,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anim|Jump")
 	UAnimSequenceBase* JumpFallLandAnim;
 
+	UFUNCTION(BlueprintCallable, Category = "Jump", meta = (BlueprintThreadSafe))
+	void JumpFallLandOnBecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
+
+	UFUNCTION(BlueprintCallable, Category = "Jump", meta = (BlueprintThreadSafe))
+	void JumpFallLandOnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
 private:
 	UAnimSequenceBase* SelectAnimByGaitAndDirection(const EGait& CurrentGait, const ELocomotionDirection& CurrentLocomotionDirection, const TMap<EGait, FDirectionalAnimation>& Animations) const;
 

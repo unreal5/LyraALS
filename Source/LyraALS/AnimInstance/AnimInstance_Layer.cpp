@@ -284,6 +284,31 @@ void UAnimInstance_Layer::TurnInPlaceOnUpdate(const FAnimUpdateContext& Context,
 }
 
 
+void UAnimInstance_Layer::JumpFallLandOnBecomeRelevant(const FAnimUpdateContext& Context,
+                                                       const FAnimNodeReference& Node)
+{
+	FSequenceEvaluatorReference SequenceEvaluator;
+	bool Result;
+	USequenceEvaluatorLibrary::ConvertToSequenceEvaluatorPure(Node, SequenceEvaluator, Result);
+	if (!Result) return;
+
+	USequenceEvaluatorLibrary::SetExplicitTime(SequenceEvaluator, 0.f);
+}
+
+void UAnimInstance_Layer::JumpFallLandOnUpdate(const FAnimUpdateContext& Context, const FAnimNodeReference& Node)
+{
+	auto ABPBase = GetABPBase();
+	if (!ABPBase) return;
+
+	FSequenceEvaluatorReference SequenceEvaluator;
+	bool Result;
+	USequenceEvaluatorLibrary::ConvertToSequenceEvaluatorPure(Node, SequenceEvaluator, Result);
+	if (!Result) return;
+
+	UAnimDistanceMatchingLibrary::DistanceMatchToTarget(SequenceEvaluator, ABPBase->DistanceToGround,
+	                                                    FName("DistanceToGround"));
+}
+
 UAnimSequenceBase* UAnimInstance_Layer::SelectAnimByGaitAndDirection(const EGait& CurrentGait,
                                                                      const ELocomotionDirection&
                                                                      CurrentLocomotionDirection,
