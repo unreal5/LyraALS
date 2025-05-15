@@ -146,6 +146,11 @@ public:
 	bool bIsFalling = false;
 	UPROPERTY(Transient, BlueprintReadWrite, Category="Jump")
 	float TimeToJumpApex = 0.f;
-public:
+	UPROPERTY(Transient, BlueprintReadWrite, Category="Jump")
+	float DistanceToGround = 0.f;
+	
 	virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
+
+	UFUNCTION(BlueprintCallable, Category="DistanceMatch", meta=(BlueprintThreadSafe))
+	void UpdateDistanceToGround();
 };

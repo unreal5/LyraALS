@@ -4,10 +4,12 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
 #include "Interface/LyraAnimationInterface.h"
+#include "Kismet/KismetSystemLibrary.h"
 // Sets default values
 ALyraCharacter::ALyraCharacter()
 {
@@ -150,6 +152,29 @@ bool ALyraCharacter::UpdateGait(EGait NewGait)
 	return false;
 }
 
+void ALyraCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	// 这里的功能移动到动画实例中
+	/*
+	// 脚部
+	FVector Start = GetActorLocation() - FVector{0.f, 0.f, GetCapsuleComponent()->GetScaledCapsuleHalfHeight()};
+	// 向下
+	FVector End = FVector{Start.X, Start.Y, Start.Z - 1000.f};
+	float Radius = 5.f;
+	FHitResult Hit;
+	TArray<AActor*> ActorsToIgnore;
+	// 这里的Trace是一个球形的Trace
+	UKismetSystemLibrary::SphereTraceSingle(this, Start, End,
+	                                        Radius, UEngineTypes::ConvertToTraceType(ECC_Visibility), false,
+	                                        ActorsToIgnore,
+	                                        EDrawDebugTrace::ForOneFrame, Hit, true);
+	if (Hit.bBlockingHit)
+	{
+		
+	}*/
+}
+
 void ALyraCharacter::Move(const FInputActionValue& Value)
 {
 	// input is a Vector2D
@@ -187,7 +212,7 @@ void ALyraCharacter::OnCrouch(const FInputActionValue& Value)
 		UnCrouch();
 		break;
 	case EGait::Jogging:
-		// fall through
+	// fall through
 	case EGait::Walking:
 		UpdateGait(EGait::Crouch);
 		Crouch();

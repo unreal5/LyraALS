@@ -5,6 +5,7 @@
 
 #include "KismetAnimationLibrary.h"
 #include "Animation/AnimInstanceProxy.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -74,6 +75,9 @@ void UAnimInstance_Main::GetLocationData()
 	LastFrameWorldLocation = WorldLocation;;
 	WorldLocation = OwningActor->GetActorLocation();
 	DeltaLocation = (WorldLocation - LastFrameWorldLocation).Size2D();
+
+	// UpdateDistanceToGround 依赖 WorldLocation
+	UpdateDistanceToGround();
 }
 
 void UAnimInstance_Main::GetRotationData(float DeltaTime)
@@ -189,5 +193,25 @@ void UAnimInstance_Main::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 		//	UE_LOG(LogTemp, Warning, TEXT("主线程调用Native thread safe update animation"));
 		//}
 		//UE_LOG(LogTemp, Warning, TEXT("游戏线程ID: %d, 当前线程ID: %d, Proxy Id = %s"), GGameThreadId, NativeThreadId, *Proxy.GetAnimInstanceName());
+	}
+}
+
+void UAnimInstance_Main::UpdateDistanceToGround()
+{
+	if (auto Char = Cast<ACharacter>(GetOwningActor()))
+	{
+		// 脚部
+		FVector Start = WorldLocation - FVector{0.f, 0.f, Char->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()};
+		// 向下
+		FVector End = FVector{Start.X, Start.Y, Start.Z - 1000.f};
+		float Radius = 5.f;
+		FHitResult Hit;
+		TArray<AActor*> ActorsToIgnore;
+		// 此时位于线程中，不允许使用主线程绘制，因此EDrawDebugTrace::None
+		UKismetSystemLibrary::SphereTraceSingle(this, Start, End,
+		                                        Radius, UEngineTypes::ConvertToTraceType(ECC_Visibility), false,
+		                                        ActorsToIgnore,
+		                                        EDrawDebugTrace::None, Hit, true);
+		DistanceToGround = Hit.bBlockingHit ? Hit.Distance : 0.f;
 	}
 }

@@ -15,7 +15,7 @@
 struct FAnimNodeReference;
 struct FAnimUpdateContext;
 /**
- * 
+ *
  */
 UCLASS()
 class LYRAALS_API UAnimInstance_Layer : public UAnimInstance
@@ -24,10 +24,10 @@ class LYRAALS_API UAnimInstance_Layer : public UAnimInstance
 
 protected:
 	/* Common category */
-	UFUNCTION(BlueprintCallable, Category="Common", BlueprintPure, meta=(BlueprintThreadSafe))
+	UFUNCTION(BlueprintCallable, Category = "Common", BlueprintPure, meta = (BlueprintThreadSafe))
 	class UAnimInstance_Main* GetABPBase() const;
 
-	UFUNCTION(BlueprintCallable, Category="Common", BlueprintPure, meta=(BlueprintThreadSafe))
+	UFUNCTION(BlueprintCallable, Category = "Common", BlueprintPure, meta = (BlueprintThreadSafe))
 	class UCharacterMovementComponent* GetCharacterMovementComponent() const;
 
 	/* Idle category */
@@ -113,7 +113,7 @@ protected:
 	UAnimSequenceBase* TurnRightAnim90Crouch;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TurnInPlace")
 	UAnimSequenceBase* TurnRightAnim180Crouch;
-	
+
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "TurnInPlace")
 	UAnimSequenceBase* FinalTurnAnimation;
 
@@ -122,14 +122,21 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anim|Jump")
 	UAnimSequenceBase* JumpStartAnim;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anim|Jump")
 	UAnimSequenceBase* JumpStartLoopAnim;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anim|Jump")
 	UAnimSequenceBase* JumpApexAnim;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anim|Jump")
+	UAnimSequenceBase* JumpFallLoopAnim;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anim|Jump")
+	UAnimSequenceBase* JumpFallLandAnim;
+
 private:
-	UAnimSequenceBase* SelectAnimByGaitAndDirection(
-		const EGait& CurrentGait, const ELocomotionDirection& CurrentLocomotionDirection,
-		const TMap<EGait, FDirectionalAnimation>& Animations) const;
+	UAnimSequenceBase* SelectAnimByGaitAndDirection(const EGait& CurrentGait, const ELocomotionDirection& CurrentLocomotionDirection, const TMap<EGait, FDirectionalAnimation>& Animations) const;
 
 	UAnimSequenceBase* SelectTurnInPlaceAnimation(const bool bTurnLeftOrRight) const;
 };
