@@ -148,6 +148,8 @@ public:
 	float TimeToJumpApex = 0.f;
 	UPROPERTY(Transient, BlueprintReadWrite, Category="Jump")
 	float DistanceToGround = 0.f;
+	UPROPERTY(Transient, BlueprintReadWrite, Category="Jump")
+	float TimeFalling = 0.f;
 	
 	virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
 

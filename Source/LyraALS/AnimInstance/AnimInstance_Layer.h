@@ -135,6 +135,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anim|Jump")
 	UAnimSequenceBase* JumpFallLandAnim;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anim|Jump")
+	UAnimSequenceBase* JumpFallLandAdditiveRecoveryAnim;
+	
 	UFUNCTION(BlueprintCallable, Category = "Jump", meta = (BlueprintThreadSafe))
 	void JumpFallLandOnBecomeRelevant(const FAnimUpdateContext& Context, const FAnimNodeReference& Node);
 
