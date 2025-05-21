@@ -98,7 +98,9 @@ public:
 	// Rotation Data
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Rotation")
 	FRotator WorldRotation;
-
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Data | Rotation")
+	float AimPitch = 0.f;
+	
 	UFUNCTION(BlueprintCallable, Category="Data | Rotation", meta=(BlueprintThreadSafe))
 	void GetRotationData(float DeltaTime);
 

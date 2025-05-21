@@ -82,7 +82,7 @@ void UAnimInstance_Main::GetLocationData()
 
 void UAnimInstance_Main::GetRotationData(float DeltaTime)
 {
-	auto OwningActor = GetOwningActor();
+	auto OwningActor = Cast<APawn>(GetOwningActor());
 	if (!OwningActor) return;
 
 	WorldRotation = OwningActor->GetActorRotation();
@@ -95,6 +95,7 @@ void UAnimInstance_Main::GetRotationData(float DeltaTime)
 	{
 		LeanAngle = -LeanAngle;
 	}
+	AimPitch = UKismetMathLibrary::NormalizeAxis(OwningActor->GetBaseAimRotation().Pitch);
 }
 
 void UAnimInstance_Main::UpdateOrientationData()
