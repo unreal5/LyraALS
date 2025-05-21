@@ -9,6 +9,7 @@
 
 #include "GameFramework/Character.h"
 #include "Structs/GaitSetting.h"
+#include "Structs/WeaponSockets.h"
 #include "LyraCharacter.generated.h"
 
 struct FInputActionValue;
@@ -65,6 +66,19 @@ public:
 	// Sets default values for this character's properties
 	ALyraCharacter();
 	virtual void BeginPlay() override;
+
+	// 武器相关
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	USkeletalMeshComponent* PistolMesh;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	USkeletalMeshComponent* RifleMesh;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	FWeaponSockets WeaponSockets;
+	
+	UFUNCTION(BlueprintCallable)
+	void ChangeWeapon(EGunTypes GunType);
 protected:
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);

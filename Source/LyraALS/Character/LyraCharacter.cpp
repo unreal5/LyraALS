@@ -29,6 +29,14 @@ ALyraCharacter::ALyraCharacter()
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
 	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
+
+	// 创建武器
+	PistolMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("PistolMesh"));
+	PistolMesh->SetupAttachment(GetMesh(), TEXT("PistolUnEquipped"));
+	PistolMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RifleMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("RifleMesh"));
+	RifleMesh->SetupAttachment(GetMesh(), TEXT("RifleUnEquipped"));
+	RifleMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ALyraCharacter::BeginPlay()
@@ -76,7 +84,7 @@ void ALyraCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 			if (GunType == EquippedGunType) return;
 			EquippedGunType = GunType;
 			OnEquippedGunChanged();
-
+			ChangeWeapon(EquippedGunType);
 			/*
 			const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EGunTypes"), true);
 			auto DisplayName = EnumPtr->GetDisplayNameTextByValue(static_cast<int64>(EquippedGunType)).ToString();
@@ -155,6 +163,38 @@ bool ALyraCharacter::UpdateGait(EGait NewGait)
 void ALyraCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+}
+
+void ALyraCharacter::ChangeWeapon(EGunTypes GunType)
+{
+	// 以下代码较笨拙，只是为了快速实现功能
+	// 卸下所有武器
+	PistolMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale,WeaponSockets.PistolUnEquipped);
+	RifleMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale,WeaponSockets.RifleUnEquipped);
+	                              
+	FName SocketName;
+	USkeletalMeshComponent* WeaponEquipped = nullptr;
+	switch (GunType)
+	{
+	case EGunTypes::UnArmed:
+		// 已经卸下所有武器
+		break;
+	case EGunTypes::Pistol:
+		SocketName = WeaponSockets.WeaponEquipped;
+		WeaponEquipped = PistolMesh;
+		break;
+	case EGunTypes::Rifle:
+		SocketName = WeaponSockets.WeaponEquipped;
+		WeaponEquipped = RifleMesh;
+		break;
+	default:
+		check(0 && TEXT("不支持的武器类型"));
+		break;
+	}
+	if (WeaponEquipped)
+	{
+		WeaponEquipped->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+	}
 }
 
 void ALyraCharacter::Move(const FInputActionValue& Value)
