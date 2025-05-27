@@ -112,6 +112,9 @@ void ALyraCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		};
 		EnhancedInputComponent->BindActionValueLambda(AimAction, ETriggerEvent::Started, AimingLambda, true);
 		EnhancedInputComponent->BindActionValueLambda(AimAction, ETriggerEvent::Completed, AimingLambda, false);
+
+
+		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &ThisClass::OnFire);
 	}
 	else
 	{
@@ -169,9 +172,11 @@ void ALyraCharacter::ChangeWeapon(EGunTypes GunType)
 {
 	// 以下代码较笨拙，只是为了快速实现功能
 	// 卸下所有武器
-	PistolMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale,WeaponSockets.PistolUnEquipped);
-	RifleMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale,WeaponSockets.RifleUnEquipped);
-	                              
+	PistolMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale,
+	                              WeaponSockets.PistolUnEquipped);
+	RifleMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale,
+	                             WeaponSockets.RifleUnEquipped);
+
 	FName SocketName;
 	USkeletalMeshComponent* WeaponEquipped = nullptr;
 	switch (GunType)
@@ -193,7 +198,8 @@ void ALyraCharacter::ChangeWeapon(EGunTypes GunType)
 	}
 	if (WeaponEquipped)
 	{
-		WeaponEquipped->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+		WeaponEquipped->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale,
+		                                  SocketName);
 	}
 }
 
@@ -240,4 +246,34 @@ void ALyraCharacter::OnCrouch(const FInputActionValue& Value)
 		Crouch();
 		break;
 	}
+}
+
+void ALyraCharacter::OnFire(const FInputActionValue& Value)
+{
+	// 在步行和蹲下状态下，并持枪才可以开枪
+	if (CurrentGait == EGait::Jogging || EquippedGunType == EGunTypes::UnArmed) return;
+	if (!CanFire) return;
+
+	CanFire = false;
+	const float FireRate = EquippedGunType == EGunTypes::Pistol ? 0.5f : 0.1f;
+
+	GetWorldTimerManager().SetTimer(FireTimer, [this]()
+	                                {
+		                                CanFire = true;
+		                                /*FString Msg = EquippedGunType == EGunTypes::Pistol
+			                                              ? TEXT("手枪开火")
+			                                              : TEXT("步枪开火");
+		                                UKismetSystemLibrary::PrintString(
+			                                this, Msg, true, false, FLinearColor::Red, 2.0f);
+			                                		                                */
+		                                UAnimMontage* FireMontage = EquippedGunType == EGunTypes::Pistol
+			                                                            ? PistolFireMontage
+			                                                            : RifleFireMontage;
+		                                if (FireMontage)
+		                                {
+			                                PlayAnimMontage(FireMontage);
+		                                }
+	                                },
+	                                FireRate,
+	                                false);
 }
