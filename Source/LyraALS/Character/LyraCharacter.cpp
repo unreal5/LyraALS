@@ -257,6 +257,7 @@ void ALyraCharacter::OnFire(const FInputActionValue& Value)
 	CanFire = false;
 	const float FireRate = EquippedGunType == EGunTypes::Pistol ? 0.5f : 0.1f;
 
+	GetWorldTimerManager().ClearTimer(FireTimer);
 	GetWorldTimerManager().SetTimer(FireTimer, [this]()
 	                                {
 		                                CanFire = true;
