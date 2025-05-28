@@ -59,6 +59,9 @@ class LYRAALS_API ALyraCharacter : public ACharacter
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* FireAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* ReloadAction;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = LinkAnimClassLayer, meta = (AllowPrivateAccess = "true"))
 	TMap<EGunTypes, TSubclassOf<UAnimInstance>> LinkAnimClassMap;
@@ -73,10 +76,13 @@ class LYRAALS_API ALyraCharacter : public ACharacter
 	FTimerHandle FireTimer;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire, meta = (AllowPrivateAccess = "true"))
 	UAnimMontage* PistolFireMontage;
-
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire, meta = (AllowPrivateAccess = "true"))
+	UAnimationAsset* PistolFireAnimation;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire, meta = (AllowPrivateAccess = "true"))
 	UAnimMontage* RifleFireMontage;
-	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire, meta = (AllowPrivateAccess = "true"))
+	UAnimationAsset* RifleFireAnimation;
 public:
 	// Sets default values for this character's properties
 	ALyraCharacter();
@@ -105,6 +111,8 @@ protected:
 
 	// Left mouse button pressed
 	void OnFire(const FInputActionValue& Value);
+	// reload
+	void OnReload(const FInputActionValue& Value);
 	
 	virtual void NotifyControllerChanged() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

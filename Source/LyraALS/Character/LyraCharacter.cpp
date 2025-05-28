@@ -115,6 +115,7 @@ void ALyraCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 
 		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &ThisClass::OnFire);
+		EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Started, this, &ThisClass::OnReload);
 	}
 	else
 	{
@@ -258,23 +259,37 @@ void ALyraCharacter::OnFire(const FInputActionValue& Value)
 	const float FireRate = EquippedGunType == EGunTypes::Pistol ? 0.5f : 0.1f;
 
 	GetWorldTimerManager().ClearTimer(FireTimer);
-	GetWorldTimerManager().SetTimer(FireTimer, [this]()
-	                                {
-		                                CanFire = true;
-		                                /*FString Msg = EquippedGunType == EGunTypes::Pistol
-			                                              ? TEXT("手枪开火")
-			                                              : TEXT("步枪开火");
-		                                UKismetSystemLibrary::PrintString(
-			                                this, Msg, true, false, FLinearColor::Red, 2.0f);
-			                                		                                */
-		                                UAnimMontage* FireMontage = EquippedGunType == EGunTypes::Pistol
-			                                                            ? PistolFireMontage
-			                                                            : RifleFireMontage;
-		                                if (FireMontage)
-		                                {
-			                                PlayAnimMontage(FireMontage);
-		                                }
-	                                },
-	                                FireRate,
-	                                false);
+	auto FireCallback = [this]()
+	{
+		CanFire = true;
+		UAnimMontage* FireMontage = EquippedGunType == EGunTypes::Pistol
+			                            ? PistolFireMontage
+			                            : RifleFireMontage;
+		if (FireMontage)
+		{
+			PlayAnimMontage(FireMontage);
+		}
+
+		auto Weapon = EquippedGunType == EGunTypes::Pistol ? PistolMesh : RifleMesh;
+		auto AnimAsset = EquippedGunType == EGunTypes::Pistol ? PistolFireAnimation : RifleFireAnimation;
+		if (Weapon && AnimAsset)
+		{
+			Weapon->PlayAnimation(AnimAsset, false);
+		}
+	};
+	GetWorldTimerManager().SetTimer(FireTimer, FireCallback, FireRate, false);
+}
+
+void ALyraCharacter::OnReload(const FInputActionValue& Value)
+{
+	if (EquippedGunType == EGunTypes::UnArmed) return;
+	if (EquippedGunType == EGunTypes::Pistol)
+	{
+		UKismetSystemLibrary::PrintString(this,TEXT("手枪正在装填..."), true, false, FLinearColor::Red, 2.0f);
+	}
+	else
+	{
+		check(EquippedGunType == EGunTypes::Rifle);
+		UKismetSystemLibrary::PrintString(this,TEXT("步枪正在装填..."), true, false, FLinearColor::Blue, 2.0f);
+	}
 }
