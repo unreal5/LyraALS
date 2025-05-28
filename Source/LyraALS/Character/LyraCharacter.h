@@ -83,6 +83,17 @@ class LYRAALS_API ALyraCharacter : public ACharacter
 	UAnimMontage* RifleFireMontage;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire, meta = (AllowPrivateAccess = "true"))
 	UAnimationAsset* RifleFireAnimation;
+
+	// Reload
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Reload, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* PistolReloadMontage;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Reload, meta = (AllowPrivateAccess = "true"))
+	UAnimationAsset* PistolReloadAnimation;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Reload, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* RifleReloadMontage;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Reload, meta = (AllowPrivateAccess = "true"))
+	UAnimationAsset* RifleReloadAnimation;
 public:
 	// Sets default values for this character's properties
 	ALyraCharacter();

@@ -285,11 +285,15 @@ void ALyraCharacter::OnReload(const FInputActionValue& Value)
 	if (EquippedGunType == EGunTypes::UnArmed) return;
 	if (EquippedGunType == EGunTypes::Pistol)
 	{
-		UKismetSystemLibrary::PrintString(this,TEXT("手枪正在装填..."), true, false, FLinearColor::Red, 2.0f);
+		//UKismetSystemLibrary::PrintString(this,TEXT("手枪正在装填..."), true, false, FLinearColor::Red, 2.0f);
+		PlayAnimMontage(PistolReloadMontage);
+		PistolMesh->PlayAnimation(PistolReloadAnimation, false);
 	}
 	else
 	{
 		check(EquippedGunType == EGunTypes::Rifle);
-		UKismetSystemLibrary::PrintString(this,TEXT("步枪正在装填..."), true, false, FLinearColor::Blue, 2.0f);
+		//UKismetSystemLibrary::PrintString(this,TEXT("步枪正在装填..."), true, false, FLinearColor::Blue, 2.0f);
+		PlayAnimMontage(RifleReloadMontage);
+		RifleMesh->PlayAnimation(RifleReloadAnimation, false);
 	}
 }
