@@ -4,12 +4,34 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Camera/CameraComponent.h"
-#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
 #include "Interface/LyraAnimationInterface.h"
-#include "Kismet/KismetSystemLibrary.h"
+
+static FString GaitToString(EGait Gait)
+{
+	switch (Gait)
+	{
+	case EGait::Walking:
+		return TEXT("Walking");
+	case EGait::Jogging:
+		return TEXT("Jogging");
+	case EGait::Crouch:
+		return TEXT("Crouch");
+	default:
+		return TEXT("Unknown");
+	}
+}
+
+template <typename T>
+FString EnumToString(const FString& EnumName, T Value)
+{
+	const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, *EnumName, true);
+	if (!EnumPtr) return FString("Invalid");
+	return EnumPtr->GetNameStringByValue((int64)Value);
+}
+
 // Sets default values
 ALyraCharacter::ALyraCharacter()
 {
@@ -18,7 +40,7 @@ ALyraCharacter::ALyraCharacter()
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 400.0f; // The camera follows at this distance behind the character
+	CameraBoom->TargetArmLength = 500.0f; // The camera follows at this distance behind the character
 	CameraBoom->SocketOffset = FVector{0.f, 100.f, 50.f}; // The camera is at this offset from the boom
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 
@@ -104,11 +126,18 @@ void ALyraCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 		auto AimingLambda = [this](auto, bool bIsAiming)
 		{
-			auto Gait = bIsAiming ? EGait::Walking : EGait::Jogging;
-			if (Gait != CurrentGait)
+			EGait NewGait;
+			if (bIsAiming)
 			{
-				UpdateGait(Gait);
+				NewGait = (CurrentGait != EGait::Crouch) ? EGait::Walking : EGait::Crouch;
 			}
+			else // 取消瞄准
+			{
+				NewGait = (CurrentGait == EGait::Crouch) ? EGait::Crouch : EGait::Jogging;
+			}
+			UpdateGait(NewGait);
+			//CameraBoom->TargetArmLength = SpringArmLength;
+			OnAimingTimelineUpdate(bIsAiming);
 		};
 		EnhancedInputComponent->BindActionValueLambda(AimAction, ETriggerEvent::Started, AimingLambda, true);
 		EnhancedInputComponent->BindActionValueLambda(AimAction, ETriggerEvent::Completed, AimingLambda, false);
@@ -125,6 +154,7 @@ void ALyraCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 bool ALyraCharacter::OnEquippedGunChanged()
 {
+	UpdateGait(CurrentGait);
 	if (auto AnimInterface = GetMesh()->GetAnimInstance())
 	{
 		if (auto LinkAnimClassItem = LinkAnimClassMap.Find(EquippedGunType))
@@ -146,11 +176,26 @@ bool ALyraCharacter::UpdateGait(EGait NewGait)
 	{
 		ILyraAnimationInterface::Execute_ReceiveCurrentGait(AnimInstance, CurrentGait);
 	}
-	if (auto GaitSetting = GaitSettingsMap.Find(CurrentGait))
+
+	if (GaitSettingsDataTable)
 	{
-		if (auto CharMovementComp = GetCharacterMovement())
+		FString WeaponName = EnumToString("EGunTypes", EquippedGunType);
+		FString GaitName = EnumToString("EGait", CurrentGait);
+		FName RowName = FName(*FString::Printf(TEXT("%s%s"), *WeaponName, *GaitName));
+
+		auto GaitSetting = GaitSettingsDataTable->FindRow<FGaitSetting>(RowName, TEXT("UpdateGait"));
+		if (GaitSetting)
 		{
-			CharMovementComp->MaxWalkSpeed = GaitSetting->MaxWalkSpeed;
+			auto CharMovementComp = GetCharacterMovement();
+
+			if (CurrentGait == EGait::Crouch)
+			{
+				CharMovementComp->MaxWalkSpeedCrouched = GaitSetting->MaxWalkSpeed;
+			}
+			else
+			{
+				CharMovementComp->MaxWalkSpeed = GaitSetting->MaxWalkSpeed;
+			}
 			CharMovementComp->MaxAcceleration = GaitSetting->MaxAcceleration;
 			CharMovementComp->BrakingDecelerationWalking = GaitSetting->BrakingDeceleration;
 			CharMovementComp->BrakingFrictionFactor = GaitSetting->BrakingFrictionFactor;
@@ -158,6 +203,7 @@ bool ALyraCharacter::UpdateGait(EGait NewGait)
 			CharMovementComp->bUseSeparateBrakingFriction = GaitSetting->UseSeparateBrakingFriction;
 			// Crouch时的速度
 			CharMovementComp->MaxWalkSpeedCrouched = GaitSetting->MaxWalkSpeed;
+
 			return true;
 		}
 	}

@@ -1,8 +1,8 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "GaitSetting.generated.h"
-USTRUCT(BlueprintType)
-struct FGaitSetting
+USTRUCT(BlueprintType, Blueprintable)
+struct FGaitSetting : public FTableRowBase
 {
 	GENERATED_BODY()
 

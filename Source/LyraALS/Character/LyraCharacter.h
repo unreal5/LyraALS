@@ -66,9 +66,11 @@ class LYRAALS_API ALyraCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = LinkAnimClassLayer, meta = (AllowPrivateAccess = "true"))
 	TMap<EGunTypes, TSubclassOf<UAnimInstance>> LinkAnimClassMap;
 
+	/* 用数据表代替 */
+	/*
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = GaitSettings, meta = (AllowPrivateAccess = "true"))
 	TMap<EGait, FGaitSetting> GaitSettingsMap;
-
+	*/
 	// Fire
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Fire, meta = (AllowPrivateAccess = "true"))
 	bool CanFire = true;
@@ -111,6 +113,10 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void ChangeWeapon(EGunTypes GunType);
+
+	// 实现timeline
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnAimingTimelineUpdate(bool bAiming);
 protected:
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
@@ -130,6 +136,9 @@ protected:
 
 	EGunTypes EquippedGunType = EGunTypes::UnArmed;
 	EGait CurrentGait = EGait::Jogging;
+
+	UPROPERTY(EditDefaultsOnly, Category="数据表")
+	TObjectPtr<UDataTable> GaitSettingsDataTable;
 private:
 	bool OnEquippedGunChanged();
 	bool UpdateGait(EGait NewGait);
