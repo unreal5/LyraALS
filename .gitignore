@@ -1,0 +1,49 @@
+# Visual Studio
+.vs/
+*.vcxproj.user
+*.vcxproj.filters
+*.vcxproj
+*.sln
+*.suo
+*.opensdf
+*.sdf
+*.opendb
+*.vc.db
+*.vsconfig
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# Rider
+.idea/
+*.sln.DotSettings.user
+*.uproject.DotSettings.user
+
+# Unreal Engine Core
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+
+# Builds
+Builds/
+
+# Plugins
+Plugins/*/Binaries/
+Plugins/*/Intermediate/
+Plugins/*/Saved/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Other
+*.log
+*.obj
+*.pdb
+*.pch
+
+# Custom
+Backup/
+CourseAssets/
