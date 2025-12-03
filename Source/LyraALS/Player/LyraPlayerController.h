@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Enumeration/EnumTypes.h"
 #include "GameFramework/PlayerController.h"
 #include "LyraPlayerController.generated.h"
 
@@ -10,15 +11,20 @@ struct FInputActionValue;
 class UInputMappingContext;
 class UInputAction;
 
+
+// 武器改变
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSwitchWeaponSignature, EGunType, NewGunType);
+
 UCLASS()
 class LYRAALS_API ALyraPlayerController : public APlayerController
 {
 	GENERATED_BODY()
-protected:	
+
+protected:
 	/** Input Mapping Contexts */
 	UPROPERTY(EditAnywhere, Category ="Input|Input Mappings")
 	TObjectPtr<UInputMappingContext> DefaultMappingContext;
-	
+
 	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<UInputAction> JumpAction;
 
@@ -27,12 +33,20 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<UInputAction> MouseLookAction;
-	
+
+	UPROPERTY(EditAnywhere, Category="Input")
+	TObjectPtr<UInputAction> SwitchWeaponAction;
+
 	virtual void SetupInputComponent() override;
+
 public:
 	ALyraPlayerController();
+
+	UPROPERTY(BlueprintAssignable)
+	FOnSwitchWeaponSignature OnSwitchWeapon;
 
 private:
 	void Move(const FInputActionValue& Value);
 	void MouseLook(const FInputActionValue& Value);
+	void SwitchWeapon(const FInputActionValue& Value);
 };

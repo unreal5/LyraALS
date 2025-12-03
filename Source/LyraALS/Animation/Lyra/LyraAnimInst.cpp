@@ -22,8 +22,10 @@ void FLyraAnimInstProxy::Update(float DeltaSeconds)
 	FAnimInstanceProxy::Update(DeltaSeconds);
 }
 
+/****************************************************************************************************/
+/*										动画实例														*/
+/****************************************************************************************************/
 
-// 动画实例
 FAnimInstanceProxy* ULyraAnimInst::CreateAnimInstanceProxy()
 {
 	return &LyraAnimInstProxy;
@@ -38,4 +40,9 @@ void ULyraAnimInst::DestroyAnimInstanceProxy(FAnimInstanceProxy* InProxy)
 void ULyraAnimInst::NativePostEvaluateAnimation()
 {
 	Super::NativePostEvaluateAnimation();
+}
+
+void ULyraAnimInst::ReceiveEquipWeapon_Implementation(EGunType NewGunType)
+{
+	EquippedGun = NewGunType;
 }

@@ -5,11 +5,15 @@
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
 #include "Animation/AnimInstanceProxy.h"
+#include "Enumeration/EnumTypes.h"
+#include "Interface/CombatInterface.h"
 #include "LyraAnimInst.generated.h"
 
 /**
  * 动画代理
  */
+
+enum class EGunType : uint8;
 
 USTRUCT()
 struct FLyraAnimInstProxy final : public FAnimInstanceProxy
@@ -26,7 +30,7 @@ protected:
 };
 
 UCLASS()
-class LYRAALS_API ULyraAnimInst : public UAnimInstance
+class LYRAALS_API ULyraAnimInst : public UAnimInstance,public ICombatInterface
 {
 	GENERATED_BODY()
 
@@ -36,6 +40,10 @@ protected:
 
 public:
 	virtual void NativePostEvaluateAnimation() override;
+	virtual void ReceiveEquipWeapon_Implementation(EGunType NewGunType) override;
+protected:
+	UPROPERTY(Transient, BlueprintReadOnly, Category="武器")
+	EGunType EquippedGun {EGunType::UnArmed};
 private:
 	UPROPERTY(Transient)
 	FLyraAnimInstProxy LyraAnimInstProxy;

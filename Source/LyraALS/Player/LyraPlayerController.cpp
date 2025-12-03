@@ -5,6 +5,7 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Enumeration/EnumTypes.h"
 
 
 ALyraPlayerController::ALyraPlayerController()
@@ -30,6 +31,8 @@ void ALyraPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ALyraPlayerController::Move);
 	EnhancedInputComponent->BindAction(MouseLookAction, ETriggerEvent::Triggered, this,
 	                                   &ALyraPlayerController::MouseLook);
+	EnhancedInputComponent->BindAction(SwitchWeaponAction, ETriggerEvent::Started, this,
+	                                   &ALyraPlayerController::SwitchWeapon);
 }
 
 void ALyraPlayerController::Move(const FInputActionValue& Value)
@@ -52,4 +55,10 @@ void ALyraPlayerController::MouseLook(const FInputActionValue& Value)
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 	AddYawInput(LookAxisVector.X);
 	AddPitchInput(LookAxisVector.Y);
+}
+
+void ALyraPlayerController::SwitchWeapon(const FInputActionValue& Value) {
+	uint8 WeaponIndex = static_cast<uint8>(Value.Get<float>()) - 1;
+	EGunType Gun = static_cast<EGunType>(WeaponIndex);
+	OnSwitchWeapon.Broadcast(Gun);
 }
