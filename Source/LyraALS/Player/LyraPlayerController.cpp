@@ -33,6 +33,15 @@ void ALyraPlayerController::SetupInputComponent()
 	                                   &ALyraPlayerController::MouseLook);
 	EnhancedInputComponent->BindAction(SwitchWeaponAction, ETriggerEvent::Started, this,
 	                                   &ALyraPlayerController::SwitchWeapon);
+
+
+	auto AimBinding = [this](const FInputActionValue& ActionValue, bool bIsAiming)
+	{
+		EGaitType NewGait = bIsAiming ? EGaitType::Walking : EGaitType::Jogging;
+		OnGaitChanged.Broadcast(NewGait);
+	};
+	EnhancedInputComponent->BindActionValueLambda(AimAction, ETriggerEvent::Triggered, AimBinding, true);
+	EnhancedInputComponent->BindActionValueLambda(AimAction, ETriggerEvent::Completed, AimBinding, false);
 }
 
 void ALyraPlayerController::Move(const FInputActionValue& Value)
@@ -57,7 +66,8 @@ void ALyraPlayerController::MouseLook(const FInputActionValue& Value)
 	AddPitchInput(LookAxisVector.Y);
 }
 
-void ALyraPlayerController::SwitchWeapon(const FInputActionValue& Value) {
+void ALyraPlayerController::SwitchWeapon(const FInputActionValue& Value)
+{
 	uint8 WeaponIndex = static_cast<uint8>(Value.Get<float>()) - 1;
 	EGunType Gun = static_cast<EGunType>(WeaponIndex);
 	OnSwitchWeapon.Broadcast(Gun);

@@ -14,7 +14,8 @@ class UInputAction;
 
 // 武器改变
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSwitchWeaponSignature, EGunType, NewGunType);
-
+// 步态改变
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGaitChangedSignature, EGaitType, NewGaitType);
 UCLASS()
 class LYRAALS_API ALyraPlayerController : public APlayerController
 {
@@ -37,6 +38,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<UInputAction> SwitchWeaponAction;
 
+	UPROPERTY(EditAnywhere, Category="Input")
+	TObjectPtr<UInputAction> AimAction;
+	
 	virtual void SetupInputComponent() override;
 
 public:
@@ -44,6 +48,8 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnSwitchWeaponSignature OnSwitchWeapon;
+	UPROPERTY(Blueprintable)
+	FOnGaitChangedSignature OnGaitChanged;
 
 private:
 	void Move(const FInputActionValue& Value);

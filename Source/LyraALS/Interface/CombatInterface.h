@@ -3,9 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Enumeration/EnumTypes.h"
 #include "UObject/Interface.h"
 #include "CombatInterface.generated.h"
 
+struct FGaitSettings;
 // This class does not need to be modified.
 UINTERFACE()
 class UCombatInterface : public UInterface
@@ -24,4 +26,7 @@ class LYRAALS_API ICombatInterface
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="Combat")
 	void ReceiveEquipWeapon(EGunType NewGunType);
+	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="Combat")
+	void ReceiveGaitChanged(EGaitType NewGait, const FGaitSettings& GaitSettings);
 };

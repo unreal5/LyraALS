@@ -12,3 +12,10 @@ enum class EGunType : uint8
 	Pistol UMETA(DisplayName = "手枪"),
 	Rifle UMETA(DisplayName = "步枪"),
 };
+
+UENUM(BlueprintType, Blueprintable)
+enum class EGaitType : uint8
+{
+	Walking UMETA(DisplayName = "行走"),
+	Jogging UMETA(DisplayName = "慢跑"),
+};
