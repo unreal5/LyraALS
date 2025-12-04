@@ -28,5 +28,5 @@ public:
 	void ReceiveEquipWeapon(EGunType NewGunType);
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="Combat")
-	void ReceiveGaitChanged(EGaitType NewGait, const FGaitSettings& GaitSettings);
+	void ReceiveCurrentGait(EGaitType NewGait, const FGaitSettings& GaitSettings);
 };

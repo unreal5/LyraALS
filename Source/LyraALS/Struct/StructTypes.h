@@ -28,3 +28,19 @@ struct LYRAALS_API FGaitSettings
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	bool UseSeperateBrakingFriction{false};
 };
+
+
+USTRUCT(BlueprintType)
+struct LYRAALS_API FDirectionalAnimation
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<UAnimSequenceBase> Forward;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<UAnimSequenceBase> Backward;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<UAnimSequenceBase> Left;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<UAnimSequenceBase> Right;
+};

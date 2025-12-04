@@ -26,14 +26,28 @@ struct FLyraAnimInstProxy final : public FAnimInstanceProxy
 protected:
 	virtual void PreUpdate(UAnimInstance* InAnimInstance, float DeltaSeconds) override;
 	virtual void Update(float DeltaSeconds) override;
-
+	
+	// Location
+	FVector WorldLocation;
+	// Rotation
+	FRotator WorldRotation;
+	
+	// Velocity
 	FVector CharacterVelocity;
 	FVector CharacterVelocity2D;
 	float GroundSpeed;
 	bool HasVelocity;
+	// Orientation
+	float VelocityLocomotionAngle;
+
+	ELocomotionDirection VelocityLocomotionDirection;
 
 private:
+	void GetLocationData();
+	void GetRotationData();
 	void GetVelocityData();
+	void UpdateOrientationData();
+	ELocomotionDirection CalculateLocomotionDirection(float InAngle, ELocomotionDirection CurrentDirection,float DeadZone = 20.f, float BackwardMin = -130.f, float BackwardMax = 130.f, float ForwardMin = -50.f, float ForwardMax = 50.f);	
 	
 	friend class ULyraAnimInst;
 };
@@ -45,7 +59,7 @@ class LYRAALS_API ULyraAnimInst : public UAnimInstance, public ICombatInterface
 
 public:
 	virtual void ReceiveEquipWeapon_Implementation(EGunType NewGunType) override;
-	virtual void ReceiveGaitChanged_Implementation(EGaitType NewGait, const FGaitSettings& GaitSettings) override;
+	virtual void ReceiveCurrentGait_Implementation(EGaitType NewGait, const FGaitSettings& GaitSettings) override;
 	
 	virtual void NativePostEvaluateAnimation() override;
 
@@ -58,6 +72,14 @@ protected:
 	UPROPERTY(Transient, BlueprintReadOnly, Category="步态")
 	FGaitSettings CurrentGaitSettings;
 	
+	// 位置相关数据
+	UPROPERTY(Transient, BlueprintReadOnly, Category="LocationData")
+	FVector WorldLocation;
+	
+	// 旋转相关数据
+	UPROPERTY(Transient, BlueprintReadOnly, Category="RotationData")
+	FRotator WorldRotation;
+	
 	// 速度相关数据
 	UPROPERTY(Transient, BlueprintReadOnly, Category="VelocityData")
 	FVector CharacterVelocity;
@@ -68,7 +90,12 @@ protected:
 	UPROPERTY(Transient, BlueprintReadOnly, Category="VelocityData")
 	bool HasVelocity{false};
 	
-
+	// 方向相关数据
+	UPROPERTY(Transient, BlueprintReadOnly, Category="OrientationData")
+	float VelocityLocomotionAngle{0.f};
+	UPROPERTY(Transient, BlueprintReadOnly, Category="OrientationData")
+	ELocomotionDirection VelocityLocomotionDirection{ELocomotionDirection::Forward};
+	
 private:
 	virtual FAnimInstanceProxy* CreateAnimInstanceProxy() override;
 	virtual void DestroyAnimInstanceProxy(FAnimInstanceProxy* InProxy) override;
