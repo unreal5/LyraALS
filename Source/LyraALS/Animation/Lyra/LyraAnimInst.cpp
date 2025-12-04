@@ -8,6 +8,11 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Player/LyraCharacter.h"
 
+FLyraAnimInstProxy::FLyraAnimInstProxy(UAnimInstance* InAnimInstance) : FAnimInstanceProxy(InAnimInstance),
+                                                                        VelocityLocomotionDirection()
+{
+}
+
 // 动画实例代理
 void FLyraAnimInstProxy::PreUpdate(UAnimInstance* InAnimInstance, float DeltaSeconds)
 {
