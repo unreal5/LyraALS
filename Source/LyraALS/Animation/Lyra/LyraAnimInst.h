@@ -34,9 +34,9 @@ protected:
 	bool HasVelocity = false;
 
 	// Acceleration
-	FVector CurrentAcceleration;
-	FVector CurrentAcceleration2D;
-	bool bHasAcceleration;
+	FVector CurrentAcceleration{FVector::ZeroVector};
+	FVector CurrentAcceleration2D{FVector::ZeroVector};
+	bool bHasAcceleration{false};
 
 	// Location
 	FVector WorldLocation = FVector::ZeroVector;
@@ -48,7 +48,7 @@ protected:
 
 	// Orientation
 	float VelocityLocomotionAngle = 0.f;
-	ELocomotionDirection VelocityLocomotionDirection;
+	ELocomotionDirection VelocityLocomotionDirection{ELocomotionDirection::Forward};
 
 private:
 	void GetVelocityData();
@@ -93,7 +93,7 @@ protected:
 	float GroundSpeed{0.f};
 	UPROPERTY(Transient, BlueprintReadOnly, Category="VelocityData")
 	bool HasVelocity{false};
-	
+
 	// 加速度相关数据
 	UPROPERTY(Transient, BlueprintReadOnly, Category="AccelerationData")
 	FVector CurrentAcceleration;
@@ -101,7 +101,7 @@ protected:
 	FVector CurrentAcceleration2D;
 	UPROPERTY(Transient, BlueprintReadOnly, Category="AccelerationData")
 	bool bIsAccelerating{false};
-	
+
 	// 位置相关数据
 	UPROPERTY(Transient, BlueprintReadOnly, Category="LocationData")
 	FVector WorldLocation;

@@ -8,8 +8,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Player/LyraCharacter.h"
 
-FLyraAnimInstProxy::FLyraAnimInstProxy(UAnimInstance* InAnimInstance) : FAnimInstanceProxy(InAnimInstance),
-                                                                        VelocityLocomotionDirection()
+FLyraAnimInstProxy::FLyraAnimInstProxy(UAnimInstance* InAnimInstance) : FAnimInstanceProxy(InAnimInstance)
 {
 }
 
@@ -59,7 +58,9 @@ void FLyraAnimInstProxy::GetAccelerationData()
 	bHasAcceleration = CurrentAcceleration2D.SizeSquared() > KINDA_SMALL_NUMBER;
 }
 
-void FLyraAnimInstProxy::GetLocationData() {
+void FLyraAnimInstProxy::GetLocationData()
+{
+	// TODO: 暂时保留
 }
 
 void FLyraAnimInstProxy::GetRotationData(float DeltaTime)
