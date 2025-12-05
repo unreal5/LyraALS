@@ -23,28 +23,26 @@ void FLyraAnimInstProxy::PreUpdate(UAnimInstance* InAnimInstance, float DeltaSec
 	UCharacterMovementComponent* MovementComp = LyraCharacter->GetCharacterMovement();
 	if (!MovementComp) return;
 	// 同步需要的数据到动画代理中
+	// 速度相关。
+	CharacterVelocity = MovementComp->Velocity;
+	// 加速度相关。
+	CurrentAcceleration = MovementComp->GetCurrentAcceleration();
 	// 在动画图层中使用PropertyAccess的变量，必须在此处同步
 	WorldLocation = LyraCharacter->GetActorLocation();
-	WorldRotation = LyraCharacter->GetActorRotation();
 
-	CharacterVelocity = MovementComp->Velocity;
+	// 旋转相关。
+	WorldRotation = LyraCharacter->GetActorRotation();
 }
 
 void FLyraAnimInstProxy::Update(float DeltaSeconds)
 {
 	FAnimInstanceProxy::Update(DeltaSeconds);
 
-	GetLocationData();
-	GetRotationData();
 	GetVelocityData();
+	GetAccelerationData();
+	GetLocationData();
+	GetRotationData(DeltaSeconds);
 	UpdateOrientationData();
-}
-
-
-void FLyraAnimInstProxy::GetLocationData() {
-}
-
-void FLyraAnimInstProxy::GetRotationData() {
 }
 
 void FLyraAnimInstProxy::GetVelocityData()
@@ -54,6 +52,33 @@ void FLyraAnimInstProxy::GetVelocityData()
 	GroundSpeed = CharacterVelocity2D.Size();
 	HasVelocity = GroundSpeed > KINDA_SMALL_NUMBER;
 }
+
+void FLyraAnimInstProxy::GetAccelerationData()
+{
+	CurrentAcceleration2D = FVector{CurrentAcceleration.X, CurrentAcceleration.Y, 0.f};
+	bHasAcceleration = CurrentAcceleration2D.SizeSquared() > KINDA_SMALL_NUMBER;
+}
+
+void FLyraAnimInstProxy::GetLocationData() {
+}
+
+void FLyraAnimInstProxy::GetRotationData(float DeltaTime)
+{
+	// 此时代理的数据已经过时，是上一帧的数据。
+	float DeltaActorYaw = WorldRotation.Yaw - LastFrameActorYaw;
+	DeltaActorYaw = UKismetMathLibrary::SafeDivide(DeltaActorYaw, DeltaTime * 6.f);
+	DeltaActorYaw = FMath::ClampAngle(DeltaActorYaw, -90.f, 90.f);
+	// 更新当前帧数据
+	LeanAngle = DeltaActorYaw;
+	//根据上一帧方向调整LeanAngle;
+	if (VelocityLocomotionDirection == ELocomotionDirection::Backward)
+	{
+		LeanAngle *= -1.f;
+	}
+	// 保存当前帧数据，供下一帧使用
+	LastFrameActorYaw = WorldRotation.Yaw;
+}
+
 
 void FLyraAnimInstProxy::UpdateOrientationData()
 {
@@ -136,15 +161,24 @@ void ULyraAnimInst::NativePostEvaluateAnimation()
 	Super::NativePostEvaluateAnimation();
 	FLyraAnimInstProxy& Proxy = GetProxyOnGameThread<FLyraAnimInstProxy>();
 	// 从动画代理中同步数据到动画实例中
-	// 位置相关
-	WorldLocation = Proxy.WorldLocation;
-	// 旋转相关
-	WorldRotation = Proxy.WorldRotation;
+
 	// 速度相关
 	CharacterVelocity = Proxy.CharacterVelocity;
 	CharacterVelocity2D = Proxy.CharacterVelocity2D;
 	GroundSpeed = Proxy.GroundSpeed;
 	HasVelocity = Proxy.HasVelocity;
+
+	// 加速度相关
+	CurrentAcceleration = Proxy.CurrentAcceleration;
+	CurrentAcceleration2D = Proxy.CurrentAcceleration2D;
+	bIsAccelerating = Proxy.bHasAcceleration;
+
+	// 位置相关
+	WorldLocation = Proxy.WorldLocation;
+
+	// 旋转相关
+	WorldRotation = Proxy.WorldRotation;
+	LeanAngle = Proxy.LeanAngle;
 
 	// 方向相关
 	VelocityLocomotionAngle = Proxy.VelocityLocomotionAngle;

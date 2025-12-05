@@ -27,25 +27,34 @@ protected:
 	virtual void PreUpdate(UAnimInstance* InAnimInstance, float DeltaSeconds) override;
 	virtual void Update(float DeltaSeconds) override;
 
-	// Location
-	FVector WorldLocation = FVector::ZeroVector;
-	// Rotation
-	FRotator WorldRotation = FRotator::ZeroRotator;
-
 	// Velocity
 	FVector CharacterVelocity = FVector::ZeroVector;
 	FVector CharacterVelocity2D = FVector::ZeroVector;
 	float GroundSpeed = 0.f;
 	bool HasVelocity = false;
+
+	// Acceleration
+	FVector CurrentAcceleration;
+	FVector CurrentAcceleration2D;
+	bool bHasAcceleration;
+
+	// Location
+	FVector WorldLocation = FVector::ZeroVector;
+
+	// Rotation
+	float LeanAngle = 0.f;
+	float LastFrameActorYaw = 0.f;
+	FRotator WorldRotation = FRotator::ZeroRotator;
+
 	// Orientation
 	float VelocityLocomotionAngle = 0.f;
-
 	ELocomotionDirection VelocityLocomotionDirection;
 
 private:
-	void GetLocationData();
-	void GetRotationData();
 	void GetVelocityData();
+	void GetAccelerationData();
+	void GetLocationData();
+	void GetRotationData(float DeltaTime);
 	void UpdateOrientationData();
 	ELocomotionDirection CalculateLocomotionDirection(float InAngle, ELocomotionDirection CurrentDirection,
 	                                                  float DeadZone = 20.f, float BackwardMin = -130.f,
@@ -75,14 +84,6 @@ protected:
 	UPROPERTY(Transient, BlueprintReadOnly, Category="步态")
 	FGaitSettings CurrentGaitSettings;
 
-	// 位置相关数据
-	UPROPERTY(Transient, BlueprintReadOnly, Category="LocationData")
-	FVector WorldLocation;
-
-	// 旋转相关数据
-	UPROPERTY(Transient, BlueprintReadOnly, Category="RotationData")
-	FRotator WorldRotation;
-
 	// 速度相关数据
 	UPROPERTY(Transient, BlueprintReadOnly, Category="VelocityData")
 	FVector CharacterVelocity;
@@ -92,6 +93,25 @@ protected:
 	float GroundSpeed{0.f};
 	UPROPERTY(Transient, BlueprintReadOnly, Category="VelocityData")
 	bool HasVelocity{false};
+	
+	// 加速度相关数据
+	UPROPERTY(Transient, BlueprintReadOnly, Category="AccelerationData")
+	FVector CurrentAcceleration;
+	UPROPERTY(Transient, BlueprintReadOnly, Category="AccelerationData")
+	FVector CurrentAcceleration2D;
+	UPROPERTY(Transient, BlueprintReadOnly, Category="AccelerationData")
+	bool bIsAccelerating{false};
+	
+	// 位置相关数据
+	UPROPERTY(Transient, BlueprintReadOnly, Category="LocationData")
+	FVector WorldLocation;
+
+	// 旋转相关数据
+	UPROPERTY(Transient, BlueprintReadOnly, Category="RotationData")
+	FRotator WorldRotation;
+	UPROPERTY(Transient, BlueprintReadOnly, Category="RotationData")
+	float LeanAngle{0.f};
+
 
 	// 方向相关数据
 	UPROPERTY(Transient, BlueprintReadOnly, Category="OrientationData")
