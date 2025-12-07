@@ -7,7 +7,7 @@
 #include "UObject/Interface.h"
 #include "CombatInterface.generated.h"
 
-struct FGaitSettings;
+struct FPredictGroundMovementStopLocationParams;
 // This class does not need to be modified.
 UINTERFACE()
 class UCombatInterface : public UInterface
@@ -28,5 +28,5 @@ public:
 	void ReceiveEquipWeapon(EGunType NewGunType);
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="Combat")
-	void ReceiveCurrentGait(EGaitType NewGait, const FGaitSettings& GaitSettings);
+	void ReceiveCurrentGait(EGaitType NewGait, const FPredictGroundMovementStopLocationParams& GaitSettings);
 };

@@ -71,7 +71,7 @@ class LYRAALS_API ULyraAnimInst : public UAnimInstance, public ICombatInterface
 
 public:
 	virtual void ReceiveEquipWeapon_Implementation(EGunType NewGunType) override;
-	virtual void ReceiveCurrentGait_Implementation(EGaitType NewGait, const FGaitSettings& GaitSettings) override;
+	virtual void ReceiveCurrentGait_Implementation(EGaitType NewGait, const FPredictGroundMovementStopLocationParams& GaitSettings) override;
 
 	virtual void NativePostEvaluateAnimation() override;
 
@@ -81,9 +81,10 @@ protected:
 
 	UPROPERTY(Transient, BlueprintReadOnly, Category="步态")
 	EGaitType CurrentGait{EGaitType::Walking};
-	UPROPERTY(Transient, BlueprintReadOnly, Category="步态")
-	FGaitSettings CurrentGaitSettings;
 
+	UPROPERTY(Transient, BlueprintReadOnly, Category="步态")
+	FPredictGroundMovementStopLocationParams CurrentGaitPredictParams;
+	
 	// 速度相关数据
 	UPROPERTY(Transient, BlueprintReadOnly, Category="VelocityData")
 	FVector CharacterVelocity;

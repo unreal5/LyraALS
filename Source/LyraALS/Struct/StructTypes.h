@@ -34,7 +34,7 @@ USTRUCT(BlueprintType)
 struct LYRAALS_API FDirectionalAnimation
 {
 	GENERATED_BODY()
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UAnimSequenceBase> Forward;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -43,4 +43,21 @@ struct LYRAALS_API FDirectionalAnimation
 	TObjectPtr<UAnimSequenceBase> Left;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UAnimSequenceBase> Right;
+};
+
+USTRUCT(BlueprintType)
+struct LYRAALS_API FPredictGroundMovementStopLocationParams
+{
+	GENERATED_BODY()
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
+	bool UseSeperateBrakingFriction{false};
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
+	float BrakingFriction{0.f};
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
+	float GroundFriction{8.f};
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
+	float BrakingFrictionFactor{2.f};
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
+	float BrakingDecelerationWalking{2048.f};
 };

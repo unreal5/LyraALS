@@ -150,10 +150,11 @@ void ULyraAnimInst::ReceiveEquipWeapon_Implementation(EGunType NewGunType)
 	EquippedGun = NewGunType;
 }
 
-void ULyraAnimInst::ReceiveCurrentGait_Implementation(EGaitType NewGait, const FGaitSettings& GaitSettings)
+void ULyraAnimInst::ReceiveCurrentGait_Implementation(EGaitType NewGait, const FPredictGroundMovementStopLocationParams& GaitSettings)
 {
 	CurrentGait = NewGait;
-	CurrentGaitSettings = GaitSettings;
+	//CurrentGaitSettings = GaitSettings;
+	CurrentGaitPredictParams = GaitSettings;
 }
 
 // 动画评估后调用，运行于游戏线程
