@@ -71,7 +71,10 @@ class LYRAALS_API ULyraAnimInst : public UAnimInstance, public ICombatInterface
 
 public:
 	virtual void ReceiveEquipWeapon_Implementation(EGunType NewGunType) override;
-	virtual void ReceiveCurrentGait_Implementation(EGaitType NewGait, const FPredictGroundMovementStopLocationParams& GaitSettings) override;
+	virtual void ReceiveCurrentGait_Implementation(EGaitType NewGait,
+	                                               const FPredictGroundMovementStopLocationParams&
+	                                               GaitSettings) override;
+
 
 	virtual void NativePostEvaluateAnimation() override;
 
@@ -79,12 +82,23 @@ protected:
 	UPROPERTY(Transient, BlueprintReadOnly, Category="武器")
 	EGunType EquippedGun{EGunType::UnArmed};
 
+	// 步态相关数据
+	// 事件触发的进入步态
+	UPROPERTY(Transient)
+	EGaitType InComingGait{EGaitType::Walking};
+
+	UPROPERTY(Transient, BlueprintReadOnly, Category="步态")
+	EGaitType LastFrameGait{EGaitType::Walking};
+
 	UPROPERTY(Transient, BlueprintReadOnly, Category="步态")
 	EGaitType CurrentGait{EGaitType::Walking};
 
 	UPROPERTY(Transient, BlueprintReadOnly, Category="步态")
+	bool IsGaitChanged{false};
+
+	UPROPERTY(Transient, BlueprintReadOnly, Category="步态")
 	FPredictGroundMovementStopLocationParams CurrentGaitPredictParams;
-	
+
 	// 速度相关数据
 	UPROPERTY(Transient, BlueprintReadOnly, Category="VelocityData")
 	FVector CharacterVelocity;
@@ -125,4 +139,5 @@ protected:
 private:
 	virtual FAnimInstanceProxy* CreateAnimInstanceProxy() override;
 	virtual void DestroyAnimInstanceProxy(FAnimInstanceProxy* InProxy) override;
+	void GetCharacterStates();
 };

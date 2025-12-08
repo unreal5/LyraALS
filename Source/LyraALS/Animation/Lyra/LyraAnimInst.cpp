@@ -150,12 +150,13 @@ void ULyraAnimInst::ReceiveEquipWeapon_Implementation(EGunType NewGunType)
 	EquippedGun = NewGunType;
 }
 
-void ULyraAnimInst::ReceiveCurrentGait_Implementation(EGaitType NewGait, const FPredictGroundMovementStopLocationParams& GaitSettings)
+void ULyraAnimInst::ReceiveCurrentGait_Implementation(EGaitType NewGait,
+                                                      const FPredictGroundMovementStopLocationParams& GaitSettings)
 {
-	CurrentGait = NewGait;
-	//CurrentGaitSettings = GaitSettings;
+	InComingGait = NewGait;
 	CurrentGaitPredictParams = GaitSettings;
 }
+
 
 // 动画评估后调用，运行于游戏线程
 void ULyraAnimInst::NativePostEvaluateAnimation()
@@ -163,7 +164,6 @@ void ULyraAnimInst::NativePostEvaluateAnimation()
 	Super::NativePostEvaluateAnimation();
 	FLyraAnimInstProxy& Proxy = GetProxyOnGameThread<FLyraAnimInstProxy>();
 	// 从动画代理中同步数据到动画实例中
-
 	// 速度相关
 	CharacterVelocity = Proxy.CharacterVelocity;
 	CharacterVelocity2D = Proxy.CharacterVelocity2D;
@@ -186,4 +186,13 @@ void ULyraAnimInst::NativePostEvaluateAnimation()
 	VelocityLocomotionAngle = Proxy.VelocityLocomotionAngle;
 	LastFrameVelocityLocomotionDirection = VelocityLocomotionDirection;
 	VelocityLocomotionDirection = Proxy.VelocityLocomotionDirection;
+	// 步态相关
+	GetCharacterStates();
+}
+
+void ULyraAnimInst::GetCharacterStates()
+{
+	LastFrameGait = CurrentGait;
+	CurrentGait = InComingGait;
+	IsGaitChanged = (CurrentGait != LastFrameGait);
 }
