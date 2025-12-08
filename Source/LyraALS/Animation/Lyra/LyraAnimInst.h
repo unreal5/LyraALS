@@ -41,7 +41,7 @@ protected:
 	// Location
 	FVector LastFrameWorldLocation = FVector::ZeroVector;
 	FVector WorldLocation = FVector::ZeroVector;
-	float DistanceMovedPerFrame = 0.f;
+	float DisplacementPerFrame = 0.f;
 
 	// Rotation
 	float LeanAngle = 0.f;
@@ -122,8 +122,8 @@ protected:
 	// 位置相关数据
 	UPROPERTY(Transient, BlueprintReadOnly, Category="LocationData")
 	FVector WorldLocation;
-	UPROPERTY(Transient, BlueprintReadOnly, Category="LocationData")
-	float DistanceMovedPerFrame{0.f};
+	UPROPERTY(Transient, BlueprintReadOnly, Category="LocationData", meta=(ShortTooltip="每帧位移"))
+	float DisplacementPerFrame{0.f};
 	// 旋转相关数据
 	UPROPERTY(Transient, BlueprintReadOnly, Category="RotationData")
 	FRotator WorldRotation;

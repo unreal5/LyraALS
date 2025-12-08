@@ -61,7 +61,7 @@ void FLyraAnimInstProxy::GetAccelerationData()
 
 void FLyraAnimInstProxy::GetLocationData(float DeltaTime)
 {
-	DistanceMovedPerFrame = FVector::Dist(WorldLocation, LastFrameWorldLocation);
+	DisplacementPerFrame = FVector::Dist(WorldLocation, LastFrameWorldLocation);
 }
 
 void FLyraAnimInstProxy::GetRotationData(float DeltaTime)
@@ -178,7 +178,7 @@ void ULyraAnimInst::NativePostEvaluateAnimation()
 
 	// 位置相关
 	WorldLocation = Proxy.WorldLocation;
-	DistanceMovedPerFrame = Proxy.DistanceMovedPerFrame;
+	DisplacementPerFrame = Proxy.DisplacementPerFrame;
 	// 旋转相关
 	WorldRotation = Proxy.WorldRotation;
 	LeanAngle = Proxy.LeanAngle;
