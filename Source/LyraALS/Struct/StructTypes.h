@@ -60,4 +60,6 @@ struct LYRAALS_API FPredictGroundMovementStopLocationParams
 	float BrakingFrictionFactor{2.f};
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
 	float BrakingDecelerationWalking{2048.f};
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta=(Tooltip="角色最大行走速度，并不等同于动画中的速度。"))
+	float CharacterMaxWalkingSpeed{600.f};
 };

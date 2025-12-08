@@ -184,5 +184,6 @@ void ULyraAnimInst::NativePostEvaluateAnimation()
 
 	// 方向相关
 	VelocityLocomotionAngle = Proxy.VelocityLocomotionAngle;
+	LastFrameVelocityLocomotionDirection = VelocityLocomotionDirection;
 	VelocityLocomotionDirection = Proxy.VelocityLocomotionDirection;
 }

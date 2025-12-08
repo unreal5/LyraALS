@@ -118,6 +118,8 @@ protected:
 	UPROPERTY(Transient, BlueprintReadOnly, Category="OrientationData")
 	float VelocityLocomotionAngle{0.f};
 	UPROPERTY(Transient, BlueprintReadOnly, Category="OrientationData")
+	ELocomotionDirection LastFrameVelocityLocomotionDirection{ELocomotionDirection::Forward};
+	UPROPERTY(Transient, BlueprintReadOnly, Category="OrientationData")
 	ELocomotionDirection VelocityLocomotionDirection{ELocomotionDirection::Forward};
 
 private:
