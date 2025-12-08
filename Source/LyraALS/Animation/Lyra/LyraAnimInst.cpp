@@ -27,6 +27,7 @@ void FLyraAnimInstProxy::PreUpdate(UAnimInstance* InAnimInstance, float DeltaSec
 	// 加速度相关。
 	CurrentAcceleration = MovementComp->GetCurrentAcceleration();
 	// 在动画图层中使用PropertyAccess的变量，必须在此处同步
+	LastFrameWorldLocation = WorldLocation;
 	WorldLocation = LyraCharacter->GetActorLocation();
 
 	// 旋转相关。
@@ -39,7 +40,7 @@ void FLyraAnimInstProxy::Update(float DeltaSeconds)
 
 	GetVelocityData();
 	GetAccelerationData();
-	GetLocationData();
+	GetLocationData(DeltaSeconds);
 	GetRotationData(DeltaSeconds);
 	UpdateOrientationData();
 }
@@ -58,9 +59,9 @@ void FLyraAnimInstProxy::GetAccelerationData()
 	bHasAcceleration = CurrentAcceleration2D.SizeSquared() > KINDA_SMALL_NUMBER;
 }
 
-void FLyraAnimInstProxy::GetLocationData()
+void FLyraAnimInstProxy::GetLocationData(float DeltaTime)
 {
-	// TODO: 暂时保留
+	DistanceMovedPerFrame = FVector::Dist(WorldLocation, LastFrameWorldLocation);
 }
 
 void FLyraAnimInstProxy::GetRotationData(float DeltaTime)
@@ -177,7 +178,7 @@ void ULyraAnimInst::NativePostEvaluateAnimation()
 
 	// 位置相关
 	WorldLocation = Proxy.WorldLocation;
-
+	DistanceMovedPerFrame = Proxy.DistanceMovedPerFrame;
 	// 旋转相关
 	WorldRotation = Proxy.WorldRotation;
 	LeanAngle = Proxy.LeanAngle;

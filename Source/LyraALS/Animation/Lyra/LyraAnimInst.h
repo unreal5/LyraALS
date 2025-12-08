@@ -39,7 +39,9 @@ protected:
 	bool bHasAcceleration{false};
 
 	// Location
+	FVector LastFrameWorldLocation = FVector::ZeroVector;
 	FVector WorldLocation = FVector::ZeroVector;
+	float DistanceMovedPerFrame = 0.f;
 
 	// Rotation
 	float LeanAngle = 0.f;
@@ -53,7 +55,7 @@ protected:
 private:
 	void GetVelocityData();
 	void GetAccelerationData();
-	void GetLocationData();
+	void GetLocationData(float DeltaTime);
 	void GetRotationData(float DeltaTime);
 	void UpdateOrientationData();
 	ELocomotionDirection CalculateLocomotionDirection(float InAngle, ELocomotionDirection CurrentDirection,
@@ -120,7 +122,8 @@ protected:
 	// 位置相关数据
 	UPROPERTY(Transient, BlueprintReadOnly, Category="LocationData")
 	FVector WorldLocation;
-
+	UPROPERTY(Transient, BlueprintReadOnly, Category="LocationData")
+	float DistanceMovedPerFrame{0.f};
 	// 旋转相关数据
 	UPROPERTY(Transient, BlueprintReadOnly, Category="RotationData")
 	FRotator WorldRotation;
