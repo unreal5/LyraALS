@@ -37,6 +37,7 @@ protected:
 	FVector CurrentAcceleration{FVector::ZeroVector};
 	FVector CurrentAcceleration2D{FVector::ZeroVector};
 	bool bHasAcceleration{false};
+	float NormalizedDotProductBetweenAccelerationAndVelocity;
 
 	// Location
 	FVector LastFrameWorldLocation = FVector::ZeroVector;
@@ -116,8 +117,13 @@ protected:
 	FVector CurrentAcceleration;
 	UPROPERTY(Transient, BlueprintReadOnly, Category="AccelerationData")
 	FVector CurrentAcceleration2D;
+	// PivotAcceleration2D由蓝图记录进入Pivot状态时的加速度。cpp中不更新该值。
+	UPROPERTY(Transient, BlueprintReadWrite, Category="AccelerationData")
+	FVector PivotAcceleration2D{FVector::ZeroVector};
 	UPROPERTY(Transient, BlueprintReadOnly, Category="AccelerationData")
 	bool bIsAccelerating{false};
+	UPROPERTY(Transient, BlueprintReadOnly, Category="AccelerationData")
+	float NormalizedDotProductBetweenAccelerationAndVelocity{0.f};
 
 	// 位置相关数据
 	UPROPERTY(Transient, BlueprintReadOnly, Category="LocationData")

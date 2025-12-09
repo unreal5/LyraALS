@@ -57,6 +57,8 @@ void FLyraAnimInstProxy::GetAccelerationData()
 {
 	CurrentAcceleration2D = FVector{CurrentAcceleration.X, CurrentAcceleration.Y, 0.f};
 	bHasAcceleration = CurrentAcceleration2D.SizeSquared() > KINDA_SMALL_NUMBER;
+	// 此时已经有速度和加速度数据，可用来计算速度和加速度的夹角等数据。
+	NormalizedDotProductBetweenAccelerationAndVelocity = CurrentAcceleration2D.GetSafeNormal().Dot(CharacterVelocity2D.GetSafeNormal());
 }
 
 void FLyraAnimInstProxy::GetLocationData(float DeltaTime)
@@ -175,6 +177,7 @@ void ULyraAnimInst::NativePostEvaluateAnimation()
 	CurrentAcceleration = Proxy.CurrentAcceleration;
 	CurrentAcceleration2D = Proxy.CurrentAcceleration2D;
 	bIsAccelerating = Proxy.bHasAcceleration;
+	NormalizedDotProductBetweenAccelerationAndVelocity = Proxy.NormalizedDotProductBetweenAccelerationAndVelocity;
 
 	// 位置相关
 	WorldLocation = Proxy.WorldLocation;
