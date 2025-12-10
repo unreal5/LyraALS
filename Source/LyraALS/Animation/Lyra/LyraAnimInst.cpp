@@ -17,6 +17,8 @@ void FLyraAnimInstProxy::PreUpdate(UAnimInstance* InAnimInstance, float DeltaSec
 {
 	FAnimInstanceProxy::PreUpdate(InAnimInstance, DeltaSeconds);
 
+	ULyraAnimInst* LyraAnimInst = Cast<ULyraAnimInst>(InAnimInstance);
+	if (!LyraAnimInst) return;
 	ALyraCharacter* LyraCharacter = Cast<ALyraCharacter>(InAnimInstance->GetOwningActor());
 	if (!LyraCharacter) return;
 	UCharacterMovementComponent* MovementComp = LyraCharacter->GetCharacterMovement();
@@ -32,6 +34,11 @@ void FLyraAnimInstProxy::PreUpdate(UAnimInstance* InAnimInstance, float DeltaSec
 
 	// 旋转相关。
 	WorldRotation = LyraCharacter->GetActorRotation();
+	// RootYawOffset相关。
+	// RootYawOffsetMode会在动画蓝图中计算，因此这里要同步。
+	RootYawOffsetMode = LyraAnimInst->GetRootYawOffsetMode();
+	// 我们已经有了RootYawOffsetMode，因此可以重置主动画实例中的RootYawOffset
+	LyraAnimInst->SetRootYawOffsetMode(ERootYawOffsetMode::BlendOut);
 }
 
 void FLyraAnimInstProxy::Update(float DeltaSeconds)
@@ -43,6 +50,7 @@ void FLyraAnimInstProxy::Update(float DeltaSeconds)
 	GetLocationData(DeltaSeconds);
 	GetRotationData(DeltaSeconds);
 	UpdateOrientationData();
+	UpdateRootYawOffset();
 }
 
 void FLyraAnimInstProxy::GetVelocityData()
@@ -58,7 +66,8 @@ void FLyraAnimInstProxy::GetAccelerationData()
 	CurrentAcceleration2D = FVector{CurrentAcceleration.X, CurrentAcceleration.Y, 0.f};
 	bHasAcceleration = CurrentAcceleration2D.SizeSquared() > KINDA_SMALL_NUMBER;
 	// 此时已经有速度和加速度数据，可用来计算速度和加速度的夹角等数据。
-	NormalizedDotProductBetweenAccelerationAndVelocity = CurrentAcceleration2D.GetSafeNormal().Dot(CharacterVelocity2D.GetSafeNormal());
+	NormalizedDotProductBetweenAccelerationAndVelocity = CurrentAcceleration2D.GetSafeNormal().Dot(
+		CharacterVelocity2D.GetSafeNormal());
 }
 
 void FLyraAnimInstProxy::GetLocationData(float DeltaTime)
@@ -69,11 +78,11 @@ void FLyraAnimInstProxy::GetLocationData(float DeltaTime)
 void FLyraAnimInstProxy::GetRotationData(float DeltaTime)
 {
 	// 此时代理的数据已经过时，是上一帧的数据。
-	float DeltaActorYaw = WorldRotation.Yaw - LastFrameActorYaw;
-	DeltaActorYaw = UKismetMathLibrary::SafeDivide(DeltaActorYaw, DeltaTime * 6.f);
-	DeltaActorYaw = FMath::ClampAngle(DeltaActorYaw, -90.f, 90.f);
+	DeltaActorYaw = WorldRotation.Yaw - LastFrameActorYaw;
+	float ClampedYawSpeed = UKismetMathLibrary::SafeDivide(DeltaActorYaw, DeltaTime * 6.f);
+	ClampedYawSpeed = FMath::ClampAngle(ClampedYawSpeed, -90.f, 90.f);
 	// 更新当前帧数据
-	LeanAngle = DeltaActorYaw;
+	LeanAngle = ClampedYawSpeed;
 	//根据上一帧方向调整LeanAngle;
 	if (VelocityLocomotionDirection == ELocomotionDirection::Backward)
 	{
@@ -94,10 +103,26 @@ void FLyraAnimInstProxy::UpdateOrientationData()
 	*/
 	VelocityLocomotionAngle = UKismetAnimationLibrary::CalculateDirection(CharacterVelocity2D, WorldRotation);
 	VelocityLocomotionDirection = CalculateLocomotionDirection(VelocityLocomotionAngle, VelocityLocomotionDirection);
-	
+
 	// 计算加速度和角色朝向的夹角，用于判断角色做pivot运动时选择哪个方向的动画
 	AccelLocomotionAngle = UKismetAnimationLibrary::CalculateDirection(CurrentAcceleration2D, WorldRotation);
-	AccelLocomotionDirection = CalculateLocomotionDirection(AccelLocomotionAngle,AccelLocomotionDirection);
+	AccelLocomotionDirection = CalculateLocomotionDirection(AccelLocomotionAngle, AccelLocomotionDirection);
+}
+
+void FLyraAnimInstProxy::UpdateRootYawOffset()
+{
+	switch (RootYawOffsetMode)
+	{
+	case ERootYawOffsetMode::Accumulate:
+		{
+			const float CompensationAnlge = RootYawOffset - DeltaActorYaw;
+			RootYawOffset = UKismetMathLibrary::NormalizeAxis(CompensationAnlge);
+		}
+		break;
+	case ERootYawOffsetMode::BlendOut:
+	case ERootYawOffsetMode::Hold:
+		break;
+	}
 }
 
 ELocomotionDirection FLyraAnimInstProxy::CalculateLocomotionDirection(float InAngle,
@@ -198,6 +223,9 @@ void ULyraAnimInst::NativePostEvaluateAnimation()
 	AccelLocomotionAngle = Proxy.AccelLocomotionAngle;
 	// 步态相关
 	GetCharacterStates();
+
+	// rootYawOffset相关
+	RootYawOffset = Proxy.RootYawOffset;
 }
 
 void ULyraAnimInst::GetCharacterStates()

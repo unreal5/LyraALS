@@ -37,7 +37,7 @@ protected:
 	FVector CurrentAcceleration{FVector::ZeroVector};
 	FVector CurrentAcceleration2D{FVector::ZeroVector};
 	bool bHasAcceleration{false};
-	float NormalizedDotProductBetweenAccelerationAndVelocity;
+	float NormalizedDotProductBetweenAccelerationAndVelocity = 0.f;
 
 	// Location
 	FVector LastFrameWorldLocation = FVector::ZeroVector;
@@ -47,13 +47,17 @@ protected:
 	// Rotation
 	float LeanAngle = 0.f;
 	float LastFrameActorYaw = 0.f;
+	float DeltaActorYaw = 0.f;
 	FRotator WorldRotation = FRotator::ZeroRotator;
 
 	// Orientation
 	float VelocityLocomotionAngle = 0.f;
 	ELocomotionDirection VelocityLocomotionDirection{ELocomotionDirection::Forward};
 	ELocomotionDirection AccelLocomotionDirection{ELocomotionDirection::Forward};
-	float AccelLocomotionAngle;
+	float AccelLocomotionAngle = 0.f;
+	// RootYawOffset
+	float RootYawOffset = 0.f;
+	ERootYawOffsetMode RootYawOffsetMode{ERootYawOffsetMode::BlendOut};
 
 private:
 	void GetVelocityData();
@@ -61,10 +65,13 @@ private:
 	void GetLocationData(float DeltaTime);
 	void GetRotationData(float DeltaTime);
 	void UpdateOrientationData();
+	void UpdateRootYawOffset();
+
 	ELocomotionDirection CalculateLocomotionDirection(float InAngle, ELocomotionDirection CurrentDirection,
 	                                                  float DeadZone = 20.f, float BackwardMin = -130.f,
 	                                                  float BackwardMax = 130.f, float ForwardMin = -50.f,
 	                                                  float ForwardMax = 50.f);
+
 
 	friend class ULyraAnimInst;
 };
@@ -82,6 +89,10 @@ public:
 
 
 	virtual void NativePostEvaluateAnimation() override;
+
+	// 公开的属性
+	FORCEINLINE ERootYawOffsetMode GetRootYawOffsetMode() const { return RootYawOffsetMode; }
+	FORCEINLINE void SetRootYawOffsetMode(ERootYawOffsetMode NewMode) { RootYawOffsetMode = NewMode; }
 
 protected:
 	UPROPERTY(Transient, BlueprintReadOnly, Category="武器")
@@ -150,6 +161,13 @@ protected:
 	ELocomotionDirection AccelLocomotionDirection;
 	UPROPERTY(Transient, BlueprintReadOnly, Category="OrientationData")
 	float AccelLocomotionAngle;
+
+	// RootYawOffset
+	UPROPERTY(Transient, BlueprintReadOnly, Category="RootYawOffset")
+	float RootYawOffset;
+	UPROPERTY(Transient, BlueprintReadWrite, Category="RootYawOffset")
+	ERootYawOffsetMode RootYawOffsetMode{ERootYawOffsetMode::BlendOut};
+
 private:
 	virtual FAnimInstanceProxy* CreateAnimInstanceProxy() override;
 	virtual void DestroyAnimInstanceProxy(FAnimInstanceProxy* InProxy) override;

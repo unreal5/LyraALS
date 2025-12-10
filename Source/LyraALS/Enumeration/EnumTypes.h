@@ -28,3 +28,11 @@ enum class ELocomotionDirection : uint8
 	Left UMETA(DisplayName = "左移"),
 	Right UMETA(DisplayName = "右移"),
 };
+
+UENUM(BlueprintType, Blueprintable)
+enum class ERootYawOffsetMode : uint8
+{
+	Accumulate UMETA(DisplayName = "累积"),
+	BlendOut UMETA(DisplayName = "混出"),
+	Hold UMETA(DisplayName = "保持"),
+};
