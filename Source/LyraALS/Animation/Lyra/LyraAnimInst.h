@@ -52,6 +52,8 @@ protected:
 	// Orientation
 	float VelocityLocomotionAngle = 0.f;
 	ELocomotionDirection VelocityLocomotionDirection{ELocomotionDirection::Forward};
+	ELocomotionDirection AccelLocomotionDirection{ELocomotionDirection::Forward};
+	float AccelLocomotionAngle;
 
 private:
 	void GetVelocityData();
@@ -144,7 +146,10 @@ protected:
 	ELocomotionDirection LastFrameVelocityLocomotionDirection{ELocomotionDirection::Forward};
 	UPROPERTY(Transient, BlueprintReadOnly, Category="OrientationData")
 	ELocomotionDirection VelocityLocomotionDirection{ELocomotionDirection::Forward};
-
+	UPROPERTY(Transient, BlueprintReadOnly, Category="OrientationData")
+	ELocomotionDirection AccelLocomotionDirection;
+	UPROPERTY(Transient, BlueprintReadOnly, Category="OrientationData")
+	float AccelLocomotionAngle;
 private:
 	virtual FAnimInstanceProxy* CreateAnimInstanceProxy() override;
 	virtual void DestroyAnimInstanceProxy(FAnimInstanceProxy* InProxy) override;

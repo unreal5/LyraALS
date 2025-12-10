@@ -94,6 +94,10 @@ void FLyraAnimInstProxy::UpdateOrientationData()
 	*/
 	VelocityLocomotionAngle = UKismetAnimationLibrary::CalculateDirection(CharacterVelocity2D, WorldRotation);
 	VelocityLocomotionDirection = CalculateLocomotionDirection(VelocityLocomotionAngle, VelocityLocomotionDirection);
+	
+	// 计算加速度和角色朝向的夹角，用于判断角色做pivot运动时选择哪个方向的动画
+	AccelLocomotionAngle = UKismetAnimationLibrary::CalculateDirection(CurrentAcceleration2D, WorldRotation);
+	AccelLocomotionDirection = CalculateLocomotionDirection(AccelLocomotionAngle,AccelLocomotionDirection);
 }
 
 ELocomotionDirection FLyraAnimInstProxy::CalculateLocomotionDirection(float InAngle,
@@ -190,6 +194,8 @@ void ULyraAnimInst::NativePostEvaluateAnimation()
 	VelocityLocomotionAngle = Proxy.VelocityLocomotionAngle;
 	LastFrameVelocityLocomotionDirection = VelocityLocomotionDirection;
 	VelocityLocomotionDirection = Proxy.VelocityLocomotionDirection;
+	AccelLocomotionDirection = Proxy.AccelLocomotionDirection;
+	AccelLocomotionAngle = Proxy.AccelLocomotionAngle;
 	// 步态相关
 	GetCharacterStates();
 }
