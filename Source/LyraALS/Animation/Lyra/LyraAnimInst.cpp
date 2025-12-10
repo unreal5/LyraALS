@@ -50,7 +50,7 @@ void FLyraAnimInstProxy::Update(float DeltaSeconds)
 	GetLocationData(DeltaSeconds);
 	GetRotationData(DeltaSeconds);
 	UpdateOrientationData();
-	UpdateRootYawOffset();
+	UpdateRootYawOffset(DeltaSeconds);
 }
 
 void FLyraAnimInstProxy::GetVelocityData()
@@ -109,7 +109,7 @@ void FLyraAnimInstProxy::UpdateOrientationData()
 	AccelLocomotionDirection = CalculateLocomotionDirection(AccelLocomotionAngle, AccelLocomotionDirection);
 }
 
-void FLyraAnimInstProxy::UpdateRootYawOffset()
+void FLyraAnimInstProxy::UpdateRootYawOffset(float DeltaTime)
 {
 	switch (RootYawOffsetMode)
 	{
@@ -120,7 +120,10 @@ void FLyraAnimInstProxy::UpdateRootYawOffset()
 		}
 		break;
 	case ERootYawOffsetMode::BlendOut:
+		RootYawOffset = FMath::FInterpTo(RootYawOffset, 0.f, DeltaTime, 5.f);
+		break;
 	case ERootYawOffsetMode::Hold:
+		// Do nothing, hold the current RootYawOffset value
 		break;
 	}
 }

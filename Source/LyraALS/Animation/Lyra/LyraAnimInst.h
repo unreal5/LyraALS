@@ -65,7 +65,7 @@ private:
 	void GetLocationData(float DeltaTime);
 	void GetRotationData(float DeltaTime);
 	void UpdateOrientationData();
-	void UpdateRootYawOffset();
+	void UpdateRootYawOffset(float DeltaTime);
 
 	ELocomotionDirection CalculateLocomotionDirection(float InAngle, ELocomotionDirection CurrentDirection,
 	                                                  float DeadZone = 20.f, float BackwardMin = -130.f,
