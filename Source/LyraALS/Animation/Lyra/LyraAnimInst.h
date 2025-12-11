@@ -7,6 +7,7 @@
 #include "Animation/AnimInstanceProxy.h"
 #include "Enumeration/EnumTypes.h"
 #include "Interface/CombatInterface.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Struct/StructTypes.h"
 #include "LyraAnimInst.generated.h"
 
@@ -14,67 +15,8 @@
  * 动画代理
  */
 
+class UCharacterMovementComponent;
 enum class EGunType : uint8;
-
-USTRUCT()
-struct FLyraAnimInstProxy final : public FAnimInstanceProxy
-{
-	GENERATED_BODY()
-	FLyraAnimInstProxy() = default;
-	explicit FLyraAnimInstProxy(UAnimInstance* InAnimInstance);
-
-protected:
-	virtual void PreUpdate(UAnimInstance* InAnimInstance, float DeltaSeconds) override;
-	virtual void Update(float DeltaSeconds) override;
-
-	// Velocity
-	FVector CharacterVelocity = FVector::ZeroVector;
-	FVector CharacterVelocity2D = FVector::ZeroVector;
-	float GroundSpeed = 0.f;
-	bool HasVelocity = false;
-
-	// Acceleration
-	FVector CurrentAcceleration{FVector::ZeroVector};
-	FVector CurrentAcceleration2D{FVector::ZeroVector};
-	bool bHasAcceleration{false};
-	float NormalizedDotProductBetweenAccelerationAndVelocity = 0.f;
-
-	// Location
-	FVector LastFrameWorldLocation = FVector::ZeroVector;
-	FVector WorldLocation = FVector::ZeroVector;
-	float DisplacementPerFrame = 0.f;
-
-	// Rotation
-	float LeanAngle = 0.f;
-	float LastFrameActorYaw = 0.f;
-	float DeltaActorYaw = 0.f;
-	FRotator WorldRotation = FRotator::ZeroRotator;
-
-	// Orientation
-	float VelocityLocomotionAngle = 0.f;
-	ELocomotionDirection VelocityLocomotionDirection{ELocomotionDirection::Forward};
-	ELocomotionDirection AccelLocomotionDirection{ELocomotionDirection::Forward};
-	float AccelLocomotionAngle = 0.f;
-	// RootYawOffset
-	float RootYawOffset = 0.f;
-	ERootYawOffsetMode RootYawOffsetMode{ERootYawOffsetMode::BlendOut};
-
-private:
-	void GetVelocityData();
-	void GetAccelerationData();
-	void GetLocationData(float DeltaTime);
-	void GetRotationData(float DeltaTime);
-	void UpdateOrientationData();
-	void UpdateRootYawOffset(float DeltaTime);
-
-	ELocomotionDirection CalculateLocomotionDirection(float InAngle, ELocomotionDirection CurrentDirection,
-	                                                  float DeadZone = 20.f, float BackwardMin = -130.f,
-	                                                  float BackwardMax = 130.f, float ForwardMin = -50.f,
-	                                                  float ForwardMax = 50.f);
-
-
-	friend class ULyraAnimInst;
-};
 
 UCLASS()
 class LYRAALS_API ULyraAnimInst : public UAnimInstance, public ICombatInterface
@@ -87,12 +29,9 @@ public:
 	                                               const FPredictGroundMovementStopLocationParams&
 	                                               GaitSettings) override;
 
-
-	virtual void NativePostEvaluateAnimation() override;
-
-	// 公开的属性
-	FORCEINLINE ERootYawOffsetMode GetRootYawOffsetMode() const { return RootYawOffsetMode; }
-	FORCEINLINE void SetRootYawOffsetMode(ERootYawOffsetMode NewMode) { RootYawOffsetMode = NewMode; }
+	virtual void NativeInitializeAnimation() override;
+	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+	virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
 
 protected:
 	UPROPERTY(Transient, BlueprintReadOnly, Category="武器")
@@ -140,6 +79,8 @@ protected:
 
 	// 位置相关数据
 	UPROPERTY(Transient, BlueprintReadOnly, Category="LocationData")
+	FVector LastFrameWorldLocation;
+	UPROPERTY(Transient, BlueprintReadOnly, Category="LocationData")
 	FVector WorldLocation;
 	UPROPERTY(Transient, BlueprintReadOnly, Category="LocationData", meta=(ShortTooltip="每帧位移"))
 	float DisplacementPerFrame{0.f};
@@ -149,10 +90,15 @@ protected:
 	UPROPERTY(Transient, BlueprintReadOnly, Category="RotationData")
 	float LeanAngle{0.f};
 
+	float DeltaActorYaw = 0.f;
+	float LastFrameActorYaw = 0.f;
+
 
 	// 方向相关数据
 	UPROPERTY(Transient, BlueprintReadOnly, Category="OrientationData")
 	float VelocityLocomotionAngle{0.f};
+	UPROPERTY(Transient, BlueprintReadOnly, Category="OrientationData")
+	float VelocityLocomotionAngleWithOffset{0.f};
 	UPROPERTY(Transient, BlueprintReadOnly, Category="OrientationData")
 	ELocomotionDirection LastFrameVelocityLocomotionDirection{ELocomotionDirection::Forward};
 	UPROPERTY(Transient, BlueprintReadOnly, Category="OrientationData")
@@ -167,9 +113,25 @@ protected:
 	float RootYawOffset;
 	UPROPERTY(Transient, BlueprintReadWrite, Category="RootYawOffset")
 	ERootYawOffsetMode RootYawOffsetMode{ERootYawOffsetMode::BlendOut};
+	
 
 private:
-	virtual FAnimInstanceProxy* CreateAnimInstanceProxy() override;
-	virtual void DestroyAnimInstanceProxy(FAnimInstanceProxy* InProxy) override;
+	// virtual FAnimInstanceProxy* CreateAnimInstanceProxy() override;
+	// virtual void DestroyAnimInstanceProxy(FAnimInstanceProxy* InProxy) override;
+
+	UPROPERTY()
+	TWeakObjectPtr<ACharacter> OwningCharacter;
+	
+	UPROPERTY()
+	TWeakObjectPtr<UCharacterMovementComponent> CharacterMovementComponent;
+	
+	FFloatSpringState FloatSpringState;
+	
+	void GetVelocityData();
+	void GetAccelerationData();
+	void GetLocationData(float DeltaTime);
+	void GetRotationData(float DeltaTime);
+	void UpdateOrientationData();
 	void GetCharacterStates();
+	void UpdateRootYawOffset(float DeltaTime);
 };

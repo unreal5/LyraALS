@@ -8,52 +8,75 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Player/LyraCharacter.h"
 
-FLyraAnimInstProxy::FLyraAnimInstProxy(UAnimInstance* InAnimInstance) : FAnimInstanceProxy(InAnimInstance)
+namespace
 {
+	ELocomotionDirection CalculateLocomotionDirection(float InAngle, ELocomotionDirection CurrentDirection,
+	                                                  float DeadZone = 20.f, float BackwardMin = -130.f,
+	                                                  float BackwardMax = 130.f, float ForwardMin = -50.f,
+	                                                  float ForwardMax = 50.f);
+
+	float SetRootYawOffset(float CompensationAnlge);
 }
 
-// 动画实例代理
-void FLyraAnimInstProxy::PreUpdate(UAnimInstance* InAnimInstance, float DeltaSeconds)
-{
-	FAnimInstanceProxy::PreUpdate(InAnimInstance, DeltaSeconds);
 
-	ULyraAnimInst* LyraAnimInst = Cast<ULyraAnimInst>(InAnimInstance);
-	if (!LyraAnimInst) return;
-	ALyraCharacter* LyraCharacter = Cast<ALyraCharacter>(InAnimInstance->GetOwningActor());
-	if (!LyraCharacter) return;
-	UCharacterMovementComponent* MovementComp = LyraCharacter->GetCharacterMovement();
-	if (!MovementComp) return;
-	// 同步需要的数据到动画代理中
-	// 速度相关。
-	CharacterVelocity = MovementComp->Velocity;
+void ULyraAnimInst::ReceiveEquipWeapon_Implementation(EGunType NewGunType)
+{
+	EquippedGun = NewGunType;
+}
+
+void ULyraAnimInst::ReceiveCurrentGait_Implementation(EGaitType NewGait,
+                                                      const FPredictGroundMovementStopLocationParams& GaitSettings)
+{
+	InComingGait = NewGait;
+	CurrentGaitPredictParams = GaitSettings;
+}
+
+void ULyraAnimInst::NativeInitializeAnimation()
+{
+	Super::NativeInitializeAnimation();
+	OwningCharacter = Cast<ALyraCharacter>(GetOwningActor());
+	if (OwningCharacter.Get())
+	{
+		CharacterMovementComponent = OwningCharacter->GetCharacterMovement();
+	}
+}
+
+void ULyraAnimInst::NativeUpdateAnimation(float DeltaSeconds)
+{
+	Super::NativeUpdateAnimation(DeltaSeconds);
+	if (!OwningCharacter.Get()) return;
+	if (!CharacterMovementComponent.Get())
+	{
+		CharacterMovementComponent = OwningCharacter->GetCharacterMovement();
+	}
+	if (!CharacterMovementComponent.Get()) return;
+
+	// 同步最基本数据---其余数据在NativeThreadSafeUpdateAnimation中更新
+	CharacterVelocity = CharacterMovementComponent->Velocity;
 	// 加速度相关。
-	CurrentAcceleration = MovementComp->GetCurrentAcceleration();
+	CurrentAcceleration = CharacterMovementComponent->GetCurrentAcceleration();
 	// 在动画图层中使用PropertyAccess的变量，必须在此处同步
 	LastFrameWorldLocation = WorldLocation;
-	WorldLocation = LyraCharacter->GetActorLocation();
+	WorldLocation = OwningCharacter->GetActorLocation();
 
 	// 旋转相关。
-	WorldRotation = LyraCharacter->GetActorRotation();
-	// RootYawOffset相关。
-	// RootYawOffsetMode会在动画蓝图中计算，因此这里要同步。
-	RootYawOffsetMode = LyraAnimInst->GetRootYawOffsetMode();
-	// 我们已经有了RootYawOffsetMode，因此可以重置主动画实例中的RootYawOffset
-	LyraAnimInst->SetRootYawOffsetMode(ERootYawOffsetMode::BlendOut);
+	WorldRotation = OwningCharacter->GetActorRotation();
 }
 
-void FLyraAnimInstProxy::Update(float DeltaSeconds)
+// 线程安全的更新动画，运行于动画线程
+void ULyraAnimInst::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 {
-	FAnimInstanceProxy::Update(DeltaSeconds);
-
+	Super::NativeThreadSafeUpdateAnimation(DeltaSeconds);
 	GetVelocityData();
 	GetAccelerationData();
 	GetLocationData(DeltaSeconds);
 	GetRotationData(DeltaSeconds);
 	UpdateOrientationData();
+	GetCharacterStates();
 	UpdateRootYawOffset(DeltaSeconds);
 }
 
-void FLyraAnimInstProxy::GetVelocityData()
+void ULyraAnimInst::GetVelocityData()
 {
 	// 速度相关的必须以CharacterVelocity为基础。
 	CharacterVelocity2D = FVector{CharacterVelocity.X, CharacterVelocity.Y, 0.f};
@@ -61,21 +84,21 @@ void FLyraAnimInstProxy::GetVelocityData()
 	HasVelocity = GroundSpeed > KINDA_SMALL_NUMBER;
 }
 
-void FLyraAnimInstProxy::GetAccelerationData()
+void ULyraAnimInst::GetAccelerationData()
 {
 	CurrentAcceleration2D = FVector{CurrentAcceleration.X, CurrentAcceleration.Y, 0.f};
-	bHasAcceleration = CurrentAcceleration2D.SizeSquared() > KINDA_SMALL_NUMBER;
+	bIsAccelerating = CurrentAcceleration2D.SizeSquared() > KINDA_SMALL_NUMBER;
 	// 此时已经有速度和加速度数据，可用来计算速度和加速度的夹角等数据。
 	NormalizedDotProductBetweenAccelerationAndVelocity = CurrentAcceleration2D.GetSafeNormal().Dot(
 		CharacterVelocity2D.GetSafeNormal());
 }
 
-void FLyraAnimInstProxy::GetLocationData(float DeltaTime)
+void ULyraAnimInst::GetLocationData(float DeltaTime)
 {
 	DisplacementPerFrame = FVector::Dist(WorldLocation, LastFrameWorldLocation);
 }
 
-void FLyraAnimInstProxy::GetRotationData(float DeltaTime)
+void ULyraAnimInst::GetRotationData(float DeltaTime)
 {
 	// 此时代理的数据已经过时，是上一帧的数据。
 	DeltaActorYaw = WorldRotation.Yaw - LastFrameActorYaw;
@@ -92,16 +115,16 @@ void FLyraAnimInstProxy::GetRotationData(float DeltaTime)
 	LastFrameActorYaw = WorldRotation.Yaw;
 }
 
-
-void FLyraAnimInstProxy::UpdateOrientationData()
+void ULyraAnimInst::UpdateOrientationData()
 {
 	/*
-	* Returns degree of the angle between Velocity and Rotation forward vector The range of return will be from [-180, 180]. Useful for feeding directional blendspaces.
-	* Params: 
-	*		Velocity — The velocity to use as direction relative to BaseRotation
-	*		BaseRotation — The base rotation, e.g. of a pawn
-	*/
+* Returns degree of the angle between Velocity and Rotation forward vector The range of return will be from [-180, 180]. Useful for feeding directional blendspaces.
+* Params: 
+*		Velocity — The velocity to use as direction relative to BaseRotation
+*		BaseRotation — The base rotation, e.g. of a pawn
+*/
 	VelocityLocomotionAngle = UKismetAnimationLibrary::CalculateDirection(CharacterVelocity2D, WorldRotation);
+	VelocityLocomotionAngleWithOffset = UKismetMathLibrary::NormalizeAxis(VelocityLocomotionAngle - RootYawOffset);
 	VelocityLocomotionDirection = CalculateLocomotionDirection(VelocityLocomotionAngle, VelocityLocomotionDirection);
 
 	// 计算加速度和角色朝向的夹角，用于判断角色做pivot运动时选择哪个方向的动画
@@ -109,131 +132,82 @@ void FLyraAnimInstProxy::UpdateOrientationData()
 	AccelLocomotionDirection = CalculateLocomotionDirection(AccelLocomotionAngle, AccelLocomotionDirection);
 }
 
-void FLyraAnimInstProxy::UpdateRootYawOffset(float DeltaTime)
+void ULyraAnimInst::GetCharacterStates()
+{
+	LastFrameGait = CurrentGait;
+	CurrentGait = InComingGait;
+	IsGaitChanged = (CurrentGait != LastFrameGait);
+}
+
+
+void ULyraAnimInst::UpdateRootYawOffset(float DeltaTime)
 {
 	switch (RootYawOffsetMode)
 	{
 	case ERootYawOffsetMode::Accumulate:
 		{
 			const float CompensationAnlge = RootYawOffset - DeltaActorYaw;
-			RootYawOffset = UKismetMathLibrary::NormalizeAxis(CompensationAnlge);
+			RootYawOffset = SetRootYawOffset(CompensationAnlge);
 		}
 		break;
 	case ERootYawOffsetMode::BlendOut:
-		RootYawOffset = FMath::FInterpTo(RootYawOffset, 0.f, DeltaTime, 5.f);
+		{
+			const float InterpToZero = UKismetMathLibrary::FloatSpringInterp(
+				RootYawOffset, 0.f, FloatSpringState, 80.f, 1.f, DeltaTime);
+			RootYawOffset = SetRootYawOffset(InterpToZero);
+		}
 		break;
 	case ERootYawOffsetMode::Hold:
 		// Do nothing, hold the current RootYawOffset value
 		break;
 	}
+
+	RootYawOffsetMode = ERootYawOffsetMode::BlendOut;
 }
 
-ELocomotionDirection FLyraAnimInstProxy::CalculateLocomotionDirection(float InAngle,
-                                                                      ELocomotionDirection CurrentDirection,
-                                                                      float DeadZone,
-                                                                      float BackwardMin, float BackwardMax,
-                                                                      float ForwardMin, float ForwardMax)
+
+namespace
 {
-	switch (CurrentDirection)
+	ELocomotionDirection CalculateLocomotionDirection(float InAngle,
+	                                                  ELocomotionDirection CurrentDirection,
+	                                                  float DeadZone,
+	                                                  float BackwardMin, float BackwardMax,
+	                                                  float ForwardMin, float ForwardMax)
 	{
-	case ELocomotionDirection::Forward:
-		ForwardMin -= DeadZone;
-		ForwardMax += DeadZone;
-		break;
-	case ELocomotionDirection::Backward:
-		BackwardMin += DeadZone;
-		BackwardMax -= DeadZone;
-		break;
-	case ELocomotionDirection::Left:
-		ForwardMin += DeadZone;
-		BackwardMin -= DeadZone;
-		break;
-	case ELocomotionDirection::Right:
-		ForwardMax -= DeadZone;
-		BackwardMax += DeadZone;
-		break;
+		switch (CurrentDirection)
+		{
+		case ELocomotionDirection::Forward:
+			ForwardMin -= DeadZone;
+			ForwardMax += DeadZone;
+			break;
+		case ELocomotionDirection::Backward:
+			BackwardMin += DeadZone;
+			BackwardMax -= DeadZone;
+			break;
+		case ELocomotionDirection::Left:
+			ForwardMin += DeadZone;
+			BackwardMin -= DeadZone;
+			break;
+		case ELocomotionDirection::Right:
+			ForwardMax -= DeadZone;
+			BackwardMax += DeadZone;
+			break;
+		}
+
+		if (InAngle < BackwardMin || InAngle > BackwardMax)
+		{
+			return ELocomotionDirection::Backward;
+		}
+		else if (UKismetMathLibrary::InRange_FloatFloat(InAngle, ForwardMin, ForwardMax))
+		{
+			return ELocomotionDirection::Forward;
+		}
+		return InAngle > 0.f ? ELocomotionDirection::Right : ELocomotionDirection::Left;
 	}
 
-	if (InAngle < BackwardMin || InAngle > BackwardMax)
+
+	float SetRootYawOffset(const float InAngle)
 	{
-		return ELocomotionDirection::Backward;
+		return UKismetMathLibrary::NormalizeAxis(InAngle);
 	}
-	else if (UKismetMathLibrary::InRange_FloatFloat(InAngle, ForwardMin, ForwardMax))
-	{
-		return ELocomotionDirection::Forward;
-	}
-	return InAngle > 0.f ? ELocomotionDirection::Right : ELocomotionDirection::Left;
-}
-
-/****************************************************************************************************/
-/*										动画实例														*/
-/****************************************************************************************************/
-
-FAnimInstanceProxy* ULyraAnimInst::CreateAnimInstanceProxy()
-{
-	return new FLyraAnimInstProxy{this};
-}
-
-void ULyraAnimInst::DestroyAnimInstanceProxy(FAnimInstanceProxy* InProxy)
-{
-	Super::DestroyAnimInstanceProxy(InProxy);
-}
-
-
-void ULyraAnimInst::ReceiveEquipWeapon_Implementation(EGunType NewGunType)
-{
-	EquippedGun = NewGunType;
-}
-
-void ULyraAnimInst::ReceiveCurrentGait_Implementation(EGaitType NewGait,
-                                                      const FPredictGroundMovementStopLocationParams& GaitSettings)
-{
-	InComingGait = NewGait;
-	CurrentGaitPredictParams = GaitSettings;
-}
-
-
-// 动画评估后调用，运行于游戏线程
-void ULyraAnimInst::NativePostEvaluateAnimation()
-{
-	Super::NativePostEvaluateAnimation();
-	FLyraAnimInstProxy& Proxy = GetProxyOnGameThread<FLyraAnimInstProxy>();
-	// 从动画代理中同步数据到动画实例中
-	// 速度相关
-	CharacterVelocity = Proxy.CharacterVelocity;
-	CharacterVelocity2D = Proxy.CharacterVelocity2D;
-	GroundSpeed = Proxy.GroundSpeed;
-	HasVelocity = Proxy.HasVelocity;
-
-	// 加速度相关
-	CurrentAcceleration = Proxy.CurrentAcceleration;
-	CurrentAcceleration2D = Proxy.CurrentAcceleration2D;
-	bIsAccelerating = Proxy.bHasAcceleration;
-	NormalizedDotProductBetweenAccelerationAndVelocity = Proxy.NormalizedDotProductBetweenAccelerationAndVelocity;
-
-	// 位置相关
-	WorldLocation = Proxy.WorldLocation;
-	DisplacementPerFrame = Proxy.DisplacementPerFrame;
-	// 旋转相关
-	WorldRotation = Proxy.WorldRotation;
-	LeanAngle = Proxy.LeanAngle;
-
-	// 方向相关
-	VelocityLocomotionAngle = Proxy.VelocityLocomotionAngle;
-	LastFrameVelocityLocomotionDirection = VelocityLocomotionDirection;
-	VelocityLocomotionDirection = Proxy.VelocityLocomotionDirection;
-	AccelLocomotionDirection = Proxy.AccelLocomotionDirection;
-	AccelLocomotionAngle = Proxy.AccelLocomotionAngle;
-	// 步态相关
-	GetCharacterStates();
-
-	// rootYawOffset相关
-	RootYawOffset = Proxy.RootYawOffset;
-}
-
-void ULyraAnimInst::GetCharacterStates()
-{
-	LastFrameGait = CurrentGait;
-	CurrentGait = InComingGait;
-	IsGaitChanged = (CurrentGait != LastFrameGait);
 }
