@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
-#include "Animation/AnimInstanceProxy.h"
 #include "Enumeration/EnumTypes.h"
 #include "Interface/CombatInterface.h"
 #include "Kismet/KismetMathLibrary.h"

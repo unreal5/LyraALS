@@ -1,0 +1,762 @@
+\documentclass[12pt,a4paper]{ctexbook}
+%\usepackage[utf8]{inputenc}
+%\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage[left=3cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[svgnames,x11names]{xcolor}
+\usepackage{colortbl}
+\usepackage{fancyhdr}
+\usepackage[explicit]{titlesec}
+\usepackage{tikz}
+\usetikzlibrary{matrix,fit,calc,shadows,shadows.blur,shapes.symbols,positioning,shapes.geometric,decorations.text}
+\usepackage[most]{tcolorbox}
+\usepackage{pifont}
+\usepackage{multicol}
+\usepackage{enumerate}
+\usepackage[shortlabels,inline]{enumitem}
+\usepackage{eso-pic}
+\usepackage{tikzpagenodes}
+\usepackage{nopageno}
+%===========================================================
+%définition des couleurs
+\definecolor{myblueii}{RGB}{63,200,244}
+\definecolor{MainRed}{rgb}{.6, .1, .1}
+\definecolor{mybluei}{RGB}{0,173,239}
+\definecolor{bubblegum}{rgb}{0.99, 0.76, 0.8}
+\definecolor{clight2}{RGB}{212, 237, 244}
+\definecolor{blueslategray}{cmyk}{0.189, 0.091, 0, 0.439}
+\definecolor{greenbrown}{HTML}{555544}
+\definecolor{cottonseed}{cmyk}{0, 0.026, 0.047, 0.255}
+\definecolor{lightblue}{cmyk}{0.272, 0.068, 0, 0.192}
+\definecolor{bluetrout}{cmyk}{0.18, 0.15, 0, 0.608}
+\definecolor{brownred}{cmyk}{0, 0.531, 0.557, 0.239}
+\definecolor{orangewhite}{cmyk}{0, 0.031, 0.075, 0.004}
+\definecolor{avocado}{cmyk}{0.06, 0, 0.55, 0.37}
+\definecolor{eggplant}{cmyk}{0.04, 0.24, 0, 0.47}
+\definecolor{darkblue}{rgb}{0.12,0.47,0.87}
+%===============================================================
+%===========================================
+\definecolor{shadow@color}{cmyk}{.07,0,0,0.49}
+\definecolor{col1}{RGB}{12, 102, 98}
+\definecolor{col2}{RGB}{248, 193, 12}
+\definecolor{col3}{RGB}{236, 67, 1} 
+%========================================
+%=================================================
+\definecolor{gray}{RGB}{236,236,236}
+\definecolor{shadow@color}{cmyk}{.07,0,0,0.49}
+\definecolor{section@title@color}{cmyk}{1,0.2,0.3,0.1}
+\definecolor{subsection@title@color}{cmyk}{0,0.6,0.9,0}
+%=================================================
+%========================================
+%Commands
+%newcommand % % % % %
+\newcommand\z{\cellcolor{bubblegum}}
+\newcommand\y{\cellcolor{clight2}}
+% % % % % % % % % % % % % % % % % % % % % % %
+\newcommand\highlight[1]{\tikz[overlay, remember picture,baseline=-\the\dimexpr\fontdimen5\textfont2\relax]\node[rectangle,fill=blue!50,rounded corners,fill opacity = 0.2,draw,thick,text opacity =1] {$#1$};} 
+% % % % % % % % % % % % % % % % % % % % % % %
+\newcommand{\tikzmark}[2]{\tikz[overlay,remember picture,baseline=(#1.base)] \node (#1) {#2};}
+% % % % % % % % % % % % % % % % % % % % % % %
+\newcommand\tikznode[3][]%
+{\tikz[remember picture,baseline=(#2.base)]
+ \node[minimum size=0pt,inner sep=0pt,#1](#2){#3};%
+}
+%==============================================
+%=============================================
+\newlength{\mylen}
+\newlength{\hauteur}
+\newlength{\malongueur}
+\settowidth{\mylen}{方法：}
+\setlength{\hauteur}{\baselineskip}
+\addtolength{\hauteur}{0.5mm}
+\settowidth{\malongueur}{408.52pt}
+%\addtolength{\malongueur}{-\mylen}
+%===========================================================
+\renewcommand{\sfdefault}{lmss}%Latin Modern fonts
+%============================================
+%==============================================
+%fancy chapters
+\definecolor{titlepagecolor}{cmyk}{0,0,0,80}
+\definecolor{titlepagecolor2}{RGB}{196,175,153}
+
+%\DeclareFixedFont{\chapternumberfont}{T1}{phv}{bx}{sc}{1.35in}
+%\newfont{\Chap@Num}{eurb10 scaled 8000}
+\newfont{\chapternumberfont}{eurb10 scaled 10000}
+
+\DeclareFixedFont{\bigsf}{T1}{phv}{b}{n}{1cm}
+\titlespacing*{\chapter}{0pt}{2cm}{3.5cm}%left,top,bottom
+\titleformat{\chapter}[display]
+{\bfseries\sffamily\color{Red}}
+{\begin{tikzpicture}[remember picture, overlay]
+\filldraw[myblueii](current page.north west)--++(5,0)--++(-80:6)--([shift={(0,-8)}]current page.north west)--cycle;
+\filldraw[subsection@title@color]([shift={(5,0)}]current page.north west)
+--++(-80:6)-|(current page.north east);
+\node[
+circle,
+fill=orangewhite,
+drop shadow={shadow xshift=0pt},
+minimum size=4cm,
+] (num) at ([shift={(5,-5)}]current page.north west) {\color{darkblue}\chapternumberfont\thechapter};
+\node[
+text width=\textwidth-3cm,
+text height=2cm,
+text depth=2cm,
+inner xsep=1cm,
+font=\Huge\color{white}\bigsf 
+] 
+at ([shift={(10,2)}]num) {#1};
+%====================================
+\path [postaction={decorate,decoration={raise=-1ex,text along path, text align=center,
+ text={|\huge\color{white}|Chapter }}}] (num) circle (3cm);
+\end{tikzpicture}}
+{1ex}
+{}
+[]
+%------------------------------------------------------
+\titleformat{name=\chapter,numberless}[display]
+{\Huge\bfseries\sffamily\color{MainRed}}
+{#1}
+{1ex}
+{\titlerule[2pt]\vspace*{5ex}\huge\normalfont}
+%===============================================================
+%%%%%%%%%%%%% Titre de section %%%%%%%%%%%%%%%%%%%%%
+\renewcommand{\thesection}{\Roman{section}}
+\def\sectiontitlefont{\fontfamily{ugq}\selectfont}
+%================================================
+\newcommand\SecTitle[4]{%
+ \hspace*{-1.5cm}\begin{tikzpicture}
+ \node[inner xsep=0pt,minimum height=3cm,text width=0.8\textwidth,
+ align=left,left color=gray,right color=white, signal to=#1,font=\LARGE,anchor=#2] (A)
+ at (#3,0) {\hspace*{2.25cm}#4};
+ %===============================================================
+ %==================================================
+ \node (numsec) at ($0.5*(A.north west)-0.5*(A.north west)+(1,0)$) {\Huge\textbf{\thesection}};
+ \fill[rounded corners=2pt,fill=shadow@color] ($(numsec.north west)+(2pt,-2pt)$) -- ($(numsec.north east)+(1mm,0mm)+(2pt,-2pt)$) -- ($(numsec.south east)+(2pt,-2pt)$) -- ($(numsec.south west)+(-1mm,0)+(2pt,-2pt)$) -- cycle;
+ \fill[rounded corners=2pt,fill=section@title@color] (numsec.north west) -- ($(numsec.north east)+(1mm,0mm)$) -- (numsec.south east) -- ($(numsec.south west)+(-1mm,0)$) -- cycle;
+ \node[white] at (numsec) {\LARGE\sectiontitlefont\thesection};
+ \end{tikzpicture}%
+}
+%\titleformat{command}[shape]{format}{label}{sep}{before-code}{after-code}
+\titleformat{\section}
+{\sectiontitlefont\color{section@title@color}}{}{0em}
+{\SecTitle{east}{west}{0\paperwidth}{#1}}
+%======================================================
+%%%%%%%%%%%%%%%%Titre de subsection %%%%%%%%%%%%%%%%%%%%%
+\renewcommand{\thesubsection}{\arabic{subsection}}
+\def\subsectiontitlefont{\fontfamily{ugq}\selectfont}
+\newcommand\SubsecTitle[4]{%
+ \hspace*{-1.5cm}
+ \tikz[ overlay]{
+ \node (num) at (1.5,0) {\subsectiontitlefont\thesubsection};
+ \fill[rounded corners=2pt,fill=shadow@color] ($(num.north west)+(2pt,-2pt)$) -- ($(num.north east)+(1mm,0mm)+(2pt,-2pt)$) -- ($(num.south east)+(2pt,-2pt)$) -- ($(num.south west)+(-1mm,0)+(2pt,-2pt)$) -- cycle;
+ \fill[rounded corners=2pt,fill=subsection@title@color] (num.north west) -- ($(num.north east)+(1mm,0mm)$) -- (num.south east) -- ($(num.south west)+(-1mm,0)$) -- cycle;
+ \node[white]  at (num) {\subsectiontitlefont\thesubsection};
+ \node[color=subsection@title@color, minimum height=.5cm,minimum width=15cm,text width=10cm, align=left,font=\subsectiontitlefont](title) at ([xshift=6cm]num){#4};
+ }
+}
+%\titleformat{command}[shape]{format}{label}{sep}{before-code}{after-code}
+\titleformat{\subsection}
+{\subsectiontitlefont\color{subsection@title@color}}{}{0em}
+{\SubsecTitle{east}{west}{0\paperwidth}{#1}}
+%===============================================================
+%=============================================
+% ===== Environment "definition" ======================
+\newtcolorbox[auto counter, number within=chapter]{definition}[1][]{%
+ enhanced, breakable, fonttitle=\large\sffamily\bfseries,
+ title=定,
+ left=\tcboxedtitlewidth,
+ boxsep=0pt, top=2mm, right=2mm, bottom=2mm+0.7\baselineskip,
+ sharp corners, colback=white, colbacktitle=orange, frame hidden,
+ pad before break=-0.7\baselineskip,
+ before upper = {\begingroup
+ \large\bfseries\textcolor{green!50!black}{义}
+ \textcolor{orange}{\thetcbcounter}\quad\endgroup},
+ attach boxed title to top left={
+ xshift=2pt,
+ yshift=-\tcboxedtitleheight+1.5pt-2mm},
+ boxed title style={
+ empty, left=0mm, right=0mm, top=0mm, bottom=0mm, boxsep=2pt},
+ underlay boxed title={
+ \path[fill=orange] (title) circle (\tcboxedtitleheight/2);},
+ overlay unbroken={
+ \coordinate[xshift=\tcboxedtitlewidth/2,
+ yshift=-\tcboxedtitleheight-0.7\baselineskip] (nw) at (frame.north west);
+ \node (sw) [circle, fill=orange, inner sep=2pt,
+ xshift=\tcboxedtitlewidth/2, yshift=\tcboxedtitlewidth/2]
+ at (frame.south west) {};
+ \draw[orange, line cap=round, line width=2pt,
+ dash pattern=on 0pt off 4\pgflinewidth] (nw) -- (sw);},
+ overlay first={
+ \coordinate[xshift=\tcboxedtitlewidth/2,
+ yshift=-\tcboxedtitleheight-0.7\baselineskip] (nw) at (frame.north west);
+ \coordinate[xshift=\tcboxedtitlewidth/2,
+ yshift=0.7\baselineskip] (sw) at (frame.south west);
+ \draw[gray, line cap=round, line width=2pt,
+ dash pattern=on 0pt off 4\pgflinewidth] (nw) -- (sw);},
+ #1}
+%=====================================================
+% % % % % %% Example environment
+\newcounter{examp}
+\setcounter{examp}{0}
+\newcommand{\mytitle}[2]%
+{%
+ \stepcounter{examp}
+ \begin{tikzpicture}[font=\sffamily]
+ \def\cola{pink!50!purple}
+ \def\colb{cyan!80!blue}
+ \node[circle,fill=\cola,minimum size=8mm] at (0,0) {};
+ \node[fill=\cola,anchor=west,minimum height=8mm,minimum width=2cm] at (0,0) {};
+ \node[fill=white,line width=2pt,circle,draw=\cola,minimum size=1cm] at (2.1,0) {\theexamp};
+ \node[text=white,anchor=west] at (-0.2,0) {示例};
+ \node[fill=\colb,signal,signal to=east,text=white,minimum height=8mm] (arg1) at (4,0) {#1};
+ \node[right=2mm of arg1,\colb] (arg2) {#2};
+ \end{tikzpicture}
+}
+%==============================================================
+%Exercice résolu
+\makeatletter
+\newtcolorbox{mybox}[2][]{
+ enhanced,
+ breakable,
+ sharp corners,
+ rounded corners=northwest,
+ colback=white,
+ colframe=orange!80!black,
+ fonttitle=\bfseries\large\sffamily,
+ frame hidden,
+ title=#2,
+ attach boxed title to top left,
+ boxed title size=standard,
+ boxed title style={%
+ empty,
+ rounded corners=north,
+ boxrule=0pt,
+ bottom=0pt,
+ },
+ underlay boxed title={%
+ \filldraw[rounded corners=\kvtcb@arc, orange!80!black, line width=.5mm]
+ (title.south east)--++(93:\tcboxedtitleheight)--++(183:\tcboxedtitlewidth)--++(-87:\tcboxedtitleheight)|-cycle;
+ \draw[orange!80!black, line width=.5mm] (title.south)|-(frame.north east);
+ },
+ #1
+}
+\makeatother
+%===============================================================
+%Exercice
+%commands
+\newcommand{\sect}[1]{\begin{tcolorbox}[colframe=white,top=2pt,bottom=2pt,colback=red!14]
+ \centering \textbf{#1}
+ \end{tcolorbox}
+}
+\setlength{\columnsep}{30pt}
+\setlength{\columnseprule}{0.2pt}
+\setlength{\parindent}{0pt}%
+\newtcolorbox[auto counter ]{Exercice}[1][]{
+ enhanced,left=0pt,top=8pt,frame hidden,bottom=0pt,before upper={\hspace*{1cm}} ,colback=white,
+ interior code app={\node[fill=col3, anchor=west,text width=0.5cm,text badly centered]at ([shift={(0.1,-0.5)}]frame.north west){{\large\color{white} \textbf{\centering\thetcbcounter}}};},nobeforeafter}
+%============================================================
+%======================================================
+%list
+%========================================
+\newtcbox{\lblbox}{enhanced, drop fuzzy shadow=Gray, tcbox raise base, boxrule=0.6pt, left=1pt, right=2pt, top=0pt, bottom=0pt, colback=cyan!30, colframe=SlateGrey}
+%=======================================
+\newlist{listexos}{enumerate}{2} % en espérant qu’il n’ait pas plus d’un niveau de sous-questions
+\setlist[listexos,1]{label =\lblbox{\arabic*}, font=\itshape\bfseries\large, wide=0pt, leftmargin=*}
+%============================================================
+%============================================================
+%================================================================
+\AddToShipoutPictureBG{\ifnum\value{page}=1\begin{tikzpicture}[remember picture,overlay]
+ \fill[\BoxColor]([yshift=1cm]current page.south west)rectangle(current page.south east) ;
+ \node[circle,draw=white,line width=2pt,minimum size=0.3cm,fill=\BoxColor,font=\bfseries\color{white}]at([yshift=0.9cm]current page.south){\thepage};
+ \fill[subsection@title@color] ([shift={(0,-10)}]current page.north west) rectangle ++(0.8,-8.8);
+ \foreach \i [count=\j starting from 1]in {1, 3/2, 11/6, 25/12, 137/60, 49/20, 363/140,
+ 761/280, 7129/2520, 7381/2520}
+ {
+ \fill[subsection@title@color] ([yshift={-8.1cm-2*\i*1cm-10cm}]current page.north west)
+ rectangle ++(0.8,1/\j);}
+ \node[fill=\BoxColor,inner sep=-1pt,rectangle,text width=30pt,
+ text height=28cm,align=center,anchor=north east]
+ at ($ (current page.north east)+(0,-9) $)
+ {};
+ \node[anchor=west]at([yshift=.5cm]current page.south west){{ \textbf{\color{white}Author: Rezak Souilah }}};
+ \node[anchor=east]at([yshift=.5cm]current page.south east){{ \textbf{\color{white}请与Email: rezazsouilah@gmail.com 联系}}};
+ \end{tikzpicture}\else
+ \begin{tikzpicture}[remember picture,overlay]
+ \fill[\BoxColor]([yshift=1cm]current page.south west)rectangle(current page.south east) ;
+ \end{tikzpicture}
+ \fi }
+%===============================================================
+%============================================================
+\pagestyle{plain}
+\newcounter{chapshift}
+\addtocounter{chapshift}{-1}
+\newcommand\BoxColor{myblueii}
+\def\subsectiontitle{}
+\renewcommand{\sectionmark}[1]{\markright{\sffamily\normalsize#1}{}}
+\renewcommand{\subsectionmark}[1]{\def\subsectiontitle{#1}}
+\usepackage{etoolbox,fancyhdr}
+\pagestyle{fancy}
+\renewcommand{\headrule}{{\color{myblueii}%
+ \hrule width\headwidth height\headrulewidth depth\headrulewidth}}
+\renewcommand{\chaptermark}[1]{\markboth{\sffamily\normalsize\bfseries \ #1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\sffamily\normalsize#1}{}}
+%======================================================
+\newcommand{\Z}{\phantom{Z}} % Filler to define baseline of empty circles
+\fancyhf{}
+\DeclareRobustCommand{\bul}{\begin{tikzpicture}[baseline={(current bounding box.south)}]
+ \fill [\BoxColor,anchor=base,baseline] circle (1mm);
+ \end{tikzpicture}}
+\renewcommand{\chaptermark}[1]{\markboth{第 \thechapter~章%
+ \bul~#1}{}}
+\renewcommand{\sectionmark}[1]{\markright{Section \thesection~%
+ \bul~#1}{}}
+\renewcommand\headrulewidth{0pt}
+\fancyhead[LO]{\bfseries\color{\BoxColor}\leftmark}
+\fancyhead[RE]{\bfseries\color{\BoxColor}\rightmark}
+\fancyhead[RO]
+{\begin{tikzpicture}[baseline, every node/.style={minimum size=8mm, anchor=base}]
+ \path node at (0,0) [shape=circle, fill=cyan!20] (0,0) {\Z} 
+ node at (1,0) [shape=circle, fill=cyan!40] (0,0) {\Z} 
+ node at (2,0) [shape=circle, fill=cyan!60,font=\bfseries\color{white}] (0,0) {\thepage}; 
+ \end{tikzpicture}}
+\fancyhead[LE]
+{\begin{tikzpicture}[baseline, every node/.style={minimum size=8mm, anchor=base}]
+ \path node at (0,0) [shape=circle, fill=cyan!60,font=\bfseries\color{white}] (0,0) {\thepage} 
+ node at (1,0) [shape=circle, fill=cyan!40] (0,0) {\Z} 
+ node at (2,0) [shape=circle, fill=cyan!20] (0,0) {\Z};
+ \end{tikzpicture}}
+%================================================================
+\fancyhead[LO]{\textcolor{mybluei} \rightmark%
+ \begin{tikzpicture}[overlay,remember picture]
+ \node[fill=\BoxColor,inner sep=-1pt,rectangle,text width=1cm,
+ text height=28cm,align=center,anchor=north east]
+ at ($ (current page.north east) $)
+ {\rotatebox{90}{\parbox{18cm}{%
+ \centering\textcolor{white}{\bfseries\scshape 奇数页\leftmark}}}};%奇数页
+ \fill[\BoxColor] (current page.north west) rectangle ++(0.8,-8.8);
+ \foreach \i [count=\j starting from 1]in {1, 3/2, 11/6, 25/12, 137/60, 49/20, 363/140,
+ 761/280, 7129/2520, 7381/2520}
+ {
+ \fill[\BoxColor] ([yshift={-8.1cm-2*\i*1cm}]current page.north west)
+ rectangle ++(0.8,1/\j);}
+ \end{tikzpicture}}
+\fancyhead[RE]{\textcolor{mybluei}\leftmark%
+ \begin{tikzpicture}[overlay,remember picture]
+ \node[fill=\BoxColor,inner sep=0pt,rectangle,text width=1cm,
+ text height=28cm,align=center,anchor=north west]
+ at ($ (current page.north west) $)
+ {\rotatebox{90}{\parbox{18cm}{%
+ \centering\textcolor{white}{\bfseries\scshape 偶数页\leftmark }}}};%偶数页
+ \fill[\BoxColor] (current page.north east) rectangle ++(-0.8,-8.8);
+ \foreach \i [count=\j starting from 1]in {1, 3/2, 11/6, 25/12, 137/60, 49/20, 363/140,
+ 761/280, 7129/2520, 7381/2520}
+ {
+ \fill[\BoxColor] ([yshift={-8.1cm-2*\i*1cm}]current page.north east)
+ rectangle ++(-0.8,1/\j);}
+ \end{tikzpicture}}
+%=====================================================
+\renewcommand{\headrulewidth}{1pt}
+\addtolength{\headheight}{2.5pt}
+\renewcommand{\footrulewidth}{1pt}
+\fancyfoot[LE,RO]{\footnotesize\bfseries\itshape Foot 1}
+\fancyfoot[C]{\footnotesize\bfseries Foot 2}
+\fancyfoot[RE,LO]{\footnotesize\bfseries\itshape Foot 3}
+%======================================
+\makeatletter
+\renewcommand{\cleardoublepage}{
+ \clearpage\ifodd\c@page\else
+ \hbox{}
+ \vspace*{\fill}
+ \thispagestyle{empty}
+ \newpage
+ \fi}
+\makeatother
+%==============
+%======================================================
+\begin{document}
+\chapter{矩阵}
+\section{Notions générales}
+\begin{definition}
+ Une Matrice est un tableau rectangulaire de la forme
+ \begin{equation*}
+ A = 
+ \left[
+ \begin{array}{ccc>{\columncolor{clight2}}c cc} 
+ a_{11} & a_{12} & \cdots &  a_{1j} & \cdots & a_{1n}\\ 
+ a_{21} & a_{22} & \cdots &  a_{2j} & \cdots & a_{2n}\\ 
+ \vdots & \vdots &\vdots & \vdots & \vdots&\vdots \\
+ \rowcolor{clight2} a_{i1} & a_{i2} & \cdots & \cellcolor[gray]{.6}a_{ij} & \cdots & a_{in}\\
+ \vdots & \vdots &\ddots & \vdots & \vdots &\vdots \\
+ a_{m1} & a_{m2} & \cdots & a_{mj} & \cdots & a_{mn}
+ \end{array}
+ \right]
+ \end{equation*}
+ où les $a_{ij}$ sont des nombres réels appelés les éléments ou coefficients de la matrice $A$. La matrice précédente est aussi notée par $\left(a_{ij}\right),\;i=1,\cdots,m,\;j=1,\cdots,n$, ou simplement par $\left(a_{ij}\right)$. L'élément $a_{ij}$ est situé à l’intersection de la $i$-ème ligne et de la $j$-ème colonne. Une matrice ayant $m$ lignes et $n$ colonnes
+ est appelée une matrice d'ordre $(m,n)$, ou de dimension $m\times n$. Les matrices seront notées habituellement par des lettres capitales $A,\,B,\cdots$, et les éléments par des lettres minuscules $a,\,b,\cdots$.
+\end{definition}
+\mytitle{SKILLS}{PROBLEM-SOLVING}
+On considère les matrices suivantes:
+\begin{equation*}
+A=
+\begin{bmatrix}
+1 & -1 & 2\\
+3 &  \frac{1}{2} & \sqrt{2}
+\end{bmatrix},\;
+B=
+\begin{bmatrix}
+-\sqrt{3} \\
+\frac{1}{5}\\
+1
+\end{bmatrix},\;
+C=
+\begin{bmatrix}
+-1 & 0 & 1 & 5
+\end{bmatrix},\;
+D=
+\begin{bmatrix}
+-1 & 1 & 3 \\
+5 & 6 & 2 \\
+1 & -1 & 0
+\end{bmatrix}.
+\end{equation*}
+\begin{listexos}
+ \item La matrice $A$ est de dimension $2\times 3$ et on a $a_{23}=\sqrt{2},\quad a_{13}=2,\quad a_{22}=\frac{1}{2}$.
+ \item La matrice $B$ est de dimension $3\times 1$ et on a $b_{11}=-\sqrt{3},\quad b_{21}=\frac{1}{5},\quad b_{31}=1$.
+ \item La matrice $C$ est de dimension $1\times 4$ et on a $C_{11}=-1,\quad C_{12}=0,\quad C_{13}=1,\quad C_{14}=5$. 
+ \item La matrice $D$ est de dimension $3\times 3$ et on a $D_{33}=0,\quad D_{23}=2,\quad D_{32}=-1$. 
+\end{listexos} 
+\subsection{小小节矩阵}
+\begin{definition}
+ Deux matrices $A$ et $B$ sont égales, et on écrit
+ $A = B$, si elles ont même dimension et si leurs éléments correspondants sont égaux.
+\end{definition}
+\mytitle{技能}{解题过程}
+考虑如下矩阵 $
+A=
+\begin{bmatrix}
+0 & 1  \\
+2 & 8 
+\end{bmatrix},
+\;
+B=
+\begin{bmatrix}
+0 & x^{2}\\
+\sqrt{y} & z 
+\end{bmatrix}$.
+\begin{itemize}
+ \item Trouver $x,\,y\in\mathbb{R}$ tels que $A=B$.
+\end{itemize}
+\vspace{1cm}
+\begin{mybox}{解题过程}
+ Trouver les valeurs possibles de $x,\,y\in\mathbb{R}$ telles que les matrices
+ \[ 
+ E=
+ \begin{bmatrix}
+ x^{2}-5 & 1 \\
+ 3 & -2y-4  
+ \end{bmatrix}
+ \quad
+ F=
+ \begin{bmatrix}
+ 1 & 1 \\
+ x+2 & 0  
+ \end{bmatrix}.
+ \]
+ soit égales.
+\end{mybox}
+\section{Matrices particulières}
+Dans cette on va définir quelques matrices spéciales.
+\subsection{Matrice ligne}
+\begin{definition}
+ Une matrice ligne est une matrice comportant une seule ligne. Une matrice ligne a donc
+ pour dimension $1\times n$. Une matrice ligne a la forme suivante:
+ \begin{equation*}
+ A=
+ \begin{bmatrix}
+ a_{11} & a_{12} & \cdots & a_{1n}
+ \end{bmatrix}_{1\times n}.
+ \end{equation*}
+\end{definition}
+\mytitle{SKILLS}{PROBLEM-SOLVING}
+La matrice
+$
+A=
+\begin{bmatrix}
+1 & 2 & -1 & 5 & 0
+\end{bmatrix}
+$ est une matrice ligne de dimension $1\times 5$.
+\subsection{Matrice colone}
+\begin{definition}
+ Une matrice colonne est une matrice comportant une seule colonne.  Une matrice colonne a donc
+ pour dimension $m\times 1$. Une matrice colonne a la forme suivante:
+ \begin{equation*}
+ A=\begin{bmatrix}
+ a_{11}  \\
+ a_{21}  \\
+ \vdots  \\
+ a_{n1}
+ \end{bmatrix}_{n\times 1}.
+ \end{equation*}
+\end{definition}
+\mytitle{SKILLS}{PROBLEM-SOLVING}
+La matrice
+$
+A=
+\begin{bmatrix}
+-1 \\
+0 \\
+2 \\
+4
+\end{bmatrix}$ est une matrice colonne de dimension $4\times 1$.
+\section{Opérations sur les matrice}
+Dans cette section on va définir les opérations algébriques sur les matrices.
+\subsection{Somme de deux matrices}
+\begin{definition}
+ Soit $A$ et $B$ deux matrices de même dimension. La somme de $A$ et $B$, écrite $A+B$, est la matrice obtenue en ajoutant les éléments correspondants des deux matrices.
+ \begin{equation*}
+ \begin{aligned}
+ &\text{Si}\quad A=\begin{bmatrix}
+ a_{11} & a_{12} & a_{13}\\
+ a_{21} & a_{22}  & a_{23}
+ \end{bmatrix}_{2\times 3}\;\text{et}\quad
+ B=\begin{bmatrix}
+ b_{11} & b_{12} & b_{13}\\
+ b_{21} & b_{22}  & b_{23}
+ \end{bmatrix}_{2\times 3},
+ \\ \ \\
+ &\text{alors}\quad A+B=\begin{bmatrix}
+ a_{11}+b_{11} & a_{12}+b_{12} & a_{13}+b_{13}\\
+ a_{21}+b_{21} & a_{22}+b_{22}  & a_{23}+b_{23}
+ \end{bmatrix}_{2\times 3}.
+ \end{aligned}
+ \end{equation*}
+\end{definition}
+\mytitle{SKILLS}{PROBLEM-SOLVING}
+On considère les matrices: 
+\begin{equation*}
+A=
+\begin{bmatrix}
+-2 & 0 & 1\\
+1 & 3  & -1\\
+\end{bmatrix},\;
+B=
+\begin{bmatrix}
+1 & 2 \\
+1 & 0 \\
+0 & 4
+\end{bmatrix},\;
+C=
+\begin{bmatrix}
+-2 & 1 \\
+4 & 3 \\
+-1 & -1
+\end{bmatrix},\;
+D=
+\begin{bmatrix}
+1 & 1 & 0\\
+2 & 0 & 4
+\end{bmatrix}.
+\end{equation*}
+\begin{listexos}
+ \item Calchler $B+C$.
+ \begin{equation*}
+ B+C=\begin{bmatrix}
+ 1 & 2 \\
+ 1 & 0 \\
+ 0 & 4
+ \end{bmatrix}+
+ \begin{bmatrix}
+ -2 & 1 \\
+ 4 & 3 \\
+ -1 & -1
+ \end{bmatrix}=
+ \begin{bmatrix}
+ 1+(-2) & 2+1 \\
+ 1+4 & 0+3 \\
+ 0+1 & 4+(-1)
+ \end{bmatrix}=
+ \begin{bmatrix}
+ -1 & 3 \\
+ 5 & 3 \\
+ 1 & 3
+ \end{bmatrix}.
+ \end{equation*} 
+ \item Calculer $A+D$.
+ \begin{equation*}
+ A+D=\begin{bmatrix}
+ -2 & 0 & 1 \\
+ 1 & 3  & -1
+ \end{bmatrix}+
+ \begin{bmatrix}
+ 1 & 1 & 0\\
+ 2 & 0 & 4
+ \end{bmatrix}=
+ \begin{bmatrix}
+ -2+1 & 0+1 & 1+0\\
+ 1+2 & 3+0 & -1+4
+ \end{bmatrix}=
+ \begin{bmatrix}
+ -1 & 1 & 1\\
+ 3 & 3 & 3
+ \end{bmatrix}.
+ \end{equation*}
+ \item  La somme de $A$ et $B$ n’est pas définie car $A$ et $B$ ne sont pas de même dimension.
+\end{listexos}
+\newpage
+\section{Exercices}
+\begin{multicols*}{2} 
+ \sect{Calcul matriciel}
+ \begin{Exercice}
+ On considère les matrices
+ \[ 
+ A=\begin{pmatrix}
+ 4 & 8 \\
+ 1 & 2  
+ \end{pmatrix},\;
+ B=\begin{pmatrix}
+ 3 & 9 \\
+ 1 & 1  
+ \end{pmatrix}.
+ \]
+ \begin{listexos}
+ \item Calculer $A+B,\,AB,\;BA,\,A^2$ et $B^2$.
+ \item A-t-on $(A+B)^2=A^2+2AB+B^2$? 
+ \item Mêmes questions pour les matrices 
+ \[ 
+ A=\begin{pmatrix}
+ 1 & 0 \\
+ 2 & 1 
+ \end{pmatrix},\;B=\begin{pmatrix}
+ 2 & 0 \\
+ 1 & 2  
+ \end{pmatrix}.
+ \]
+ \end{listexos}
+ \end{Exercice}
+ \begin{Exercice}
+ On considère les matrices
+ \[ 
+ A=\begin{pmatrix}
+ x & 5 \\
+ 0 & 2x  
+ \end{pmatrix},\;B=\begin{pmatrix}
+ y & 7 \\
+ -1 & 3y  
+ \end{pmatrix}.
+ \] 
+ \begin{listexos}
+ \item  Trouver $x,y\in\mathbb{R}$ tels que
+ \[ 
+ A+B=\begin{pmatrix}
+ 4 & 12 \\
+ -1 & 17  
+ \end{pmatrix}.
+ \]
+ \item Trouver $x,y\in\mathbb{R}$ tels que
+ \[ 
+ 2A-4B=\begin{pmatrix}
+ -5 & -18 \\
+ 4 & -16  
+ \end{pmatrix}.
+ \]
+ \end{listexos}
+ \end{Exercice}  
+ \begin{Exercice}
+ On considère la matrice
+ \[ 
+ A=
+ \begin{pmatrix}
+ x & 1 \\
+ 2 & 3  
+ \end{pmatrix},\quad x\in\mathbb{R}.
+ \]
+ \begin{itemize}
+ \item Trouver $x$ tel que $A^2=\begin{pmatrix}
+ 6 & 1 \\
+ 2 & 11  
+ \end{pmatrix}$ 
+ \end{itemize}
+ \end{Exercice}  
+ \begin{Exercice}
+ On considère les matrices 
+ \[ 
+ \begin{aligned}
+ &A=
+ \begin{pmatrix}
+ 1 & 3 \\
+ -4 & 2 \\
+ 0 & 7 
+ \end{pmatrix},
+ \;
+ B=
+ \begin{pmatrix}
+ -2 & 0 \\
+ -2 & 1 \\
+ 8 & 1 
+ \end{pmatrix},
+ \\
+ &C=
+ \begin{pmatrix}
+ -4 & 6 \\
+ -14 & 7 \\
+ 24 & 17 
+ \end{pmatrix}.
+ \end{aligned}
+ \]
+ \begin{itemize}
+ \item Trouver $x, y\in\mathbb{R}$ tels que $xA+yB=C$.
+ \end{itemize}
+ \end{Exercice}  
+ \begin{Exercice}
+ Calculer si possible les produits matriciels suivants: 
+ \begin{listexos}
+ \item 
+ \[ 
+ \begin{pmatrix}
+ 2 & 5 \\
+ 3 & 6\\
+ 4 & 7 
+ \end{pmatrix}
+ \times
+ \begin{pmatrix}
+ 2 & 5 \\
+ 4 & 6 
+ \end{pmatrix}
+ \]
+ \item 
+ \[ 
+ \begin{pmatrix}
+ -1 & 4 & 5
+ \end{pmatrix}
+ \times
+ \begin{pmatrix}
+ 0 & 1 & 6\\
+ 3 & -1 & 4\\
+ 3 & 5 & -2
+ \end{pmatrix}
+ \]
+ \item 
+ \[ 
+ \begin{pmatrix}
+ 2 & -3 & 4\\
+ -1 & 2& 6\\
+ 4 & -3 & -3
+ \end{pmatrix}
+ \times
+ \begin{pmatrix}
+ 1 & 2 & -3\\
+ 0 & -4 & 1
+ \end{pmatrix}
+ ^T
+ \]
+ \end{listexos}
+ \end{Exercice}  
+\end{multicols*}
+\chapter{强制将数据和逻辑分离}
+强制将数据和逻辑分离
+\begin{itemize}
+	\item 简单: 只需在 UAnimInstance 子类中重载一个函数，无需创建和管理额外的代理（Proxy）结构体。
+	\item 快速实现: 对于简单的属性复制和计算，这种方式的代码量更少，更容易理解。
+\end{itemize}
+\end{document}
