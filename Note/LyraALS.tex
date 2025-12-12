@@ -121,13 +121,14 @@ at ([shift={(10,2)}]num) {#1};
 {\titlerule[2pt]\vspace*{5ex}\huge\normalfont}
 %===============================================================
 %%%%%%%%%%%%% Titre de section %%%%%%%%%%%%%%%%%%%%%
-\renewcommand{\thesection}{\Roman{section}}
+%定制\thesection，只显示节编号
+\renewcommand{\thesection}{\arabic{section}}
 \def\sectiontitlefont{\fontfamily{ugq}\selectfont}
 %================================================
 \newcommand\SecTitle[4]{%
  \hspace*{-1.5cm}\begin{tikzpicture}
  \node[inner xsep=0pt,minimum height=3cm,text width=0.8\textwidth,
- align=left,left color=gray,right color=white, signal to=#1,font=\LARGE,anchor=#2] (A)
+ align=left,left color=white,right color=myblueii, signal to=#1,font=\LARGE\bfseries,anchor=#2] (A)
  at (#3,0) {\hspace*{2.25cm}#4};
  %===============================================================
  %==================================================
@@ -309,8 +310,7 @@ at ([shift={(10,2)}]num) {#1};
  \end{tikzpicture}}
 \renewcommand{\chaptermark}[1]{\markboth{第~\chinese{chapter}~章%
  \bul~#1}{}}
-\renewcommand{\sectionmark}[1]{\markright{Section \thesection~%
- \bul~#1}{}}
+\renewcommand{\sectionmark}[1]{\markright{第~\thesection~\bul~#1~节}{}}
 \renewcommand\headrulewidth{0pt}
 \fancyhead[LO]{\bfseries\color{\BoxColor}\leftmark}
 \fancyhead[RE]{\bfseries\color{\BoxColor}\rightmark}
@@ -377,8 +377,9 @@ at ([shift={(10,2)}]num) {#1};
 %==============
 %======================================================
 \begin{document}
-\chapter{矩阵}
-\section{Notions générales}
+\chapter{原地转身}
+\section{预先处理动画}
+要添加一些曲线。
 \begin{definition}
  Une Matrice est un tableau rectangulaire de la forme
  \begin{equation*}
