@@ -1,0 +1,28 @@
+\documentclass[9pt,openright,twoside,CJKmath]{MyBook}
+\usepackage{layout}
+\usepackage{annotate-equations}
+\usepackage{xurl}
+\usepackage[urlcolor=blue,linkcolor=blue,colorlinks]{hyperref}
+\tikzset{annotate equations/arrow/.style={color=orange, >=latex', very thick, dashed}}
+\renewcommand{\eqnannotationfont}{\sffamily\footnotesize}
+\usepackage{amsmath, amssymb}
+\usepackage{longtable,booktabs,calc}
+\usepackage{float}
+
+\RequirePackage[force]{filehook} % Fixes an error
+\RequirePackage{unicode-math} % Math fonts in xetexorluatex
+\setromanfont[Scale=1.04]{Libertinus Serif}
+\setsansfont[Scale=1]{Libertinus Sans}
+%	\setmonofont[
+%		Scale=.89
+%	]{Liberation Mono}
+\setmathfont{Libertinus Math}
+\usepackage[normalem]{ulem}
+\begin{document}
+\renewcommand{\texttt}[1]{\textcolor{blue}{\ttfamily~#1}}
+\mainmatter
+
+\setchapterimage{background}
+
+\input{./chapters/p4.tex}
+\end{document}

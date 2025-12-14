@@ -108,7 +108,7 @@ protected:
 	float AccelLocomotionAngle;
 
 	// RootYawOffset
-	UPROPERTY(Transient, BlueprintReadOnly, Category="RootYawOffset")
+	UPROPERTY(Transient, BlueprintReadWrite, Category="RootYawOffset")
 	float RootYawOffset;
 	UPROPERTY(Transient, BlueprintReadWrite, Category="RootYawOffset")
 	ERootYawOffsetMode RootYawOffsetMode{ERootYawOffsetMode::BlendOut};
