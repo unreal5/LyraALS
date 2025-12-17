@@ -138,7 +138,9 @@ void ULyraAnimInst::GetCharacterStates()
 	CurrentGait = InComingGait;
 	IsGaitChanged = (CurrentGait != LastFrameGait);
 
+	LastFrameIsCrouching = IsCrouching;
 	IsCrouching = InComingGait == EGaitType::Crouching;
+	CrouchStateChanged = (IsCrouching != LastFrameIsCrouching);
 }
 
 

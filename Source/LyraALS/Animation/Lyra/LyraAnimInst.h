@@ -115,6 +115,10 @@ protected:
 	
 	UPROPERTY(Transient, BlueprintReadWrite, Category="Crouching")
 	bool IsCrouching;
+	UPROPERTY(Transient, BlueprintReadWrite, Category="Crouching")
+	bool LastFrameIsCrouching;
+	UPROPERTY(Transient, BlueprintReadWrite, Category="Crouching")
+	bool CrouchStateChanged;
 
 private:
 	// virtual FAnimInstanceProxy* CreateAnimInstanceProxy() override;

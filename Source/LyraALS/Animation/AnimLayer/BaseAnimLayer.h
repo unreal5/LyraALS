@@ -21,7 +21,7 @@ public:
 	UFUNCTION(BlueprintPure, Category="Lyra|Animation", meta=(DisplayName="获取主动画实例", BlueprintThreadSafe))
 	ULyraAnimInst* GetABPBase() const;
 
-	UFUNCTION(BlueprintPure, Category="Lyra|Animation", meta=(DisplayName="基于步态和方向选择动画", BlueprintThreadSafe))
+	UFUNCTION(BlueprintPure, Category="Lyra|Animation", meta=(DisplayName="基于步态和方向选择动画", BlueprintThreadSafe, CompactNodeTitle = "选择动画"))
 	UAnimSequenceBase* SelectAnimationBasedOnGaitAndLocomotionDirection(EGaitType InGait, ELocomotionDirection InLocomotionDirection,
 	                                              const TMap<EGaitType, FDirectionalAnimation>& InAnimationMap) const;
 };
