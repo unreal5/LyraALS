@@ -18,6 +18,7 @@ enum class EGaitType : uint8
 {
 	Walking UMETA(DisplayName = "行走"),
 	Jogging UMETA(DisplayName = "慢跑"),
+	Crouching UMETA(DisplayName = "蹲伏"),
 };
 
 UENUM(BlueprintType, Blueprintable)

@@ -42,6 +42,13 @@ void ALyraPlayerController::SetupInputComponent()
 	};
 	EnhancedInputComponent->BindActionValueLambda(AimAction, ETriggerEvent::Triggered, AimBinding, true);
 	EnhancedInputComponent->BindActionValueLambda(AimAction, ETriggerEvent::Completed, AimBinding, false);
+
+	//蹲下
+	auto CrouchingBinding = [this](const FInputActionValue& ActionValue)
+	{
+		OnGaitChanged.Broadcast(EGaitType::Crouching);
+	};;
+	EnhancedInputComponent->BindActionValueLambda(CrouchingAction, ETriggerEvent::Started, CrouchingBinding);
 }
 
 void ALyraPlayerController::Move(const FInputActionValue& Value)

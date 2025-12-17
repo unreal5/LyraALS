@@ -113,6 +113,8 @@ protected:
 	UPROPERTY(Transient, BlueprintReadWrite, Category="RootYawOffset")
 	ERootYawOffsetMode RootYawOffsetMode{ERootYawOffsetMode::BlendOut};
 	
+	UPROPERTY(Transient, BlueprintReadWrite, Category="Crouching")
+	bool IsCrouching;
 
 private:
 	// virtual FAnimInstanceProxy* CreateAnimInstanceProxy() override;
