@@ -125,6 +125,7 @@ void ULyraAnimInst::UpdateOrientationData()
 */
 	VelocityLocomotionAngle = UKismetAnimationLibrary::CalculateDirection(CharacterVelocity2D, WorldRotation);
 	VelocityLocomotionAngleWithOffset = UKismetMathLibrary::NormalizeAxis(VelocityLocomotionAngle - RootYawOffset);
+	LastFrameVelocityLocomotionDirection = VelocityLocomotionDirection;
 	VelocityLocomotionDirection = CalculateLocomotionDirection(VelocityLocomotionAngle, VelocityLocomotionDirection);
 
 	// 计算加速度和角色朝向的夹角，用于判断角色做pivot运动时选择哪个方向的动画
