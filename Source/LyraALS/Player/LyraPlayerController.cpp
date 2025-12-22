@@ -2,7 +2,7 @@
 
 
 #include "LyraPlayerController.h"
-
+#include "GameFramework/Character.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Enumeration/EnumTypes.h"
@@ -49,6 +49,24 @@ void ALyraPlayerController::SetupInputComponent()
 		OnGaitChanged.Broadcast(EGaitType::Crouching);
 	};;
 	EnhancedInputComponent->BindActionValueLambda(CrouchingAction, ETriggerEvent::Started, CrouchingBinding);
+	
+	//跳跃
+	auto JumpingBinding = [this](const FInputActionValue& ActionValue, bool bIsJumping)
+	{
+		ACharacter* Char = GetPawn<ACharacter>();
+		if (!Char) return;
+		
+		if (bIsJumping)
+		{
+			Char->Jump();
+		}
+		else
+		{
+			Char->StopJumping();
+		}
+	};;
+	EnhancedInputComponent->BindActionValueLambda(JumpingAction, ETriggerEvent::Started, JumpingBinding, true);
+	EnhancedInputComponent->BindActionValueLambda(JumpingAction, ETriggerEvent::Completed, JumpingBinding, false);
 }
 
 void ALyraPlayerController::Move(const FInputActionValue& Value)

@@ -44,6 +44,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<UInputAction> CrouchingAction;
 	
+	UPROPERTY(EditAnywhere, Category="Input")
+	TObjectPtr<UInputAction> JumpingAction;
+	
 	virtual void SetupInputComponent() override;
 
 public:
