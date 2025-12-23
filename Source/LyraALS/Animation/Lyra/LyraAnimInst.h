@@ -120,6 +120,16 @@ protected:
 	UPROPERTY(Transient, BlueprintReadWrite, Category="Crouching")
 	bool CrouchStateChanged;
 
+	// jump 
+	UPROPERTY(Transient, BlueprintReadOnly, Category="Jumping")
+	bool IsJumping = false;
+	UPROPERTY(Transient, BlueprintReadOnly, Category="Jumping")
+	bool IsFalling = false;
+	UPROPERTY(Transient, BlueprintReadOnly, Category="Jumping")
+	bool IsInAir = false;
+	/* 每帧初始值，也是计算的依据 */
+	EMovementMode CurrentFrameMovementMode = EMovementMode::MOVE_Walking;
+	
 private:
 	// virtual FAnimInstanceProxy* CreateAnimInstanceProxy() override;
 	// virtual void DestroyAnimInstanceProxy(FAnimInstanceProxy* InProxy) override;

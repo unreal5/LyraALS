@@ -53,17 +53,7 @@ void ALyraPlayerController::SetupInputComponent()
 	//跳跃
 	auto JumpingBinding = [this](const FInputActionValue& ActionValue, bool bIsJumping)
 	{
-		ACharacter* Char = GetPawn<ACharacter>();
-		if (!Char) return;
-		
-		if (bIsJumping)
-		{
-			Char->Jump();
-		}
-		else
-		{
-			Char->StopJumping();
-		}
+		OnJump.Broadcast(bIsJumping);
 	};;
 	EnhancedInputComponent->BindActionValueLambda(JumpingAction, ETriggerEvent::Started, JumpingBinding, true);
 	EnhancedInputComponent->BindActionValueLambda(JumpingAction, ETriggerEvent::Completed, JumpingBinding, false);

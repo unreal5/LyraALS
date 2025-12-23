@@ -61,6 +61,9 @@ void ULyraAnimInst::NativeUpdateAnimation(float DeltaSeconds)
 
 	// 旋转相关。
 	WorldRotation = OwningCharacter->GetActorRotation();
+
+	// 运动模式相关
+	CurrentFrameMovementMode = CharacterMovementComponent->MovementMode;
 }
 
 // 线程安全的更新动画，运行于动画线程
@@ -142,6 +145,10 @@ void ULyraAnimInst::GetCharacterStates()
 	LastFrameIsCrouching = IsCrouching;
 	IsCrouching = InComingGait == EGaitType::Crouching;
 	CrouchStateChanged = (IsCrouching != LastFrameIsCrouching);
+	// 计算跳跃状态
+	IsInAir = CurrentFrameMovementMode == EMovementMode::MOVE_Falling;
+	IsJumping = IsInAir && CharacterVelocity.Z > 0.f;
+	IsFalling = IsInAir && CharacterVelocity.Z < 0.f;
 }
 
 
