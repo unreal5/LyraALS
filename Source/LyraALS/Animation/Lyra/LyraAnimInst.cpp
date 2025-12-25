@@ -64,6 +64,8 @@ void ULyraAnimInst::NativeUpdateAnimation(float DeltaSeconds)
 
 	// 运动模式相关
 	CurrentFrameMovementMode = CharacterMovementComponent->MovementMode;
+	// 重力相关
+	GravityZ = CharacterMovementComponent->GetGravityZ() * CharacterMovementComponent->GravityScale;
 }
 
 // 线程安全的更新动画，运行于动画线程
@@ -147,8 +149,11 @@ void ULyraAnimInst::GetCharacterStates()
 	CrouchStateChanged = (IsCrouching != LastFrameIsCrouching);
 	// 计算跳跃状态
 	IsInAir = CurrentFrameMovementMode == EMovementMode::MOVE_Falling;
-	IsJumping = IsInAir && CharacterVelocity.Z > 0.f;
-	IsFalling = IsInAir && CharacterVelocity.Z < 0.f;
+	const float ZVelocity = CharacterVelocity.Z;
+	IsJumping = IsInAir && ZVelocity > 0.f;
+	IsFalling = IsInAir && ZVelocity < 0.f;
+	// 只有在IsJumping情况下才计算达最高点(Apex)的时间。
+	TimeToJumpApex = IsJumping ? FMath::Abs(UKismetMathLibrary::SafeDivide(ZVelocity, GravityZ)) : 0.f;
 }
 
 

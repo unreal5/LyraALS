@@ -129,7 +129,10 @@ protected:
 	bool IsInAir = false;
 	/* 每帧初始值，也是计算的依据 */
 	EMovementMode CurrentFrameMovementMode = EMovementMode::MOVE_Walking;
-	
+	float GravityZ;
+	UPROPERTY(Transient, BlueprintReadOnly, Category="Jumping")
+	float TimeToJumpApex = 0.f;
+
 private:
 	// virtual FAnimInstanceProxy* CreateAnimInstanceProxy() override;
 	// virtual void DestroyAnimInstanceProxy(FAnimInstanceProxy* InProxy) override;
