@@ -7,6 +7,7 @@
 #include "Enumeration/EnumTypes.h"
 #include "Interface/CombatInterface.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Player/LyraCharacterMovementComponent.h"
 #include "Struct/StructTypes.h"
 #include "LyraAnimInst.generated.h"
 
@@ -112,7 +113,7 @@ protected:
 	float RootYawOffset;
 	UPROPERTY(Transient, BlueprintReadWrite, Category="RootYawOffset")
 	ERootYawOffsetMode RootYawOffsetMode{ERootYawOffsetMode::BlendOut};
-	
+
 	UPROPERTY(Transient, BlueprintReadWrite, Category="Crouching")
 	bool IsCrouching;
 	UPROPERTY(Transient, BlueprintReadWrite, Category="Crouching")
@@ -127,24 +128,24 @@ protected:
 	bool IsFalling = false;
 	UPROPERTY(Transient, BlueprintReadOnly, Category="Jumping")
 	bool IsInAir = false;
+
 	/* 每帧初始值，也是计算的依据 */
 	EMovementMode CurrentFrameMovementMode = EMovementMode::MOVE_Walking;
 	float GravityZ;
 	UPROPERTY(Transient, BlueprintReadOnly, Category="Jumping")
 	float TimeToJumpApex = 0.f;
+	UPROPERTY(Transient, BlueprintReadOnly, Category="Jumping")
+	float GroundDistance;
 
 private:
-	// virtual FAnimInstanceProxy* CreateAnimInstanceProxy() override;
-	// virtual void DestroyAnimInstanceProxy(FAnimInstanceProxy* InProxy) override;
-
 	UPROPERTY()
 	TWeakObjectPtr<ACharacter> OwningCharacter;
-	
+
 	UPROPERTY()
 	TWeakObjectPtr<UCharacterMovementComponent> CharacterMovementComponent;
-	
+
 	FFloatSpringState FloatSpringState;
-	
+
 	void GetVelocityData();
 	void GetAccelerationData();
 	void GetLocationData(float DeltaTime);

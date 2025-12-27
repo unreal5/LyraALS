@@ -7,6 +7,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Player/LyraCharacter.h"
+#include "Player/LyraCharacterMovementComponent.h"
 
 namespace
 {
@@ -66,6 +67,11 @@ void ULyraAnimInst::NativeUpdateAnimation(float DeltaSeconds)
 	CurrentFrameMovementMode = CharacterMovementComponent->MovementMode;
 	// 重力相关
 	GravityZ = CharacterMovementComponent->GetGravityZ() * CharacterMovementComponent->GravityScale;
+	
+	// 更新地面数据
+	ULyraCharacterMovementComponent* CharMoveComp = CastChecked<ULyraCharacterMovementComponent>(CharacterMovementComponent);
+	const FLyraCharacterGroundInfo& GroundInfo = CharMoveComp->GetGroundInfo();
+	GroundDistance = GroundInfo.GroundDistance;
 }
 
 // 线程安全的更新动画，运行于动画线程
