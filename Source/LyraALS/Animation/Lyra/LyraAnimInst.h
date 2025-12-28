@@ -136,6 +136,8 @@ protected:
 	float TimeToJumpApex = 0.f;
 	UPROPERTY(Transient, BlueprintReadOnly, Category="Jumping")
 	float GroundDistance;
+	UPROPERTY(Transient, BlueprintReadWrite, Category="Jumping")
+	float TimeFalling = 0.f;
 
 private:
 	UPROPERTY()
@@ -151,6 +153,6 @@ private:
 	void GetLocationData(float DeltaTime);
 	void GetRotationData(float DeltaTime);
 	void UpdateOrientationData();
-	void GetCharacterStates();
+	void GetCharacterStates(float DeltaTime);
 	void UpdateRootYawOffset(float DeltaTime);
 };

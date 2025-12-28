@@ -16,7 +16,7 @@ namespace
 	                                                  float BackwardMax = 130.f, float ForwardMin = -50.f,
 	                                                  float ForwardMax = 50.f);
 
-	float SetRootYawOffset(float CompensationAnlge);
+	float SetRootYawOffset(float CompensationAngle);
 }
 
 
@@ -67,9 +67,10 @@ void ULyraAnimInst::NativeUpdateAnimation(float DeltaSeconds)
 	CurrentFrameMovementMode = CharacterMovementComponent->MovementMode;
 	// 重力相关
 	GravityZ = CharacterMovementComponent->GetGravityZ() * CharacterMovementComponent->GravityScale;
-	
+
 	// 更新地面数据
-	ULyraCharacterMovementComponent* CharMoveComp = CastChecked<ULyraCharacterMovementComponent>(CharacterMovementComponent);
+	ULyraCharacterMovementComponent* CharMoveComp = CastChecked<ULyraCharacterMovementComponent>(
+		CharacterMovementComponent);
 	const FLyraCharacterGroundInfo& GroundInfo = CharMoveComp->GetGroundInfo();
 	GroundDistance = GroundInfo.GroundDistance;
 }
@@ -83,7 +84,7 @@ void ULyraAnimInst::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 	GetLocationData(DeltaSeconds);
 	GetRotationData(DeltaSeconds);
 	UpdateOrientationData();
-	GetCharacterStates();
+	GetCharacterStates(DeltaSeconds);
 	UpdateRootYawOffset(DeltaSeconds);
 }
 
@@ -129,11 +130,11 @@ void ULyraAnimInst::GetRotationData(float DeltaTime)
 void ULyraAnimInst::UpdateOrientationData()
 {
 	/*
-* Returns degree of the angle between Velocity and Rotation forward vector The range of return will be from [-180, 180]. Useful for feeding directional blendspaces.
-* Params: 
-*		Velocity — The velocity to use as direction relative to BaseRotation
-*		BaseRotation — The base rotation, e.g. of a pawn
-*/
+	 * Returns degree of the angle between Velocity and Rotation forward vector The range of return will be from [-180, 180]. Useful for feeding directional blend space.
+	 * Params: 
+	 *		Velocity — The velocity to use as direction relative to BaseRotation
+	 *		Base Rotation — The base rotation, e.g. of a pawn
+	 */
 	VelocityLocomotionAngle = UKismetAnimationLibrary::CalculateDirection(CharacterVelocity2D, WorldRotation);
 	VelocityLocomotionAngleWithOffset = UKismetMathLibrary::NormalizeAxis(VelocityLocomotionAngle - RootYawOffset);
 	LastFrameVelocityLocomotionDirection = VelocityLocomotionDirection;
@@ -144,7 +145,7 @@ void ULyraAnimInst::UpdateOrientationData()
 	AccelLocomotionDirection = CalculateLocomotionDirection(AccelLocomotionAngle, AccelLocomotionDirection);
 }
 
-void ULyraAnimInst::GetCharacterStates()
+void ULyraAnimInst::GetCharacterStates(float DeltaTime)
 {
 	LastFrameGait = CurrentGait;
 	CurrentGait = InComingGait;
@@ -160,6 +161,18 @@ void ULyraAnimInst::GetCharacterStates()
 	IsFalling = IsInAir && ZVelocity < 0.f;
 	// 只有在IsJumping情况下才计算达最高点(Apex)的时间。
 	TimeToJumpApex = IsJumping ? FMath::Abs(UKismetMathLibrary::SafeDivide(ZVelocity, GravityZ)) : 0.f;
+	// 计算下落时间。
+	if (IsFalling)
+	{
+		TimeFalling += DeltaTime;
+	}
+	else
+	{
+		if (IsJumping) // 刚起跳，重置下落时间。否则保持不变，我们可以用它来判断短跳还是长跳
+		{
+			TimeFalling = 0.f;
+		}
+	}
 }
 
 
@@ -169,8 +182,8 @@ void ULyraAnimInst::UpdateRootYawOffset(float DeltaTime)
 	{
 	case ERootYawOffsetMode::Accumulate:
 		{
-			const float CompensationAnlge = RootYawOffset - DeltaActorYaw;
-			RootYawOffset = SetRootYawOffset(CompensationAnlge);
+			const float CompensationAngle = RootYawOffset - DeltaActorYaw;
+			RootYawOffset = SetRootYawOffset(CompensationAngle);
 		}
 		break;
 	case ERootYawOffsetMode::BlendOut:
