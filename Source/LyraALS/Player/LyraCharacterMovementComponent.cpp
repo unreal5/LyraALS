@@ -28,16 +28,14 @@ const FLyraCharacterGroundInfo& ULyraCharacterMovementComponent::GetGroundInfo()
 	const UCapsuleComponent* CapsuleComp = CharacterOwner->GetCapsuleComponent();
 	check(CapsuleComp);
 
-	const float CapsuleHalfHeight = CapsuleComp->GetUnscaledCapsuleHalfHeight();
-	const ECollisionChannel CollisionChannel = (
-		UpdatedComponent ? UpdatedComponent->GetCollisionObjectType() : ECC_Visibility);
+	const float CapsuleHalfHeight = CapsuleComp->GetScaledCapsuleHalfHeight();
+	constexpr ECollisionChannel CollisionChannel = ECC_Visibility;
 	FVector TraceStart(GetActorLocation());
-	TraceStart.Z-= CapsuleHalfHeight;
-	
-	const FVector TraceEnd(TraceStart.X, TraceStart.Y, TraceStart.Z - GroundTraceDistance);
+	TraceStart.Z -= CapsuleHalfHeight;
 
-	FCollisionQueryParams QueryParams(
-		SCENE_QUERY_STAT(LyraCharacterMovementComponent_GetGroundInfo), false, CharacterOwner);
+	const FVector TraceEnd = TraceStart - FVector(0.f, 0.f, GroundTraceDistance);
+
+	FCollisionQueryParams QueryParams(NAME_None, false, CharacterOwner);
 	FCollisionResponseParams ResponseParam;
 	InitCollisionParams(QueryParams, ResponseParam);
 
@@ -45,7 +43,7 @@ const FLyraCharacterGroundInfo& ULyraCharacterMovementComponent::GetGroundInfo()
 	GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, CollisionChannel, QueryParams, ResponseParam);
 
 	CachedGroundInfo.GroundDistance = HitResult.bBlockingHit
-		                                  ? FMath::Max((HitResult.Distance - CapsuleHalfHeight), 0.0f)
+		                                  ? FMath::Max((HitResult.Distance), 0.0f)
 		                                  : 0.f;
 
 
