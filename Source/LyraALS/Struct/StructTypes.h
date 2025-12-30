@@ -63,3 +63,18 @@ struct LYRAALS_API FPredictGroundMovementStopLocationParams
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta=(Tooltip="角色最大行走速度，并不等同于动画中的速度。"))
 	float CharacterMaxWalkingSpeed{600.f};
 };
+
+USTRUCT(BlueprintType)
+struct LYRAALS_API FWeaponSocketInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FName PistolUnEquipSocketName = "PistolUnEquipped";
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FName RifleUnEquipSocketName = "RifleUnEquipped";
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FName WeaponEquipSocketName = "Weapon_Equipped";
+};
