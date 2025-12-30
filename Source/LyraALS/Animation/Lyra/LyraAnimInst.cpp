@@ -73,6 +73,9 @@ void ULyraAnimInst::NativeUpdateAnimation(float DeltaSeconds)
 		CharacterMovementComponent);
 	const FLyraCharacterGroundInfo& GroundInfo = CharMoveComp->GetGroundInfo();
 	GroundDistance = GroundInfo.GroundDistance;
+
+	// 计算pitch
+	AimPitch = UKismetMathLibrary::NormalizeAxis(OwningCharacter->GetBaseAimRotation().Pitch);
 }
 
 // 线程安全的更新动画，运行于动画线程

@@ -89,7 +89,10 @@ protected:
 	FRotator WorldRotation;
 	UPROPERTY(Transient, BlueprintReadOnly, Category="RotationData")
 	float LeanAngle{0.f};
-
+	UPROPERTY(Transient, BlueprintReadOnly, Category="RotationData")
+	float AimPitch = 0.f;
+	
+	
 	float DeltaActorYaw = 0.f;
 	float LastFrameActorYaw = 0.f;
 
