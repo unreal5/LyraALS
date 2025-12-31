@@ -2,7 +2,6 @@
 
 
 #include "LyraPlayerController.h"
-#include "GameFramework/Character.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Enumeration/EnumTypes.h"
