@@ -56,6 +56,13 @@ void ALyraPlayerController::SetupInputComponent()
 	};;
 	EnhancedInputComponent->BindActionValueLambda(JumpingAction, ETriggerEvent::Started, JumpingBinding, true);
 	EnhancedInputComponent->BindActionValueLambda(JumpingAction, ETriggerEvent::Completed, JumpingBinding, false);
+	
+	auto FireBinding = [this](const FInputActionValue& ActionValue, bool bIsFiring)
+	{
+		OnFire.Broadcast(bIsFiring);
+	};;
+	EnhancedInputComponent->BindActionValueLambda(FireAction, ETriggerEvent::Started, FireBinding, true);
+	EnhancedInputComponent->BindActionValueLambda(FireAction, ETriggerEvent::Completed, FireBinding, false);
 }
 
 void ALyraPlayerController::Move(const FInputActionValue& Value)

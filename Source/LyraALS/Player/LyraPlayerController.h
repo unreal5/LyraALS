@@ -18,6 +18,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSwitchWeaponSignature, EGunType, 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGaitChangedSignature, EGaitType, NewGaitType);
 // 跳跃
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnJumpSignature, bool, bIsJumping);
+// 开火
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnFire, bool, bIsFiring);
 
 UCLASS()
 class LYRAALS_API ALyraPlayerController : public APlayerController
@@ -50,6 +52,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<UInputAction> JumpingAction;
 	
+	UPROPERTY(EditAnywhere, Category="Input")
+	TObjectPtr<UInputAction> FireAction;
+	
 	virtual void SetupInputComponent() override;
 
 public:
@@ -61,7 +66,8 @@ public:
 	FOnGaitChangedSignature OnGaitChanged;
 	UPROPERTY(BlueprintAssignable)
 	FOnJumpSignature OnJump;
-
+	UPROPERTY(BlueprintAssignable)
+	FOnFire OnFire;
 private:
 	void Move(const FInputActionValue& Value);
 	void MouseLook(const FInputActionValue& Value);
